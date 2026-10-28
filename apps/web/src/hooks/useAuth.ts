@@ -2,15 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { UserProfile } from '../lib/types';
-import { devLogin, fetchMyProfile, telegramAuth } from '../lib/api';
-import { useTelegram } from './useTelegram';
+import { fetchMyProfile } from '../lib/api';
 
 export interface UseAuthReturn {
   user: UserProfile | null;
   loading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  loginAs: (userId: string) => Promise<void>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
 }
@@ -18,7 +16,6 @@ export interface UseAuthReturn {
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { initData, isTelegram } = useTelegram();
 
   const loadProfile = useCallback(async (): Promise<void> => {
     try {
@@ -27,6 +24,7 @@ export function useAuth(): UseAuthReturn {
       setUser(profile);
     } catch {
       setUser(null);
+      localStorage.removeItem('pley_token');
     } finally {
       setLoading(false);
     }
@@ -34,43 +32,17 @@ export function useAuth(): UseAuthReturn {
 
   useEffect(() => {
     async function init(): Promise<void> {
-      if (isTelegram && initData) {
-        try {
-          const res = await telegramAuth(initData);
-          setUser(res.user);
-          setLoading(false);
-          return;
-        } catch {
-          // fallback to standard auth
-        }
-      }
-
       const token = localStorage.getItem('pley_token');
-      const devUserId = localStorage.getItem('pley_dev_user_id');
-
-      if (token || devUserId) {
+      if (token) {
         await loadProfile();
       } else {
-        await devLogin('usr_demo_1');
-        await loadProfile();
+        setUser(null);
+        setLoading(false);
       }
     }
 
     init();
-  }, [isTelegram, initData, loadProfile]);
-
-  const loginAs = useCallback(
-    async (userId: string): Promise<void> => {
-      setLoading(true);
-      try {
-        const res = await devLogin(userId);
-        setUser(res.user);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
+  }, [loadProfile]);
 
   const logout = useCallback((): void => {
     localStorage.removeItem('pley_token');
@@ -87,9 +59,7 @@ export function useAuth(): UseAuthReturn {
     loading,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'ADMIN',
-    loginAs,
     logout,
     refreshProfile,
   };
 }
-

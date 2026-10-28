@@ -33,6 +33,27 @@ describe('UploadService & TurnstileService', () => {
   });
 
   it('should process avatar upload and update users table', async () => {
+    const now = new Date().toISOString();
+    await dbService.getDb().insertInto('users').values({
+      id: 'usr_upload_test',
+      google_id: 'g_upload_test',
+      email: 'uploadtest@pley.uz',
+      telegram_id: null,
+      telegram_username: null,
+      first_name: 'Upload',
+      last_name: 'User',
+      avatar_url: null,
+      age_bracket: '18-24',
+      skill_level: 'BEGINNER',
+      preferred_sports: JSON.stringify(['table-tennis']),
+      preferred_neighborhoods: JSON.stringify(['Chilonzor']),
+      profile_visibility: 'PUBLIC',
+      role: 'USER',
+      status: 'ACTIVE',
+      created_at: now,
+      updated_at: now,
+    }).execute();
+
     const mockFile: Express.Multer.File = {
       fieldname: 'file',
       originalname: 'avatar.png',
@@ -46,16 +67,17 @@ describe('UploadService & TurnstileService', () => {
       path: '',
     };
 
-    const res = await uploadService.uploadUserAvatar(mockFile, 'usr_demo_1');
+    const res = await uploadService.uploadUserAvatar(mockFile, 'usr_upload_test');
     expect(res.url).toBeDefined();
 
     const db = dbService.getDb();
     const updatedUser = await db
       .selectFrom('users')
       .selectAll()
-      .where('id', '=', 'usr_demo_1')
+      .where('id', '=', 'usr_upload_test')
       .executeTakeFirst();
 
     expect(updatedUser?.avatar_url).toBe(res.url);
   });
 });
+

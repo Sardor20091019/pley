@@ -103,4 +103,3 @@ export function SessionCard({ session }: SessionCardProps): React.JSX.Element {
     </Card>
   );
 }
-

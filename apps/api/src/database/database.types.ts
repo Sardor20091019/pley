@@ -68,7 +68,7 @@ export interface SessionsTable {
   id: string;
   venue_id: string;
   sport_id: string;
-  organizer_id: string;
+  organizer_id: string | null;
   title: string;
   scheduled_at: string;
   duration_minutes: number;

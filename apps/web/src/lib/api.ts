@@ -16,12 +16,8 @@ function getAuthHeaders(): HeadersInit {
 
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('pley_token');
-    const devUserId = localStorage.getItem('pley_dev_user_id');
-
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
-    } else if (devUserId) {
-      headers['x-user-id'] = devUserId;
     }
   }
 
@@ -151,45 +147,6 @@ export async function fetchAchievements(): Promise<any[]> {
   return res.json();
 }
 
-export async function devLogin(userId: string): Promise<{ token: string; user: UserProfile }> {
-  const res = await fetch(`${API_BASE_URL}/auth/dev-login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId }),
-  });
-
-  if (!res.ok) {
-    throw new Error('Failed dev login');
-  }
-
-  const data = await res.json();
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('pley_token', data.token);
-    localStorage.setItem('pley_dev_user_id', data.user.id);
-  }
-
-  return data;
-}
-
-export async function telegramAuth(initData: string): Promise<{ token: string; user: UserProfile }> {
-  const res = await fetch(`${API_BASE_URL}/auth/telegram`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ initData }),
-  });
-
-  if (!res.ok) {
-    throw new Error('Telegram authentication failed');
-  }
-
-  const data = await res.json();
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('pley_token', data.token);
-  }
-
-  return data;
-}
-
 export async function submitPartnershipInquiry(data: {
   contactName: string;
   phone: string;
@@ -284,6 +241,29 @@ export async function loginWithGoogleCode(
   return data;
 }
 
+export async function loginWithGoogleCredential(
+  credential: string,
+  turnstileToken?: string,
+): Promise<{ token: string; user: UserProfile }> {
+  const res = await fetch(`${API_BASE_URL}/auth/google/credential`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ credential, turnstileToken }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Google credential sign-in failed');
+  }
+
+  const data = await res.json();
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('pley_token', data.token);
+  }
+
+  return data;
+}
+
 export async function uploadAvatar(file: File): Promise<{ url: string }> {
   const formData = new FormData();
   formData.append('file', file);
@@ -291,11 +271,8 @@ export async function uploadAvatar(file: File): Promise<{ url: string }> {
   const headers: Record<string, string> = {};
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('pley_token');
-    const devUserId = localStorage.getItem('pley_dev_user_id');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
-    } else if (devUserId) {
-      headers['x-user-id'] = devUserId;
     }
   }
 

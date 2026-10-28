@@ -11,8 +11,6 @@ import {
 } from '@nestjs/common';
 import { AuthService, AuthSessionResponse } from './auth.service';
 import {
-  TelegramAuthDto,
-  DevLoginDto,
   GoogleCallbackDto,
   GoogleCredentialDto,
 } from './dto/auth.dto';
@@ -53,24 +51,6 @@ export class AuthController {
   ): Promise<AuthSessionResponse> {
     const remoteIp = req.ip || req.headers['x-forwarded-for'];
     return this.authService.loginWithGoogleCredential(dto, remoteIp);
-  }
-
-  @Public()
-  @Post('telegram')
-  @HttpCode(HttpStatus.OK)
-  public async telegramAuth(
-    @Body() dto: TelegramAuthDto,
-  ): Promise<AuthSessionResponse> {
-    return this.authService.validateTelegramInitData(dto.initData);
-  }
-
-  @Public()
-  @Post('dev-login')
-  @HttpCode(HttpStatus.OK)
-  public async devLogin(
-    @Body() dto: DevLoginDto,
-  ): Promise<AuthSessionResponse> {
-    return this.authService.devLogin(dto.userId);
   }
 
   @UseGuards(AuthGuard)

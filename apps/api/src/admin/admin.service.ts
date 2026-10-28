@@ -108,7 +108,7 @@ export class AdminService {
         'sessions.scheduled_at as scheduled_at',
         'venues.name as venue_name',
         'users.first_name as user_name',
-        'users.telegram_username as user_telegram',
+        'users.email as user_email',
       ])
       .orderBy('bookings.booked_at', 'desc')
       .limit(100)

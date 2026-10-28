@@ -32,7 +32,6 @@ export default function DiscoverPage(): React.JSX.Element {
         });
         setSessions(data);
       } catch {
-        // error handling
       } finally {
         setLoading(false);
       }

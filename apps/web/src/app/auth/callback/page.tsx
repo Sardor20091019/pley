@@ -80,3 +80,4 @@ export default function GoogleCallbackPage(): React.JSX.Element {
     </Suspense>
   );
 }
+

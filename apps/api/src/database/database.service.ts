@@ -120,7 +120,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         id TEXT PRIMARY KEY,
         venue_id TEXT NOT NULL,
         sport_id TEXT NOT NULL,
-        organizer_id TEXT NOT NULL,
+        organizer_id TEXT,
         title TEXT NOT NULL,
         scheduled_at TEXT NOT NULL,
         duration_minutes INTEGER NOT NULL,
@@ -217,6 +217,26 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         created_at TEXT NOT NULL
       )
     `.execute(db);
+
+    try {
+      await db
+        .deleteFrom('bookings')
+        .where('user_id', 'in', ['usr_admin_1', 'usr_demo_1', 'usr_demo_2', 'usr_demo_3'])
+        .execute();
+      await db
+        .updateTable('sessions')
+        .set({ organizer_id: null })
+        .where('organizer_id', 'in', ['usr_admin_1', 'usr_demo_1', 'usr_demo_2', 'usr_demo_3'])
+        .execute();
+      await db
+        .deleteFrom('users')
+        .where('id', 'in', ['usr_admin_1', 'usr_demo_1', 'usr_demo_2', 'usr_demo_3'])
+        .execute();
+      await db
+        .deleteFrom('users')
+        .where('google_id', 'is', null)
+        .execute();
+    } catch {}
   }
 
   public async seedDemoData(): Promise<void> {
@@ -228,88 +248,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     }
 
     const now = new Date().toISOString();
-
-    await db
-      .insertInto('users')
-      .values([
-        {
-          id: 'usr_admin_1',
-          google_id: null,
-          email: 'admin@pley.uz',
-          telegram_id: '9999999',
-          telegram_username: 'pley_admin',
-          first_name: 'Jasur',
-          last_name: 'Admin',
-          avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-          age_bracket: '25-34',
-          skill_level: 'INTERMEDIATE',
-          preferred_sports: JSON.stringify(['table-tennis', 'basketball-3x3']),
-          preferred_neighborhoods: JSON.stringify(['Yunusobod', 'Chilonzor']),
-          profile_visibility: 'PUBLIC',
-          role: 'ADMIN',
-          status: 'ACTIVE',
-          created_at: now,
-          updated_at: now,
-        },
-        {
-          id: 'usr_demo_1',
-          google_id: null,
-          email: 'timur@pley.uz',
-          telegram_id: '1001',
-          telegram_username: 'timur_uz',
-          first_name: 'Timur',
-          last_name: 'K.',
-          avatar_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150',
-          age_bracket: '18-24',
-          skill_level: 'BEGINNER',
-          preferred_sports: JSON.stringify(['table-tennis']),
-          preferred_neighborhoods: JSON.stringify(['Chilonzor']),
-          profile_visibility: 'PUBLIC',
-          role: 'USER',
-          status: 'ACTIVE',
-          created_at: now,
-          updated_at: now,
-        },
-        {
-          id: 'usr_demo_2',
-          google_id: null,
-          email: 'madina@pley.uz',
-          telegram_id: '1002',
-          telegram_username: 'madina_pley',
-          first_name: 'Madina',
-          last_name: 'A.',
-          avatar_url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150',
-          age_bracket: '18-24',
-          skill_level: 'CASUAL',
-          preferred_sports: JSON.stringify(['table-tennis', 'basketball-3x3']),
-          preferred_neighborhoods: JSON.stringify(['Yunusobod']),
-          profile_visibility: 'PUBLIC',
-          role: 'USER',
-          status: 'ACTIVE',
-          created_at: now,
-          updated_at: now,
-        },
-        {
-          id: 'usr_demo_3',
-          google_id: null,
-          email: 'sardor@pley.uz',
-          telegram_id: '1003',
-          telegram_username: 'sardor_hoops',
-          first_name: 'Sardor',
-          last_name: 'R.',
-          avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-          age_bracket: '25-34',
-          skill_level: 'INTERMEDIATE',
-          preferred_sports: JSON.stringify(['basketball-3x3']),
-          preferred_neighborhoods: JSON.stringify(['Mirzo Ulugʻbek']),
-          profile_visibility: 'PUBLIC',
-          role: 'USER',
-          status: 'ACTIVE',
-          created_at: now,
-          updated_at: now,
-        },
-      ])
-      .execute();
 
     await db
       .insertInto('sports')
@@ -424,7 +362,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           id: 'ses_tt_saturday',
           venue_id: 'ven_chilonzor_arena',
           sport_id: 'sport_tt',
-          organizer_id: 'usr_admin_1',
+          organizer_id: null,
           title: 'Saturday Table Tennis Social',
           scheduled_at: futureDate1.toISOString(),
           duration_minutes: 90,
@@ -447,7 +385,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           id: 'ses_bball_sunday',
           venue_id: 'ven_yunusobod_hub',
           sport_id: 'sport_bball',
-          organizer_id: 'usr_admin_1',
+          organizer_id: null,
           title: 'Sunday Sunset 3x3 Hoops',
           scheduled_at: futureDate2.toISOString(),
           duration_minutes: 120,
@@ -470,7 +408,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           id: 'ses_tt_morning',
           venue_id: 'ven_mirzo_court',
           sport_id: 'sport_tt',
-          organizer_id: 'usr_admin_1',
+          organizer_id: null,
           title: 'Weekday Morning Reflex Rally',
           scheduled_at: futureDate3.toISOString(),
           duration_minutes: 60,
@@ -486,40 +424,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
           booking_deadline: new Date(futureDate3.getTime() - 2 * 3600 * 1000).toISOString(),
           cancellation_deadline_hours: 2,
           status: 'PUBLISHED',
-          created_at: now,
-          updated_at: now,
-        },
-      ])
-      .execute();
-
-    await db
-      .insertInto('bookings')
-      .values([
-        {
-          id: 'bk_demo_1',
-          session_id: 'ses_tt_saturday',
-          user_id: 'usr_demo_1',
-          status: 'CONFIRMED',
-          price_snapshot: 28000,
-          service_fee_snapshot: 3000,
-          payment_status: 'PAID',
-          attendance_status: 'UNCONFIRMED',
-          booked_at: now,
-          cancelled_at: null,
-          created_at: now,
-          updated_at: now,
-        },
-        {
-          id: 'bk_demo_2',
-          session_id: 'ses_tt_saturday',
-          user_id: 'usr_demo_2',
-          status: 'CONFIRMED',
-          price_snapshot: 28000,
-          service_fee_snapshot: 3000,
-          payment_status: 'PAID',
-          attendance_status: 'UNCONFIRMED',
-          booked_at: now,
-          cancelled_at: null,
           created_at: now,
           updated_at: now,
         },

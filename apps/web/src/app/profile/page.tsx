@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function ProfilePage(): React.JSX.Element {
-  const { user, loginAs, refreshProfile } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const { t } = useI18n();
 
   const [achievements, setAchievements] = useState<any[]>([]);
@@ -88,6 +88,23 @@ export default function ProfilePage(): React.JSX.Element {
 
   const isDbAdmin = user?.role === 'ADMIN';
 
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto my-16 px-4 text-center space-y-4">
+        <Mascot size="lg" mood="happy" />
+        <h2 className="text-2xl font-black text-[#242424]">
+          Profilingizga xush kelibsiz!
+        </h2>
+        <p className="text-sm font-semibold text-[#666666]">
+          Profil sozlamalarini boshqarish va oʻyinlarga yozilish uchun Google hisobingiz bilan kiring.
+        </p>
+        <div className="pt-2">
+          <GoogleSignInButton redirectPath="/profile" className="w-full text-sm font-bold" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-8">
       <div className="space-y-2">
@@ -146,10 +163,10 @@ export default function ProfilePage(): React.JSX.Element {
 
           <div>
             <h3 className="text-xl font-black text-[#242424]">
-              {user?.first_name || 'Sportchi'} {user?.last_name || ''}
+              {user.first_name} {user.last_name || ''}
             </h3>
             <div className="text-xs font-bold text-[#7655F7] mt-0.5">
-              {user?.email || `@${user?.telegram_username || 'pley_user'}`}
+              {user.email || 'Google hisobi'}
             </div>
           </div>
 
@@ -161,52 +178,20 @@ export default function ProfilePage(): React.JSX.Element {
                   : 'bg-[#FFF9EF] text-[#242424]'
               }`}
             >
-              DB role = {user?.role || 'USER'}
+              DB role = {user.role}
             </span>
             <Badge variant="lime" size="sm">
-              {user?.skill_level || 'BEGINNER'}
+              {user.skill_level}
             </Badge>
           </div>
 
           <div className="pt-4 border-t border-[#EEEEEE] space-y-2">
             <div className="text-[11px] font-black uppercase text-[#888888]">
-              Google bilan avtorizatsiya
+              Google hisobi
             </div>
-            {user?.google_id ? (
-              <div className="p-2.5 bg-[#FFF9EF] border-2 border-[#242424] rounded-2xl flex items-center justify-center gap-2 text-xs font-black text-[#242424]">
-                <Check className="w-4 h-4 text-[#34A853]" />
-                <span>Google ulangan</span>
-              </div>
-            ) : (
-              <GoogleSignInButton className="w-full text-xs py-2 shadow-none border" />
-            )}
-          </div>
-
-          <div className="pt-2 border-t border-[#EEEEEE] space-y-2">
-            <div className="text-[11px] font-black uppercase text-[#888888]">
-              Demo hisobni sinash
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <button
-                onClick={() => loginAs('usr_admin_1')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold border ${
-                  user?.id === 'usr_admin_1'
-                    ? 'bg-[#7655F7] text-white border-[#242424]'
-                    : 'bg-[#FFF9EF] hover:bg-white border-[#E0E0E0]'
-                }`}
-              >
-                Jasur (Admin, role=ADMIN)
-              </button>
-              <button
-                onClick={() => loginAs('usr_demo_1')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold border ${
-                  user?.id === 'usr_demo_1'
-                    ? 'bg-[#D7FF64] text-[#242424] border-[#242424]'
-                    : 'bg-[#FFF9EF] hover:bg-white border-[#E0E0E0]'
-                }`}
-              >
-                Timur (Player, role=USER)
-              </button>
+            <div className="p-2.5 bg-[#FFF9EF] border-2 border-[#242424] rounded-2xl flex items-center justify-center gap-2 text-xs font-black text-[#242424]">
+              <Check className="w-4 h-4 text-[#34A853]" />
+              <span>{user.email || 'Google orqali ulangan'}</span>
             </div>
           </div>
         </Card>

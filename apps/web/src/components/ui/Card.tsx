@@ -37,4 +37,3 @@ export function Card({
     </div>
   );
 }
-

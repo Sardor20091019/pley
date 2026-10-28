@@ -12,6 +12,7 @@ import { AdminMetrics } from '../../lib/types';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { GoogleSignInButton } from '../../components/auth/GoogleSignInButton';
 import {
   Shield,
   TrendingUp,
@@ -25,7 +26,7 @@ import {
 } from 'lucide-react';
 
 export default function AdminPage(): React.JSX.Element {
-  const { user, isAdmin, loginAs } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
   const [bookings, setBookings] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -66,7 +67,6 @@ export default function AdminPage(): React.JSX.Element {
       setBookings(b);
       setAuditLogs(a);
     } catch {
-      // access or network error
     } finally {
       setLoading(false);
     }
@@ -116,17 +116,15 @@ export default function AdminPage(): React.JSX.Element {
           Administrator huquqi talab qilinadi
         </h2>
         <p className="text-sm font-semibold text-[#666666]">
-          Ushbu sahifa faqat maʼlumotlar bazasida (users table) role = &apos;ADMIN&apos; boʻlgan hisoblar uchun ochiq. Sizning joriy rolingiz: <span className="font-black text-[#7655F7]">{user?.role || 'Nomaʼlum'}</span>.
+          {user
+            ? `Siz tizimga ${user.email || user.first_name} sifatida kirgansiz. Maʼlumotlar bazasida (users table) rolingiz: '${user.role}'. Ushbu sahifa faqat role = 'ADMIN' boʻlgan hisoblar uchun ochiq.`
+            : 'Ushbu sahifaga kirish uchun administrator Google hisobi bilan avtorizatsiyadan oʻtishingiz kerak.'}
         </p>
-        <Button
-          variant="lime"
-          size="sm"
-          onClick={async () => {
-            await loginAs('usr_admin_1');
-          }}
-        >
-          Jasur (Admin, db role=ADMIN) hisobiga oʻtish
-        </Button>
+        {!user && (
+          <div className="pt-2">
+            <GoogleSignInButton redirectPath="/admin" className="w-full text-sm font-bold" />
+          </div>
+        )}
       </div>
     );
   }
@@ -480,7 +478,7 @@ export default function AdminPage(): React.JSX.Element {
                         {b.user_name}
                       </div>
                       <div className="text-[10px] text-[#7655F7]">
-                        @{b.user_telegram || 'unknown'}
+                        {b.user_email || b.user_name}
                       </div>
                     </td>
                     <td className="py-2.5">

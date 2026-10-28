@@ -5,8 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { fetchSessionById, reserveSpot, cancelBooking } from '../../../lib/api';
 import { SessionDetail } from '../../../lib/types';
 import { useAuth } from '../../../hooks/useAuth';
-import { useTelegram } from '../../../hooks/useTelegram';
 import { useI18n } from '../../../lib/i18n/useI18n';
+import { GoogleSignInButton } from '../../../components/auth/GoogleSignInButton';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
@@ -31,7 +31,6 @@ export default function SessionDetailPage(): React.JSX.Element {
   const router = useRouter();
   const sessionId = params.id as string;
   const { user, isAuthenticated } = useAuth();
-  const { openTelegramShare, hapticFeedback } = useTelegram();
   const { t } = useI18n();
 
   const [session, setSession] = useState<SessionDetail | null>(null);
@@ -63,7 +62,6 @@ export default function SessionDetailPage(): React.JSX.Element {
     setErrorMessage(null);
     try {
       await reserveSpot(sessionId);
-      hapticFeedback('success');
       confetti({
         particleCount: 100,
         spread: 70,
@@ -73,7 +71,6 @@ export default function SessionDetailPage(): React.JSX.Element {
       setSuccessMessage(t('bookingConfirmed'));
       await loadData();
     } catch (err: any) {
-      hapticFeedback('error');
       setErrorMessage(err.message || 'Joy band qilishda xatolik yuz berdi');
     } finally {
       setActionLoading(false);
@@ -86,22 +83,27 @@ export default function SessionDetailPage(): React.JSX.Element {
     setErrorMessage(null);
     try {
       await cancelBooking(session.currentUserBookingId);
-      hapticFeedback('medium');
       setSuccessMessage('Bandlik bekor qilindi');
       await loadData();
     } catch (err: any) {
-      hapticFeedback('error');
       setErrorMessage(err.message || 'Bekor qilishda xatolik');
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleShare = (): void => {
+  const handleShare = async (): Promise<void> => {
     if (!session) return;
     const shareText = `Pley.uz orqali ${session.sport.name} oʻynashga qoʻshiling! ${session.venue.name} (${session.venue.district}). Joylar soni cheklangan!`;
     const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://pley.uz';
-    openTelegramShare(shareUrl, shareText);
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title: session.title, text: shareText, url: shareUrl });
+      } catch {}
+    } else if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+      setSuccessMessage('Havola nusxalandi!');
+    }
   };
 
   if (loading) {
@@ -330,6 +332,11 @@ export default function SessionDetailPage(): React.JSX.Element {
               <Button variant="white" size="lg" disabled fullWidth>
                 {t('spotsFull')}
               </Button>
+            ) : !isAuthenticated ? (
+              <GoogleSignInButton
+                redirectPath={`/sessions/${sessionId}`}
+                className="w-full sm:w-auto text-sm font-black py-3 px-6"
+              />
             ) : (
               <Button
                 variant="lime"

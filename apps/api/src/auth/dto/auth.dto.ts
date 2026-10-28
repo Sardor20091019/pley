@@ -1,17 +1,5 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class TelegramAuthDto {
-  @IsNotEmpty()
-  @IsString()
-  initData!: string;
-}
-
-export class DevLoginDto {
-  @IsNotEmpty()
-  @IsString()
-  userId!: string;
-}
-
 export class GoogleCallbackDto {
   @IsNotEmpty()
   @IsString()

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { fetchGoogleAuthUrl } from '../../lib/api';
+import React, { useState, useEffect } from 'react';
+import { fetchGoogleAuthUrl, loginWithGoogleCredential } from '../../lib/api';
 
 export interface GoogleSignInButtonProps {
   redirectPath?: string;
@@ -13,6 +13,54 @@ export function GoogleSignInButton({
   className = '',
 }: GoogleSignInButtonProps): React.JSX.Element {
   const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const clientId =
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+      '210623201179-4i14mlaibn8lh0h6clu6mthh3g8084lm.apps.googleusercontent.com';
+
+    let script = document.getElementById('google-gsi-client') as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement('script');
+      script.id = 'google-gsi-client';
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+
+    const interval = setInterval(() => {
+      const google = (window as any).google;
+      if (google?.accounts?.id) {
+        clearInterval(interval);
+        try {
+          google.accounts.id.initialize({
+            client_id: clientId,
+            callback: async (response: any) => {
+              if (response.credential) {
+                setLoading(true);
+                try {
+                  await loginWithGoogleCredential(response.credential);
+                  const target =
+                    sessionStorage.getItem('pley_post_login_redirect') || redirectPath;
+                  sessionStorage.removeItem('pley_post_login_redirect');
+                  window.location.href = target;
+                } catch {
+                  setLoading(false);
+                }
+              }
+            },
+            auto_select: false,
+          });
+          google.accounts.id.prompt();
+        } catch {}
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [redirectPath]);
 
   const handleClick = async (): Promise<void> => {
     setLoading(true);
@@ -54,3 +102,4 @@ export function GoogleSignInButton({
     </button>
   );
 }
+

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
-import Script from 'next/script';
 import './globals.css';
+import { ThemeProvider } from '../lib/theme/ThemeContext';
 import { Navbar } from '../components/layout/Navbar';
 import { MobileBottomNav } from '../components/layout/MobileBottomNav';
 import { Footer } from '../components/layout/Footer';
@@ -18,6 +18,19 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
+const themeInitScript = `
+(function() {
+  try {
+    var t = localStorage.getItem('pley_theme_mode');
+    if (t === 'kinetic' || t === 'cartoon') {
+      document.documentElement.setAttribute('data-theme', t);
+    } else {
+      document.documentElement.setAttribute('data-theme', 'cartoon');
+    }
+  } catch (e) {}
+})();
+`;
+
 export default function RootLayout({
   children,
 }: {
@@ -26,6 +39,7 @@ export default function RootLayout({
   return (
     <html lang="uz" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -39,16 +53,14 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className="bg-[#FFF9EF] text-[#242424] min-h-screen flex flex-col font-sans selection:bg-[#D7FF64]"
+        className="min-h-screen flex flex-col font-sans selection:bg-[#D7FF64]"
       >
-        <Script
-          src="https://telegram.org/js/telegram-web-app.js"
-          strategy="afterInteractive"
-        />
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <MobileBottomNav />
+        <ThemeProvider>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <MobileBottomNav />
+        </ThemeProvider>
       </body>
     </html>
   );

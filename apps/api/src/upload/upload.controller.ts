@@ -25,3 +25,4 @@ export class UploadController {
     return this.uploadService.uploadUserAvatar(file, req.user.id);
   }
 }
+

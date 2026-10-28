@@ -32,21 +32,71 @@ describe('Auth, Admin & Payments Suite', () => {
       new PaymeProvider(),
       new SimulatedProvider(),
     );
+
+    const now = new Date().toISOString();
+    const db = dbService.getDb();
+
+    await db.insertInto('users').values([
+      {
+        id: 'usr_test_1',
+        google_id: 'g_test_1',
+        email: 'user1@pley.uz',
+        telegram_id: null,
+        telegram_username: null,
+        first_name: 'TestUser1',
+        last_name: 'Player',
+        avatar_url: null,
+        age_bracket: '18-24',
+        skill_level: 'BEGINNER',
+        preferred_sports: JSON.stringify(['table-tennis']),
+        preferred_neighborhoods: JSON.stringify(['Chilonzor']),
+        profile_visibility: 'PUBLIC',
+        role: 'USER',
+        status: 'ACTIVE',
+        created_at: now,
+        updated_at: now,
+      },
+      {
+        id: 'usr_test_2',
+        google_id: 'g_test_2',
+        email: 'user2@pley.uz',
+        telegram_id: null,
+        telegram_username: null,
+        first_name: 'TestUser2',
+        last_name: 'Player',
+        avatar_url: null,
+        age_bracket: '18-24',
+        skill_level: 'BEGINNER',
+        preferred_sports: JSON.stringify(['table-tennis']),
+        preferred_neighborhoods: JSON.stringify(['Yunusobod']),
+        profile_visibility: 'PUBLIC',
+        role: 'USER',
+        status: 'ACTIVE',
+        created_at: now,
+        updated_at: now,
+      },
+    ]).execute();
+
+    await db.insertInto('bookings').values([
+      {
+        id: 'bk_test_1',
+        session_id: 'ses_tt_saturday',
+        user_id: 'usr_test_1',
+        status: 'CONFIRMED',
+        price_snapshot: 28000,
+        service_fee_snapshot: 3000,
+        payment_status: 'PAID',
+        attendance_status: 'UNCONFIRMED',
+        booked_at: now,
+        cancelled_at: null,
+        created_at: now,
+        updated_at: now,
+      },
+    ]).execute();
   });
 
   afterEach(async () => {
     await dbService.onModuleDestroy();
-  });
-
-  it('should authenticate demo user and retrieve session token', async () => {
-    const res = await authService.devLogin('usr_demo_1');
-    expect(res.token).toContain('usr_demo_1');
-    expect(res.user.first_name).toBe('Timur');
-
-    const verified = await authService.getUserFromToken(res.token);
-    expect(verified).toBeDefined();
-    expect(verified?.id).toBe('usr_demo_1');
-    expect(verified?.role).toBe('USER');
   });
 
   it('should create new user from Google profile and assign role based on db users table', async () => {
@@ -63,6 +113,11 @@ describe('Auth, Admin & Payments Suite', () => {
     expect(res.user.email).toBe('newplayer@gmail.com');
     expect(res.user.google_id).toBe('google_sub_12345');
     expect(res.user.role).toBe('USER');
+
+    const verified = await authService.getUserFromToken(res.token);
+    expect(verified).toBeDefined();
+    expect(verified?.id).toBe(res.user.id);
+    expect(verified?.role).toBe('USER');
 
     const adminRes = await authService.findOrCreateGoogleUser({
       sub: 'google_admin_99999',
@@ -83,10 +138,10 @@ describe('Auth, Admin & Payments Suite', () => {
 
   it('should calculate accurate operational metrics in AdminService', async () => {
     const metrics = await adminService.getDashboardMetrics();
-    expect(metrics.totalUsers).toBeGreaterThanOrEqual(4);
+    expect(metrics.totalUsers).toBeGreaterThanOrEqual(2);
     expect(metrics.totalVenues).toBe(3);
     expect(metrics.totalSessions).toBe(3);
-    expect(metrics.confirmedBookings).toBe(2);
+    expect(metrics.confirmedBookings).toBe(1);
     expect(metrics.grossBookingVolumeUz).toBeGreaterThan(0);
     expect(metrics.platformRevenueUz).toBeGreaterThan(0);
   });
@@ -94,11 +149,11 @@ describe('Auth, Admin & Payments Suite', () => {
   it('should process simulated payments idempotently', async () => {
     const res1 = await paymentsService.initiatePayment(
       {
-        bookingId: 'bk_demo_1',
+        bookingId: 'bk_test_1',
         provider: 'SIMULATED',
         returnUrl: 'https://pley.uz/my-games',
       },
-      'usr_demo_1',
+      'usr_test_1',
     );
 
     expect(res1.status).toBe('SUCCESS');
@@ -106,11 +161,11 @@ describe('Auth, Admin & Payments Suite', () => {
 
     const res2 = await paymentsService.initiatePayment(
       {
-        bookingId: 'bk_demo_1',
+        bookingId: 'bk_test_1',
         provider: 'SIMULATED',
         returnUrl: 'https://pley.uz/my-games',
       },
-      'usr_demo_1',
+      'usr_test_1',
     );
 
     expect(res2.status).toBe('SUCCESS');
@@ -120,13 +175,12 @@ describe('Auth, Admin & Payments Suite', () => {
     await expect(
       paymentsService.initiatePayment(
         {
-          bookingId: 'bk_demo_1',
+          bookingId: 'bk_test_1',
           provider: 'SIMULATED',
           returnUrl: 'https://pley.uz/my-games',
         },
-        'usr_demo_2',
+        'usr_test_2',
       ),
     ).rejects.toThrow('Cannot pay for another user reservation');
   });
 });
-

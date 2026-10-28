@@ -4,11 +4,13 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { fetchMyBookings, cancelBooking } from '../../lib/api';
 import { UserBooking } from '../../lib/types';
+import { useAuth } from '../../hooks/useAuth';
 import { useI18n } from '../../lib/i18n/useI18n';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { EmptyStateIllustration } from '../../components/illustrations/EmptyStateIllustration';
+import { GoogleSignInButton } from '../../components/auth/GoogleSignInButton';
 import {
   Calendar,
   Clock,
@@ -22,6 +24,7 @@ import { format } from 'date-fns';
 
 export default function MyGamesPage(): React.JSX.Element {
   const { t } = useI18n();
+  const { isAuthenticated } = useAuth();
   const [bookings, setBookings] = useState<UserBooking[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'cancelled'>(
@@ -36,15 +39,18 @@ export default function MyGamesPage(): React.JSX.Element {
       const data = await fetchMyBookings();
       setBookings(data);
     } catch {
-      // error handling
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadBookings();
-  }, []);
+    if (isAuthenticated) {
+      loadBookings();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
 
   const handleCancelBooking = async (bookingId: string): Promise<void> => {
     setCancellingId(bookingId);
@@ -79,6 +85,23 @@ export default function MyGamesPage(): React.JSX.Element {
       : activeTab === 'past'
       ? pastBookings
       : cancelledBookings;
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-md mx-auto my-16 px-4 text-center space-y-4">
+        <EmptyStateIllustration />
+        <h2 className="text-2xl font-black text-[#242424]">
+          Mening oʻyinlarim
+        </h2>
+        <p className="text-sm font-semibold text-[#666666]">
+          Band qilgan oʻyinlaringizni koʻrish va boshqarish uchun Google hisobingiz orqali tizimga kiring.
+        </p>
+        <div className="pt-2">
+          <GoogleSignInButton redirectPath="/my-games" className="w-full text-sm font-bold" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-8">

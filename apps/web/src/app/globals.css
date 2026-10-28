@@ -15,8 +15,28 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+[data-theme='cartoon'] body,
+:root:not([data-theme='editorial']) body {
+  background-color: #FFF9EF;
+  color: #242424;
+}
+
+[data-theme='editorial'] body {
+  background-color: #F5F0E8;
+  color: #1A1510;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-fredoka);
+}
+
+[data-theme='editorial'] h1,
+[data-theme='editorial'] h2,
+[data-theme='editorial'] h3,
+[data-theme='editorial'] h4,
+[data-theme='editorial'] h5,
+[data-theme='editorial'] h6 {
+  font-family: Georgia, 'Times New Roman', serif;
 }
 
 .cartoon-border {
@@ -81,3 +101,24 @@ h1, h2, h3, h4, h5, h6 {
   animation: float 3s ease-in-out infinite;
 }
 
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFF9EF;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #242424;
+  border-radius: 3px;
+}
+
+[data-theme='editorial'] ::-webkit-scrollbar-track {
+  background: #F5F0E8;
+}
+
+[data-theme='editorial'] ::-webkit-scrollbar-thumb {
+  background: rgba(197, 165, 90, 0.6);
+  border-radius: 3px;
+}
