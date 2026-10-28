@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { DatabaseService } from '../database/database.service';
 import {
   BookingsTable,
@@ -111,7 +112,7 @@ export class BookingsService {
         );
       }
 
-      const bookingId = `bk_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+      const bookingId = randomUUID();
       const now = new Date().toISOString();
 
       await trx
@@ -135,7 +136,7 @@ export class BookingsService {
       await trx
         .insertInto('audit_logs')
         .values({
-          id: `aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          id: randomUUID(),
           actor_id: userId,
           action: 'RESERVE_SPOT',
           target_type: 'BOOKING',
@@ -152,7 +153,7 @@ export class BookingsService {
       await trx
         .insertInto('notifications')
         .values({
-          id: `notif_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          id: randomUUID(),
           user_id: userId,
           type: 'BOOKING_CONFIRMED',
           title: 'You are on the team!',
@@ -234,7 +235,7 @@ export class BookingsService {
       await trx
         .insertInto('audit_logs')
         .values({
-          id: `aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          id: randomUUID(),
           actor_id: userId,
           action: 'CANCEL_BOOKING',
           target_type: 'BOOKING',
@@ -250,7 +251,7 @@ export class BookingsService {
       await trx
         .insertInto('notifications')
         .values({
-          id: `notif_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          id: randomUUID(),
           user_id: booking.user_id,
           type: 'BOOKING_CANCELLED',
           title: 'Booking Cancelled',
@@ -365,7 +366,7 @@ export class BookingsService {
     await db
       .insertInto('audit_logs')
       .values({
-        id: `aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        id: randomUUID(),
         actor_id: actorId,
         action: 'UPDATE_ATTENDANCE',
         target_type: 'BOOKING',

@@ -4,22 +4,78 @@ import React, { useEffect, useRef } from 'react';
 
 export interface TurnstileWidgetProps {
   onVerify: (token: string) => void;
+  onExpire?: () => void;
+  onError?: () => void;
   className?: string;
+  theme?: 'light' | 'dark' | 'auto';
 }
 
 export function TurnstileWidget({
   onVerify,
+  onExpire,
+  onError,
   className = '',
+  theme = 'auto',
 }: TurnstileWidgetProps): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
+  const onVerifyRef = useRef(onVerify);
+  const onExpireRef = useRef(onExpire);
+  const onErrorRef = useRef(onError);
+
+  useEffect(() => {
+    onVerifyRef.current = onVerify;
+    onExpireRef.current = onExpire;
+    onErrorRef.current = onError;
+  });
 
   const siteKey =
     process.env.NEXT_PUBLIC_CLOUDFLARE_SITE_KEY || '0x4AAAAAAFpYVK4Lc7_KcYai';
 
   useEffect(() => {
-    let script = document.getElementById('cf-turnstile-script') as HTMLScriptElement | null;
+    let isMounted = true;
+    let timer: NodeJS.Timeout | null = null;
 
+    const renderWidget = (): void => {
+      const turnstile = (window as any).turnstile;
+      if (!turnstile || !containerRef.current || widgetIdRef.current || !isMounted) {
+        return;
+      }
+
+      try {
+        containerRef.current.innerHTML = '';
+        widgetIdRef.current = turnstile.render(containerRef.current, {
+          sitekey: siteKey,
+          theme,
+          'refresh-expired': 'auto',
+          callback: (token: string) => {
+            if (isMounted) {
+              onVerifyRef.current(token);
+            }
+          },
+          'expired-callback': () => {
+            if (isMounted) {
+              onExpireRef.current?.();
+            }
+          },
+          'error-callback': () => {
+            if (isMounted) {
+              if (onErrorRef.current) {
+                onErrorRef.current();
+              } else {
+                onVerifyRef.current('test_bypass_token');
+              }
+            }
+          },
+        });
+      } catch {
+        if (isMounted) {
+          onVerifyRef.current('test_bypass_token');
+        }
+      }
+    };
+
+    let script = document.getElementById('cf-turnstile-script') as HTMLScriptElement | null;
     if (!script) {
       script = document.createElement('script');
       script.id = 'cf-turnstile-script';
@@ -29,40 +85,36 @@ export function TurnstileWidget({
       document.head.appendChild(script);
     }
 
-    const interval = setInterval(() => {
-      const turnstile = (window as any).turnstile;
-      if (turnstile && containerRef.current && !widgetIdRef.current) {
-        clearInterval(interval);
-        try {
-          widgetIdRef.current = turnstile.render(containerRef.current, {
-            sitekey: siteKey,
-            callback: (token: string) => {
-              onVerify(token);
-            },
-            'error-callback': () => {
-              onVerify('test_bypass_token');
-            },
-          });
-        } catch {
-          onVerify('test_bypass_token');
+    const turnstile = (window as any).turnstile;
+    if (turnstile && typeof turnstile.ready === 'function') {
+      turnstile.ready(renderWidget);
+    } else {
+      timer = setInterval(() => {
+        const t = (window as any).turnstile;
+        if (t) {
+          if (timer) clearInterval(timer);
+          renderWidget();
         }
-      }
-    }, 100);
+      }, 100);
+    }
 
     return () => {
-      clearInterval(interval);
-      const turnstile = (window as any).turnstile;
-      if (turnstile && widgetIdRef.current) {
+      isMounted = false;
+      if (timer) {
+        clearInterval(timer);
+      }
+      const t = (window as any).turnstile;
+      if (t && widgetIdRef.current) {
         try {
-          turnstile.remove(widgetIdRef.current);
+          t.remove(widgetIdRef.current);
         } catch {}
         widgetIdRef.current = null;
       }
     };
-  }, [siteKey, onVerify]);
+  }, [siteKey, theme]);
 
   return (
-    <div className={`flex justify-center my-3 ${className}`}>
+    <div className={`flex justify-center items-center min-h-[65px] my-3 ${className}`}>
       <div ref={containerRef} />
     </div>
   );

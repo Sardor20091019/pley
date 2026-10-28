@@ -19,9 +19,7 @@ export type BookingStatus =
 export interface UserProfile {
   id: string;
   google_id: string | null;
-  email: string | null;
-  telegram_id: string | null;
-  telegram_username: string | null;
+  email: string;
   first_name: string;
   last_name: string | null;
   avatar_url: string | null;

@@ -35,11 +35,9 @@ describe('UploadService & TurnstileService', () => {
   it('should process avatar upload and update users table', async () => {
     const now = new Date().toISOString();
     await dbService.getDb().insertInto('users').values({
-      id: 'usr_upload_test',
+      id: 'cceebc99-9c0b-4ef8-bb6d-6bb9bd380d44',
       google_id: 'g_upload_test',
       email: 'uploadtest@pley.uz',
-      telegram_id: null,
-      telegram_username: null,
       first_name: 'Upload',
       last_name: 'User',
       avatar_url: null,
@@ -67,14 +65,14 @@ describe('UploadService & TurnstileService', () => {
       path: '',
     };
 
-    const res = await uploadService.uploadUserAvatar(mockFile, 'usr_upload_test');
+    const res = await uploadService.uploadUserAvatar(mockFile, 'cceebc99-9c0b-4ef8-bb6d-6bb9bd380d44');
     expect(res.url).toBeDefined();
 
     const db = dbService.getDb();
     const updatedUser = await db
       .selectFrom('users')
       .selectAll()
-      .where('id', '=', 'usr_upload_test')
+      .where('id', '=', 'cceebc99-9c0b-4ef8-bb6d-6bb9bd380d44')
       .executeTakeFirst();
 
     expect(updatedUser?.avatar_url).toBe(res.url);

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
+import { randomUUID } from 'node:crypto';
 import {
   PaymentProvider,
   PaymentInitiationResult,
@@ -23,7 +24,7 @@ export class ClickProvider implements PaymentProvider {
     if (!serviceId || !merchantId) {
       this.logger.warn('CLICK_SERVICE_ID or CLICK_MERCHANT_ID not configured');
       return {
-        paymentId: `clk_unconf_${Date.now()}`,
+        paymentId: randomUUID(),
         redirectUrl: null,
         providerTransactionId: null,
         status: 'FAILED',
@@ -34,7 +35,7 @@ export class ClickProvider implements PaymentProvider {
     const clickUrl = `https://my.click.uz/services/pay?service_id=${serviceId}&merchant_id=${merchantId}&amount=${params.amount}&transaction_param=${params.bookingId}&return_url=${encodeURIComponent(params.returnUrl)}`;
 
     return {
-      paymentId: `clk_${Date.now()}_${params.bookingId}`,
+      paymentId: randomUUID(),
       redirectUrl: clickUrl,
       providerTransactionId: null,
       status: 'PENDING',

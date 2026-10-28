@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { DatabaseService } from '../database/database.service';
 import { UsersTable, UserRole } from '../database/database.types';
 import { GoogleAuthService, GoogleUserProfile } from './google.service';
@@ -93,7 +94,7 @@ export class AuthService {
         .where('id', '=', user.id)
         .executeTakeFirstOrThrow();
     } else {
-      const newUserId = `usr_g_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const newUserId = randomUUID();
       const adminEmails = (process.env.ADMIN_EMAILS || 'admin@pley.uz,sardor@pley.uz')
         .split(',')
         .map((e) => e.trim().toLowerCase());
@@ -113,8 +114,6 @@ export class AuthService {
           id: newUserId,
           google_id: profile.sub,
           email: profile.email,
-          telegram_id: null,
-          telegram_username: null,
           first_name: firstName,
           last_name: lastName,
           avatar_url: profile.picture || null,

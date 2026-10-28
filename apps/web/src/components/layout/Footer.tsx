@@ -95,13 +95,13 @@ export function Footer(): React.JSX.Element {
               {t('footerCommunityDesc')}
             </p>
             <a
-              href="https://t.me/pleyuz"
+              href="https://t.me/astro_spectrum"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#1A1510] text-[#F5F0E8] px-4 py-2 text-xs font-bold font-sans uppercase tracking-wider hover:bg-[#332B24] transition-all"
             >
               <Send className="w-3.5 h-3.5 text-[#C5A55A]" />
-              <span>@pleyuz Telegram</span>
+              <span>@astro_spectrum Telegram</span>
             </a>
           </div>
         </div>
@@ -204,13 +204,13 @@ export function Footer(): React.JSX.Element {
             {t('footerCommunityDesc')}
           </p>
           <a
-            href="https://t.me/pleyuz"
+            href="https://t.me/astro_spectrum"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-[#7655F7] hover:bg-[#6844eb] text-white px-4 py-2.5 rounded-full text-xs font-black border-2 border-white shadow-[2px_2px_0px_#FFFFFF] transition-transform hover:-translate-y-0.5"
           >
             <Send className="w-3.5 h-3.5" />
-            <span>@pleyuz Telegram</span>
+            <span>@astro_spectrum Telegram</span>
           </a>
         </div>
       </div>

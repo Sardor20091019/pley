@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import {
   PaymentProvider,
   PaymentInitiationResult,
@@ -15,10 +16,10 @@ export class SimulatedProvider implements PaymentProvider {
     currency: string;
     returnUrl: string;
   }): Promise<PaymentInitiationResult> {
-    const simTransId = `sim_tx_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const simTransId = randomUUID();
 
     return {
-      paymentId: `pay_sim_${Date.now()}`,
+      paymentId: randomUUID(),
       redirectUrl: null,
       providerTransactionId: simTransId,
       status: 'SUCCESS',
@@ -31,7 +32,7 @@ export class SimulatedProvider implements PaymentProvider {
   ): Promise<PaymentVerificationResult> {
     return {
       success: true,
-      providerTransactionId: payload.transactionId || `sim_tx_${Date.now()}`,
+      providerTransactionId: payload.transactionId || randomUUID(),
     };
   }
 }

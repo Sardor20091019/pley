@@ -161,7 +161,7 @@ export function Navbar(): React.JSX.Element {
                         {user.first_name} {user.last_name || ''}
                       </div>
                       <div className="text-[10px] text-[#8B7355] font-sans truncate">
-                        {user.email || `@${user.telegram_username || 'pley_user'}`}
+                        {user.email || user.first_name}
                       </div>
                     </div>
                   </div>
@@ -351,7 +351,7 @@ export function Navbar(): React.JSX.Element {
                       {user.first_name} {user.last_name || ''}
                     </div>
                     <div className="text-[10px] text-[#7655F7] font-semibold truncate">
-                      {user.email || `@${user.telegram_username || 'pley_user'}`}
+                      {user.email || user.first_name}
                     </div>
                   </div>
                 </div>

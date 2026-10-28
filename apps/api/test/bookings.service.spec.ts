@@ -18,11 +18,9 @@ describe('BookingsService', () => {
     const now = new Date().toISOString();
     await dbService.getDb().insertInto('users').values([
       {
-        id: 'usr_test_admin',
+        id: '88eebc99-9c0b-4ef8-bb6d-6bb9bd380d00',
         google_id: 'g_admin_test',
         email: 'admin@test.com',
-        telegram_id: null,
-        telegram_username: null,
         first_name: 'Admin',
         last_name: 'Tester',
         avatar_url: null,
@@ -37,11 +35,9 @@ describe('BookingsService', () => {
         updated_at: now,
       },
       {
-        id: 'usr_test_1',
+        id: '99eebc99-9c0b-4ef8-bb6d-6bb9bd380d11',
         google_id: 'g_user_1',
         email: 'user1@test.com',
-        telegram_id: null,
-        telegram_username: null,
         first_name: 'User1',
         last_name: null,
         avatar_url: null,
@@ -56,11 +52,9 @@ describe('BookingsService', () => {
         updated_at: now,
       },
       {
-        id: 'usr_test_2',
+        id: 'aaebbc99-9c0b-4ef8-bb6d-6bb9bd380d22',
         google_id: 'g_user_2',
         email: 'user2@test.com',
-        telegram_id: null,
-        telegram_username: null,
         first_name: 'User2',
         last_name: null,
         avatar_url: null,
@@ -75,11 +69,9 @@ describe('BookingsService', () => {
         updated_at: now,
       },
       {
-        id: 'usr_test_3',
+        id: 'bbeebc99-9c0b-4ef8-bb6d-6bb9bd380d33',
         google_id: 'g_user_3',
         email: 'user3@test.com',
-        telegram_id: null,
-        telegram_username: null,
         first_name: 'User3',
         last_name: null,
         avatar_url: null,
@@ -102,28 +94,28 @@ describe('BookingsService', () => {
 
   it('should successfully reserve a spot in an available session', async () => {
     const booking = await bookingsService.reserveSpot(
-      'usr_test_3',
-      'ses_tt_saturday',
+      'bbeebc99-9c0b-4ef8-bb6d-6bb9bd380d33',
+      '17eebc99-9c0b-4ef8-bb6d-6bb9bd380c11',
     );
     expect(booking).toBeDefined();
-    expect(booking.user_id).toBe('usr_test_3');
-    expect(booking.session_id).toBe('ses_tt_saturday');
+    expect(booking.user_id).toBe('bbeebc99-9c0b-4ef8-bb6d-6bb9bd380d33');
+    expect(booking.session_id).toBe('17eebc99-9c0b-4ef8-bb6d-6bb9bd380c11');
     expect(booking.status).toBe('CONFIRMED');
     expect(booking.price_snapshot).toBe(28000);
   });
 
   it('should prevent the same user from making a duplicate active booking', async () => {
-    await bookingsService.reserveSpot('usr_test_1', 'ses_tt_saturday');
+    await bookingsService.reserveSpot('99eebc99-9c0b-4ef8-bb6d-6bb9bd380d11', '17eebc99-9c0b-4ef8-bb6d-6bb9bd380c11');
     await expect(
-      bookingsService.reserveSpot('usr_test_1', 'ses_tt_saturday'),
+      bookingsService.reserveSpot('99eebc99-9c0b-4ef8-bb6d-6bb9bd380d11', '17eebc99-9c0b-4ef8-bb6d-6bb9bd380c11'),
     ).rejects.toThrow('You already have an active reservation for this game');
   });
 
   it('should strictly enforce max capacity and reject bookings when full', async () => {
     const testSession = await sessionsService.createSession(
       {
-        venueId: 'ven_chilonzor_arena',
-        sportId: 'sport_tt',
+        venueId: 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380b11',
+        sportId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         title: 'Tight Limit Table Tennis',
         scheduledAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString(),
         durationMinutes: 60,
@@ -136,22 +128,22 @@ describe('BookingsService', () => {
         bookingDeadline: new Date(Date.now() + 20 * 3600 * 1000).toISOString(),
         cancellationDeadlineHours: 2,
       },
-      'usr_test_admin',
+      '88eebc99-9c0b-4ef8-bb6d-6bb9bd380d00',
     );
 
-    await bookingsService.reserveSpot('usr_test_1', testSession.id);
-    await bookingsService.reserveSpot('usr_test_2', testSession.id);
+    await bookingsService.reserveSpot('99eebc99-9c0b-4ef8-bb6d-6bb9bd380d11', testSession.id);
+    await bookingsService.reserveSpot('aaebbc99-9c0b-4ef8-bb6d-6bb9bd380d22', testSession.id);
 
     await expect(
-      bookingsService.reserveSpot('usr_test_3', testSession.id),
+      bookingsService.reserveSpot('bbeebc99-9c0b-4ef8-bb6d-6bb9bd380d33', testSession.id),
     ).rejects.toThrow('Sorry, this session just reached maximum capacity');
   });
 
   it('should reject booking when session has been cancelled', async () => {
-    await sessionsService.cancelSession('ses_tt_morning', 'usr_test_admin');
+    await sessionsService.cancelSession('39eebc99-9c0b-4ef8-bb6d-6bb9bd380c33', '88eebc99-9c0b-4ef8-bb6d-6bb9bd380d00');
 
     await expect(
-      bookingsService.reserveSpot('usr_test_3', 'ses_tt_morning'),
+      bookingsService.reserveSpot('bbeebc99-9c0b-4ef8-bb6d-6bb9bd380d33', '39eebc99-9c0b-4ef8-bb6d-6bb9bd380c33'),
     ).rejects.toThrow('Session is not open for registration');
   });
 
@@ -161,8 +153,8 @@ describe('BookingsService', () => {
 
     const urgentSession = await sessionsService.createSession(
       {
-        venueId: 'ven_chilonzor_arena',
-        sportId: 'sport_tt',
+        venueId: 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380b11',
+        sportId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         title: 'Starting In One Hour',
         scheduledAt: nearFuture,
         durationMinutes: 60,
@@ -175,16 +167,16 @@ describe('BookingsService', () => {
         bookingDeadline: nearFuture,
         cancellationDeadlineHours: 3,
       },
-      'usr_test_admin',
+      '88eebc99-9c0b-4ef8-bb6d-6bb9bd380d00',
     );
 
     const booking = await bookingsService.reserveSpot(
-      'usr_test_3',
+      'bbeebc99-9c0b-4ef8-bb6d-6bb9bd380d33',
       urgentSession.id,
     );
 
     await expect(
-      bookingsService.cancelBooking(booking.id, 'usr_test_3', 'USER'),
+      bookingsService.cancelBooking(booking.id, 'bbeebc99-9c0b-4ef8-bb6d-6bb9bd380d33', 'USER'),
     ).rejects.toThrow('Cancellation deadline passed');
   });
 });

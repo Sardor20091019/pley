@@ -207,6 +207,32 @@ export async function fetchAdminAuditLogs(): Promise<any[]> {
   return res.json();
 }
 
+export async function fetchVenues(): Promise<any[]> {
+  const res = await fetch(`${API_BASE_URL}/venues`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  return res.json();
+}
+
+export async function fetchSports(): Promise<any[]> {
+  const res = await fetch(`${API_BASE_URL}/sports`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  return res.json();
+}
+
 export async function fetchGoogleAuthUrl(redirectUri: string): Promise<string> {
   const params = new URLSearchParams({ redirectUri });
   const res = await fetch(`${API_BASE_URL}/auth/google/url?${params.toString()}`);
@@ -300,6 +326,21 @@ export async function createAdminSession(data: any): Promise<any> {
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.message || 'Failed to create session');
+  }
+
+  return res.json();
+}
+
+export async function createAdminVenue(data: any): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/venues`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to create venue');
   }
 
   return res.json();

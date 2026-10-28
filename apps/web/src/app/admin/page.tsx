@@ -7,7 +7,10 @@ import {
   fetchAdminMetrics,
   fetchAdminBookings,
   fetchAdminAuditLogs,
+  fetchVenues,
+  fetchSports,
   createAdminSession,
+  createAdminVenue,
 } from '../../lib/api';
 import { AdminMetrics } from '../../lib/types';
 import { Card } from '../../components/ui/Card';
@@ -25,6 +28,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   FileSpreadsheet,
+  Building,
+  MapPin,
 } from 'lucide-react';
 
 export default function AdminPage(): React.JSX.Element {
@@ -36,15 +41,33 @@ export default function AdminPage(): React.JSX.Element {
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
   const [bookings, setBookings] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [venues, setVenues] = useState<any[]>([]);
+  const [sports, setSports] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
   const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
   const [createSuccess, setCreateSuccess] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
 
+  const [showCreateVenueModal, setShowCreateVenueModal] = useState<boolean>(false);
+  const [venueSubmitting, setVenueSubmitting] = useState<boolean>(false);
+  const [venueSuccess, setVenueSuccess] = useState<string | null>(null);
+  const [venueError, setVenueError] = useState<string | null>(null);
+
+  const [venueForm, setVenueForm] = useState({
+    name: '',
+    district: 'Chilonzor',
+    address: '',
+    description: '',
+    supportedSports: ['table-tennis'],
+    hourlyRate: 150000,
+    contactPhone: '+998 71 200 00 00',
+    amenities: 'Dush, Kiyinish xonasi, Bepul suv',
+  });
+
   const [sessionForm, setSessionForm] = useState({
-    venueId: 'ven_chilonzor_arena',
-    sportId: 'sport_tt',
+    venueId: '',
+    sportId: '',
     title: '',
     scheduledAt: '',
     durationMinutes: 90,
@@ -64,14 +87,30 @@ export default function AdminPage(): React.JSX.Element {
   const loadData = async (): Promise<void> => {
     try {
       setLoading(true);
-      const [m, b, a] = await Promise.all([
+      const [m, b, a, vList, sList] = await Promise.all([
         fetchAdminMetrics(),
         fetchAdminBookings(),
         fetchAdminAuditLogs(),
+        fetchVenues(),
+        fetchSports(),
       ]);
       setMetrics(m);
       setBookings(b);
       setAuditLogs(a);
+      setVenues(vList);
+      setSports(sList);
+      if (vList && vList.length > 0) {
+        setSessionForm((prev) => ({
+          ...prev,
+          venueId: vList.some((v: any) => v.id === prev.venueId) ? prev.venueId : vList[0].id,
+        }));
+      }
+      if (sList && sList.length > 0) {
+        setSessionForm((prev) => ({
+          ...prev,
+          sportId: sList.some((s: any) => s.id === prev.sportId) ? prev.sportId : sList[0].id,
+        }));
+      }
     } catch {
     } finally {
       setLoading(false);
@@ -84,12 +123,68 @@ export default function AdminPage(): React.JSX.Element {
     }
   }, [isAdmin]);
 
+  const handleCreateVenue = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    setVenueSubmitting(true);
+    setVenueSuccess(null);
+    setVenueError(null);
+
+    try {
+      const amenitiesArray = venueForm.amenities
+        .split(',')
+        .map((a) => a.trim())
+        .filter(Boolean);
+
+      const created = await createAdminVenue({
+        name: venueForm.name,
+        district: venueForm.district,
+        address: venueForm.address,
+        description: venueForm.description,
+        supportedSports: JSON.stringify(venueForm.supportedSports),
+        hourlyRate: Number(venueForm.hourlyRate),
+        contactPhone: venueForm.contactPhone || null,
+        amenities: JSON.stringify(amenitiesArray),
+        isPartner: true,
+      });
+
+      setVenueSuccess('Sport majmuasi muvaffaqiyatli saqlandi!');
+      setShowCreateVenueModal(false);
+      setVenueForm({
+        name: '',
+        district: 'Chilonzor',
+        address: '',
+        description: '',
+        supportedSports: ['table-tennis'],
+        hourlyRate: 150000,
+        contactPhone: '+998 71 200 00 00',
+        amenities: 'Dush, Kiyinish xonasi, Bepul suv',
+      });
+      await loadData();
+      if (created?.id) {
+        setSessionForm((prev) => ({ ...prev, venueId: created.id }));
+      }
+    } catch (err: any) {
+      setVenueError(err.message || 'Majmuani saqlashda xatolik yuz berdi');
+    } finally {
+      setVenueSubmitting(false);
+    }
+  };
+
   const handleCreateSession = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    setFormSubmitting(true);
     setCreateSuccess(null);
     setCreateError(null);
 
+    if (!sessionForm.venueId) {
+      setCreateError('Iltimos, avval sport majmuasini tanlang yoki yangi majmua qoʻshing');
+      return;
+    }
+    if (!sessionForm.sportId) {
+      setCreateError('Iltimos, sport turini tanlang');
+      return;
+    }
+
+    setFormSubmitting(true);
     try {
       const scheduledIso = new Date(sessionForm.scheduledAt).toISOString();
       const deadlineIso = sessionForm.bookingDeadline
@@ -198,14 +293,30 @@ export default function AdminPage(): React.JSX.Element {
             </p>
           </div>
 
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] cursor-pointer"
-          >
-            <PlusCircle className="w-4 h-4 text-[#C5A55A]" />
-            <span>Yangi sessiya ochish</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setShowCreateVenueModal(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-sans font-bold tracking-widest uppercase bg-[#EDE6D5] text-[#1A1510] border-2 border-[#2D2926] hover:bg-[#DDD4C0] cursor-pointer shadow-[2px_2px_0px_#2D2926]"
+            >
+              <Building className="w-4 h-4 text-[#8B7355]" />
+              <span>Yangi majmua qoʻshish</span>
+            </button>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] cursor-pointer"
+            >
+              <PlusCircle className="w-4 h-4 text-[#C5A55A]" />
+              <span>Yangi sessiya ochish</span>
+            </button>
+          </div>
         </div>
+
+        {venueSuccess && (
+          <div className="p-4 bg-[#EDE6D5] border-2 border-[#1A1510] text-[#1A1510] flex items-center gap-2 font-sans font-bold text-xs uppercase tracking-wider">
+            <CheckCircle2 className="w-4 h-4 text-[#C5A55A]" />
+            <span>{venueSuccess}</span>
+          </div>
+        )}
 
         {createSuccess && (
           <div className="p-4 bg-[#EDE6D5] border-2 border-[#1A1510] text-[#1A1510] flex items-center gap-2 font-sans font-bold text-xs uppercase tracking-wider">
@@ -321,38 +432,69 @@ export default function AdminPage(): React.JSX.Element {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
-                      Sport majmuasi
-                    </label>
-                    <select
-                      value={sessionForm.venueId}
-                      onChange={(e) =>
-                        setSessionForm({ ...sessionForm, venueId: e.target.value })
-                      }
-                      className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
-                    >
-                      <option value="ven_chilonzor_arena">Chilonzor Sports Club</option>
-                      <option value="ven_yunusobod_hub">Yunusobod PingPong & Hoops</option>
-                      <option value="ven_mirzo_court">Mirzo Ulugʻbek Community Court</option>
-                    </select>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510]">
+                        Sport majmuasi
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowCreateVenueModal(true)}
+                        className="text-[10px] font-sans font-bold text-[#8B7355] hover:text-[#1A1510] underline cursor-pointer"
+                      >
+                        + Majmua qoʻshish
+                      </button>
+                    </div>
+                    {venues.length > 0 ? (
+                      <select
+                        value={sessionForm.venueId}
+                        onChange={(e) =>
+                          setSessionForm({ ...sessionForm, venueId: e.target.value })
+                        }
+                        className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                      >
+                        {venues.map((v) => (
+                          <option key={v.id} value={v.id}>
+                            {v.name} ({v.district})
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="p-3 border border-dashed border-[#8B7355] bg-[#F5F0E8] text-xs font-sans text-[#8B7355] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <span>Majmualar mavjud emas.</span>
+                        <button
+                          type="button"
+                          onClick={() => setShowCreateVenueModal(true)}
+                          className="px-2.5 py-1 bg-[#1A1510] text-[#F5F0E8] text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                        >
+                          + Majmua qoʻshish
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div>
                     <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
                       Sport turi
                     </label>
-                    <select
-                      value={sessionForm.sportId}
-                      onChange={(e) =>
-                        setSessionForm({ ...sessionForm, sportId: e.target.value })
-                      }
-                      className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
-                    >
-                      <option value="sport_tt">Stol tennisi</option>
-                      <option value="sport_bball">3x3 Basketbol</option>
-                      <option value="sport_badmin">Badminton</option>
-                      <option value="sport_vball">Voleybol</option>
-                    </select>
+                    {sports.length > 0 ? (
+                      <select
+                        value={sessionForm.sportId}
+                        onChange={(e) =>
+                          setSessionForm({ ...sessionForm, sportId: e.target.value })
+                        }
+                        className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                      >
+                        {sports.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <div className="p-3 border border-dashed border-[#8B7355] bg-[#F5F0E8] text-xs font-sans text-[#8B7355]">
+                        Sport turlari yuklanmadi.
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -517,6 +659,170 @@ export default function AdminPage(): React.JSX.Element {
           </div>
         )}
 
+        {showCreateVenueModal && (
+          <div className="fixed inset-0 z-50 bg-[#1A1510]/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+            <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto bg-[#EDE6D5] border-2 border-[#2D2926] p-6 sm:p-8 space-y-6 shadow-[4px_4px_0px_#2D2926]">
+              <div className="flex items-center justify-between border-b border-[#2D2926]/20 pb-3">
+                <h3
+                  className="text-xl sm:text-2xl font-bold text-[#1A1510]"
+                  style={{ fontFamily: 'Georgia, serif' }}
+                >
+                  Yangi sport majmuasi qoʻshish
+                </h3>
+                <button
+                  onClick={() => setShowCreateVenueModal(false)}
+                  className="px-2 py-0.5 border border-[#2D2926] bg-[#F5F0E8] text-xs font-sans font-bold hover:bg-white cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {venueError && (
+                <div className="p-3 bg-[#F2DDD9] border border-[#8B2E2E] text-[#8B2E2E] text-xs font-sans font-bold">
+                  {venueError}
+                </div>
+              )}
+
+              <form onSubmit={handleCreateVenue} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Majmua nomi
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Masalan, Chilonzor Sports Club"
+                    value={venueForm.name}
+                    onChange={(e) =>
+                      setVenueForm({ ...venueForm, name: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Tuman
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Masalan, Chilonzor"
+                      value={venueForm.district}
+                      onChange={(e) =>
+                        setVenueForm({ ...venueForm, district: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Soatlik narxi (UZS)
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      step="10000"
+                      value={venueForm.hourlyRate}
+                      onChange={(e) =>
+                        setVenueForm({
+                          ...venueForm,
+                          hourlyRate: parseInt(e.target.value, 10) || 0,
+                        })
+                      }
+                      className="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Toʻliq manzil
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Masalan, Chilonzor 9-mavze, 21-uy"
+                    value={venueForm.address}
+                    onChange={(e) =>
+                      setVenueForm({ ...venueForm, address: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Tavsif
+                  </label>
+                  <textarea
+                    rows={2}
+                    required
+                    placeholder="Majmua sharoitlari, pol qoplamasi va imkoniyatlari haqida qisqacha..."
+                    value={venueForm.description}
+                    onChange={(e) =>
+                      setVenueForm({ ...venueForm, description: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Telefon raqami
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="+998 71 200 00 00"
+                      value={venueForm.contactPhone}
+                      onChange={(e) =>
+                        setVenueForm({ ...venueForm, contactPhone: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Qulayliklar (vergul bilan)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Dush, Kiyinish xonasi, Bepul suv"
+                      value={venueForm.amenities}
+                      onChange={(e) =>
+                        setVenueForm({ ...venueForm, amenities: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 flex justify-end gap-3 font-sans">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateVenueModal(false)}
+                    className="px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-xs font-bold uppercase text-[#1A1510] hover:bg-white cursor-pointer"
+                  >
+                    Bekor qilish
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={venueSubmitting}
+                    className="px-5 py-2 bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] text-xs font-bold uppercase hover:bg-[#332B24] cursor-pointer disabled:opacity-50"
+                  >
+                    {venueSubmitting ? 'Saqlanmoqda...' : 'Majmuani saqlash'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="bg-[#EDE6D5] border border-[#2D2926] p-5 sm:p-6 shadow-[2px_2px_0px_#8B7355] space-y-4">
             <h3
@@ -619,16 +925,34 @@ export default function AdminPage(): React.JSX.Element {
           </p>
         </div>
 
-        <Button
-          variant="lime"
-          size="md"
-          onClick={() => setShowCreateModal(true)}
-          className="shrink-0"
-        >
-          <PlusCircle className="w-5 h-5" />
-          <span>Yangi sessiya ochish</span>
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            variant="white"
+            size="md"
+            onClick={() => setShowCreateVenueModal(true)}
+            className="shrink-0"
+          >
+            <Building className="w-5 h-5 text-[#7655F7]" />
+            <span>Yangi majmua</span>
+          </Button>
+          <Button
+            variant="lime"
+            size="md"
+            onClick={() => setShowCreateModal(true)}
+            className="shrink-0"
+          >
+            <PlusCircle className="w-5 h-5" />
+            <span>Yangi sessiya</span>
+          </Button>
+        </div>
       </div>
+
+      {venueSuccess && (
+        <div className="p-4 bg-[#D7FF64] border-2 border-[#242424] rounded-2xl flex items-center gap-2 font-bold text-sm">
+          <CheckCircle2 className="w-5 h-5 text-[#7655F7]" />
+          <span>{venueSuccess}</span>
+        </div>
+      )}
 
       {createSuccess && (
         <div className="p-4 bg-[#D7FF64] border-2 border-[#242424] rounded-2xl flex items-center gap-2 font-bold text-sm">
@@ -732,38 +1056,69 @@ export default function AdminPage(): React.JSX.Element {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-black uppercase text-[#242424] mb-1">
-                    Sport majmuasi
-                  </label>
-                  <select
-                    value={sessionForm.venueId}
-                    onChange={(e) =>
-                      setSessionForm({ ...sessionForm, venueId: e.target.value })
-                    }
-                    className="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold"
-                  >
-                    <option value="ven_chilonzor_arena">Chilonzor Sports Club</option>
-                    <option value="ven_yunusobod_hub">Yunusobod PingPong & Hoops</option>
-                    <option value="ven_mirzo_court">Mirzo Ulugʻbek Community Court</option>
-                  </select>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-black uppercase text-[#242424]">
+                      Sport majmuasi
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateVenueModal(true)}
+                      className="text-xs font-black text-[#7655F7] hover:underline cursor-pointer"
+                    >
+                      + Majmua qoʻshish
+                    </button>
+                  </div>
+                  {venues.length > 0 ? (
+                    <select
+                      value={sessionForm.venueId}
+                      onChange={(e) =>
+                        setSessionForm({ ...sessionForm, venueId: e.target.value })
+                      }
+                      className="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold"
+                    >
+                      {venues.map((v) => (
+                        <option key={v.id} value={v.id}>
+                          {v.name} ({v.district})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="p-3 rounded-xl border-2 border-dashed border-[#242424] bg-[#FFE5E5] text-xs font-bold text-[#D03030] flex items-center justify-between">
+                      <span>Bazada sport majmuasi yoʻq</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowCreateVenueModal(true)}
+                        className="px-2 py-1 bg-[#242424] text-white rounded text-[11px] font-black uppercase cursor-pointer"
+                      >
+                        Qoʻshish
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-xs font-black uppercase text-[#242424] mb-1">
                     Sport turi
                   </label>
-                  <select
-                    value={sessionForm.sportId}
-                    onChange={(e) =>
-                      setSessionForm({ ...sessionForm, sportId: e.target.value })
-                    }
-                    className="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold"
-                  >
-                    <option value="sport_tt">Stol tennisi</option>
-                    <option value="sport_bball">3x3 Basketbol</option>
-                    <option value="sport_badmin">Badminton</option>
-                    <option value="sport_vball">Voleybol</option>
-                  </select>
+                  {sports.length > 0 ? (
+                    <select
+                      value={sessionForm.sportId}
+                      onChange={(e) =>
+                        setSessionForm({ ...sessionForm, sportId: e.target.value })
+                      }
+                      className="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold"
+                    >
+                      {sports.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <div className="p-3 rounded-xl border-2 border-dashed border-[#242424] bg-[#FFE5E5] text-xs font-bold text-[#D03030]">
+                      Sport turlari topilmadi
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -920,9 +1275,181 @@ export default function AdminPage(): React.JSX.Element {
                   type="submit"
                   variant="lime"
                   size="sm"
-                  disabled={formSubmitting}
+                  disabled={formSubmitting || venues.length === 0}
                 >
                   {formSubmitting ? 'Yaratilmoqda...' : 'Eʼlon qilish'}
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      )}
+
+      {showCreateVenueModal && (
+        <div className="fixed inset-0 z-50 bg-[#242424]/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <Card
+            variant="cream"
+            className="w-full max-w-xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 space-y-6 border-4 border-[#242424] shadow-[8px_8px_0px_#242424]"
+          >
+            <div className="flex items-center justify-between border-b-2 border-[#242424] pb-4">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#7655F7] px-2 py-0.5 rounded-full bg-[#EADEFF] border border-[#242424]">
+                  Baza boshqaruvi
+                </span>
+                <h3 className="text-xl font-black text-[#242424] mt-1">
+                  Yangi sport majmuasi qoʻshish
+                </h3>
+              </div>
+              <Button
+                variant="white"
+                size="sm"
+                onClick={() => setShowCreateVenueModal(false)}
+              >
+                ✕
+              </Button>
+            </div>
+
+            {venueError && (
+              <div className="p-3 rounded-xl border-2 border-[#242424] bg-[#FFE5E5] text-[#D03030] text-xs font-black">
+                {venueError}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateVenue} className="space-y-4">
+              <div>
+                <label className="block text-xs font-black uppercase text-[#242424] mb-1">
+                  Majmua nomi
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Masalan, Chilonzor Sports Club"
+                  value={venueForm.name}
+                  onChange={(e) =>
+                    setVenueForm({ ...venueForm, name: e.target.value })
+                  }
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Tuman
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Masalan, Chilonzor"
+                    value={venueForm.district}
+                    onChange={(e) =>
+                      setVenueForm({ ...venueForm, district: e.target.value })
+                    }
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Soatlik narxi (UZS)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="10000"
+                    value={venueForm.hourlyRate}
+                    onChange={(e) =>
+                      setVenueForm({
+                        ...venueForm,
+                        hourlyRate: parseInt(e.target.value, 10) || 0,
+                      })
+                    }
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-[#242424] mb-1">
+                  Toʻliq manzil
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Masalan, Chilonzor 9-mavze, 21-uy"
+                  value={venueForm.address}
+                  onChange={(e) =>
+                    setVenueForm({ ...venueForm, address: e.target.value })
+                  }
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-[#242424] mb-1">
+                  Tavsif
+                </label>
+                <textarea
+                  rows={2}
+                  required
+                  placeholder="Majmua sharoitlari, pol qoplamasi va imkoniyatlari haqida qisqacha..."
+                  value={venueForm.description}
+                  onChange={(e) =>
+                    setVenueForm({ ...venueForm, description: e.target.value })
+                  }
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Telefon raqami
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="+998 71 200 00 00"
+                    value={venueForm.contactPhone}
+                    onChange={(e) =>
+                      setVenueForm({ ...venueForm, contactPhone: e.target.value })
+                    }
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Qulayliklar (vergul bilan)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Dush, Kiyinish xonasi, Bepul suv"
+                    value={venueForm.amenities}
+                    onChange={(e) =>
+                      setVenueForm({ ...venueForm, amenities: e.target.value })
+                    }
+                    className="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-3">
+                <Button
+                  type="button"
+                  variant="white"
+                  size="sm"
+                  onClick={() => setShowCreateVenueModal(false)}
+                >
+                  Bekor qilish
+                </Button>
+                <Button
+                  type="submit"
+                  variant="lime"
+                  size="sm"
+                  disabled={venueSubmitting}
+                >
+                  {venueSubmitting ? 'Saqlanmoqda...' : 'Majmuani saqlash'}
                 </Button>
               </div>
             </form>

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import {
   PaymentProvider,
   PaymentInitiationResult,
@@ -21,7 +22,7 @@ export class PaymeProvider implements PaymentProvider {
     if (!merchantId) {
       this.logger.warn('PAYME_MERCHANT_ID is not configured');
       return {
-        paymentId: `payme_unconf_${Date.now()}`,
+        paymentId: randomUUID(),
         redirectUrl: null,
         providerTransactionId: null,
         status: 'FAILED',
@@ -35,7 +36,7 @@ export class PaymeProvider implements PaymentProvider {
     const paymeUrl = `https://checkout.paycom.uz/${encodedParams}`;
 
     return {
-      paymentId: `payme_${Date.now()}_${params.bookingId}`,
+      paymentId: randomUUID(),
       redirectUrl: paymeUrl,
       providerTransactionId: null,
       status: 'PENDING',

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { DatabaseService } from '../database/database.service';
 import { TurnstileService } from '../auth/turnstile.service';
 import { CreatePartnershipInquiryDto } from './dto/partnership.dto';
@@ -20,7 +21,7 @@ export class PartnershipService {
     }
 
     const db = this.databaseService.getDb();
-    const id = `inq_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const id = randomUUID();
     const now = new Date().toISOString();
 
     await db

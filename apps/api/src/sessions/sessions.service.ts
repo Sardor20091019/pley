@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { DatabaseService } from '../database/database.service';
 import {
   SessionsTable,
@@ -323,7 +324,7 @@ export class SessionsService {
       .executeTakeFirst();
 
     if (!venue) {
-      throw new BadRequestException(`Venue ${dto.venueId} does not exist`);
+      throw new BadRequestException(`Tanlangan sport majmuasi topilmadi. Avval majmua qoʻshing.`);
     }
 
     const sport = await db
@@ -333,10 +334,10 @@ export class SessionsService {
       .executeTakeFirst();
 
     if (!sport) {
-      throw new BadRequestException(`Sport ${dto.sportId} does not exist`);
+      throw new BadRequestException(`Tanlangan sport turi topilmadi.`);
     }
 
-    const sessionId = `ses_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const sessionId = randomUUID();
     const now = new Date().toISOString();
 
     await db
@@ -369,7 +370,7 @@ export class SessionsService {
     await db
       .insertInto('audit_logs')
       .values({
-        id: `aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        id: randomUUID(),
         actor_id: organizerId,
         action: 'CREATE_SESSION',
         target_type: 'SESSION',
@@ -433,7 +434,7 @@ export class SessionsService {
     await db
       .insertInto('audit_logs')
       .values({
-        id: `aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        id: randomUUID(),
         actor_id: actorId,
         action: 'UPDATE_SESSION',
         target_type: 'SESSION',
@@ -487,7 +488,7 @@ export class SessionsService {
       await trx
         .insertInto('audit_logs')
         .values({
-          id: `aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          id: randomUUID(),
           actor_id: actorId,
           action: 'CANCEL_SESSION',
           target_type: 'SESSION',

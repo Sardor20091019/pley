@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { DatabaseService } from '../database/database.service';
 import { UTApi } from 'uploadthing/server';
 
@@ -81,7 +82,7 @@ export class UploadService {
     await db
       .insertInto('audit_logs')
       .values({
-        id: `aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        id: randomUUID(),
         actor_id: userId,
         action: 'UPDATE_AVATAR',
         target_type: 'USER',

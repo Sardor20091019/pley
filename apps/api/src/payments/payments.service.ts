@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { DatabaseService } from '../database/database.service';
 import { PaymentsTable, PaymentStatus } from '../database/database.types';
 import { ClickProvider } from './providers/click.provider';
@@ -78,7 +79,7 @@ export class PaymentsService {
     });
 
     const now = new Date().toISOString();
-    const paymentId = `pay_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const paymentId = randomUUID();
     const initialStatus: PaymentStatus = result.status === 'SUCCESS' ? 'PAID' : 'UNPAID';
 
     if (!existingPayment) {

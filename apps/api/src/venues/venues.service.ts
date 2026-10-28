@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { DatabaseService } from '../database/database.service';
 import { VenuesTable } from '../database/database.types';
 import { CreateVenueDto, UpdateVenueDto } from './dto/venue.dto';
@@ -54,7 +55,7 @@ export class VenuesService {
     actorId: string,
   ): Promise<VenuesTable> {
     const db = this.databaseService.getDb();
-    const id = `ven_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const id = randomUUID();
     const now = new Date().toISOString();
 
     await db
@@ -79,7 +80,7 @@ export class VenuesService {
     await db
       .insertInto('audit_logs')
       .values({
-        id: `aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        id: randomUUID(),
         actor_id: actorId,
         action: 'CREATE_VENUE',
         target_type: 'VENUE',
@@ -137,7 +138,7 @@ export class VenuesService {
     await db
       .insertInto('audit_logs')
       .values({
-        id: `aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        id: randomUUID(),
         actor_id: actorId,
         action: 'UPDATE_VENUE',
         target_type: 'VENUE',

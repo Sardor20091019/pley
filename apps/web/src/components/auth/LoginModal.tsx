@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TurnstileWidget } from './TurnstileWidget';
 import { Mascot } from '../mascot/Mascot';
@@ -27,6 +27,23 @@ export function LoginModal({
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setTurnstileToken(null);
+      setError(null);
+      setLoading(false);
+    }
+  }, [isOpen]);
+
+  const handleTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setError(null);
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken(null);
+  }, []);
 
   const handleGoogleLogin = async (): Promise<void> => {
     if (!turnstileToken) {
@@ -132,10 +149,8 @@ export function LoginModal({
               </div>
 
               <TurnstileWidget
-                onVerify={(token) => {
-                  setTurnstileToken(token);
-                  setError(null);
-                }}
+                onVerify={handleTurnstileVerify}
+                onExpire={handleTurnstileExpire}
                 className="my-1 scale-95 origin-center"
               />
             </div>

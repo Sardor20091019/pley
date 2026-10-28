@@ -38,11 +38,9 @@ describe('Auth, Admin & Payments Suite', () => {
 
     await db.insertInto('users').values([
       {
-        id: 'usr_test_1',
+        id: '99eebc99-9c0b-4ef8-bb6d-6bb9bd380d11',
         google_id: 'g_test_1',
         email: 'user1@pley.uz',
-        telegram_id: null,
-        telegram_username: null,
         first_name: 'TestUser1',
         last_name: 'Player',
         avatar_url: null,
@@ -57,11 +55,9 @@ describe('Auth, Admin & Payments Suite', () => {
         updated_at: now,
       },
       {
-        id: 'usr_test_2',
+        id: 'aaebbc99-9c0b-4ef8-bb6d-6bb9bd380d22',
         google_id: 'g_test_2',
         email: 'user2@pley.uz',
-        telegram_id: null,
-        telegram_username: null,
         first_name: 'TestUser2',
         last_name: 'Player',
         avatar_url: null,
@@ -79,9 +75,9 @@ describe('Auth, Admin & Payments Suite', () => {
 
     await db.insertInto('bookings').values([
       {
-        id: 'bk_test_1',
-        session_id: 'ses_tt_saturday',
-        user_id: 'usr_test_1',
+        id: 'ddeebc99-9c0b-4ef8-bb6d-6bb9bd380e11',
+        session_id: '17eebc99-9c0b-4ef8-bb6d-6bb9bd380c11',
+        user_id: '99eebc99-9c0b-4ef8-bb6d-6bb9bd380d11',
         status: 'CONFIRMED',
         price_snapshot: 28000,
         service_fee_snapshot: 3000,
@@ -149,11 +145,11 @@ describe('Auth, Admin & Payments Suite', () => {
   it('should process simulated payments idempotently', async () => {
     const res1 = await paymentsService.initiatePayment(
       {
-        bookingId: 'bk_test_1',
+        bookingId: 'ddeebc99-9c0b-4ef8-bb6d-6bb9bd380e11',
         provider: 'SIMULATED',
         returnUrl: 'https://pley.uz/my-games',
       },
-      'usr_test_1',
+      '99eebc99-9c0b-4ef8-bb6d-6bb9bd380d11',
     );
 
     expect(res1.status).toBe('SUCCESS');
@@ -161,11 +157,11 @@ describe('Auth, Admin & Payments Suite', () => {
 
     const res2 = await paymentsService.initiatePayment(
       {
-        bookingId: 'bk_test_1',
+        bookingId: 'ddeebc99-9c0b-4ef8-bb6d-6bb9bd380e11',
         provider: 'SIMULATED',
         returnUrl: 'https://pley.uz/my-games',
       },
-      'usr_test_1',
+      '99eebc99-9c0b-4ef8-bb6d-6bb9bd380d11',
     );
 
     expect(res2.status).toBe('SUCCESS');
@@ -175,11 +171,11 @@ describe('Auth, Admin & Payments Suite', () => {
     await expect(
       paymentsService.initiatePayment(
         {
-          bookingId: 'bk_test_1',
+          bookingId: 'ddeebc99-9c0b-4ef8-bb6d-6bb9bd380e11',
           provider: 'SIMULATED',
           returnUrl: 'https://pley.uz/my-games',
         },
-        'usr_test_2',
+        'aaebbc99-9c0b-4ef8-bb6d-6bb9bd380d22',
       ),
     ).rejects.toThrow('Cannot pay for another user reservation');
   });
