@@ -63,7 +63,7 @@ export function EditorialHomePage({
                 transition={{ duration: 0.3 }}
               >
                 <span className="font-sans text-[11px] font-bold tracking-[0.2em] uppercase text-[#8B7355] border-b border-[#8B7355] pb-1">
-                  Vol. I — 2026 Edition · Toshkent, Oʻzbekiston
+                  {t('editorialEdition')}
                 </span>
               </motion.div>
 
@@ -233,7 +233,7 @@ export function EditorialHomePage({
                   {t('upcomingGamesTitle')}
                 </h2>
                 <Link href="/discover" className="font-sans text-xs font-bold tracking-wider uppercase text-[#8B7355] hover:text-[#1A1510] flex items-center gap-1">
-                  <span>Barchasini koʻrish</span>
+                  <span>{t('viewAll')}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
@@ -279,7 +279,7 @@ export function EditorialHomePage({
                         <div className="flex items-center justify-between">
                           <div>
                             <span className="font-sans text-[10px] uppercase tracking-wider text-[#8B7355] block">
-                              Joy narxi
+                              {t('sessionCardPriceLabelCartoon')}
                             </span>
                             <span className="text-base font-bold text-[#1A1510]" style={{ fontFamily: 'Georgia, serif' }}>
                               {session.pricePerSlot.toLocaleString()} UZS
@@ -287,7 +287,7 @@ export function EditorialHomePage({
                           </div>
                           <Link href={`/sessions/${session.id}`}>
                             <button className="px-4 py-2 bg-[#1A1510] text-[#F5F0E8] font-sans text-xs font-bold tracking-widest uppercase hover:bg-[#332B24] transition-all cursor-pointer">
-                              Band qilish
+                              {t('grabSpot')}
                             </button>
                           </Link>
                         </div>
@@ -352,10 +352,10 @@ export function EditorialHomePage({
                 <div className="text-center py-8 space-y-3">
                   <Trophy className="w-10 h-10 mx-auto text-[#8B7355]" />
                   <h3 className="text-xl font-bold text-[#1A1510]" style={{ fontFamily: 'Georgia, serif' }}>
-                    Arizangiz qabul qilindi!
+                    {t('partnerSuccessTitle')}
                   </h3>
                   <p className="font-sans text-xs text-[#4A3F30]">
-                    Tez orada mutaxassisimiz siz bilan bogʻlanadi va zalni platformaga ulaymiz.
+                    {t('partnerSuccessSubtitle')}
                   </p>
                 </div>
               ) : (
@@ -363,7 +363,7 @@ export function EditorialHomePage({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block font-sans text-[10px] font-bold uppercase tracking-wider text-[#8B7355] mb-1">
-                        Ismingiz
+                        {t('partnerNameLabel')}
                       </label>
                       <input
                         type="text"
@@ -376,7 +376,7 @@ export function EditorialHomePage({
                     </div>
                     <div>
                       <label className="block font-sans text-[10px] font-bold uppercase tracking-wider text-[#8B7355] mb-1">
-                        Telefon raqam
+                        {t('partnerPhoneLabel')}
                       </label>
                       <input
                         type="text"
@@ -392,7 +392,7 @@ export function EditorialHomePage({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block font-sans text-[10px] font-bold uppercase tracking-wider text-[#8B7355] mb-1">
-                        Zal nomi
+                        {t('partnerVenueNameLabel')}
                       </label>
                       <input
                         type="text"
@@ -405,25 +405,25 @@ export function EditorialHomePage({
                     </div>
                     <div>
                       <label className="block font-sans text-[10px] font-bold uppercase tracking-wider text-[#8B7355] mb-1">
-                        Tuman
+                        {t('partnerDistrictLabel')}
                       </label>
                       <select
                         value={partnerForm.district}
                         onChange={(e) => setPartnerForm({ ...partnerForm, district: e.target.value })}
                         className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[rgba(45,41,38,0.3)] font-sans text-sm outline-none focus:border-[#1A1510]"
                       >
-                        <option value="Yunusobod">Yunusobod tumani</option>
-                        <option value="Chilonzor">Chilonzor tumani</option>
-                        <option value="Mirzo Ulugʻbek">Mirzo Ulugʻbek tumani</option>
-                        <option value="Yakkasaroy">Yakkasaroy tumani</option>
-                        <option value="Mirobod">Mirobod tumani</option>
+                        <option value="Yunusobod">Yunusobod</option>
+                        <option value="Chilonzor">Chilonzor</option>
+                        <option value="Mirzo Ulugʻbek">Mirzo Ulugʻbek</option>
+                        <option value="Yakkasaroy">Yakkasaroy</option>
+                        <option value="Mirobod">Mirobod</option>
                       </select>
                     </div>
                   </div>
 
                   <div>
                     <label className="block font-sans text-[10px] font-bold uppercase tracking-wider text-[#8B7355] mb-1">
-                      Sport turlari
+                      {t('partnerSportLabel')}
                     </label>
                     <input
                       type="text"
@@ -440,7 +440,7 @@ export function EditorialHomePage({
                     disabled={partnerSubmitting}
                     className="w-full py-3.5 bg-[#1A1510] text-[#F5F0E8] font-sans text-xs font-bold tracking-widest uppercase hover:bg-[#332B24] disabled:opacity-50 transition-all cursor-pointer"
                   >
-                    {partnerSubmitting ? 'Yuborilmoqda...' : t('venuePartnerBtn')}
+                    {partnerSubmitting ? t('partnerSubmittingBtn') : t('venuePartnerBtn')}
                   </button>
                 </form>
               )}

@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppTheme } from '../../lib/theme/ThemeContext';
-import { Sparkles, BookOpen } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 
 export function ThemeSwitcher(): React.JSX.Element {
   const { theme, toggleTheme, isTransitioning } = useAppTheme();
@@ -26,7 +26,6 @@ export function ThemeSwitcher(): React.JSX.Element {
             transition={{ duration: 0.18 }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#D7FF64] border-2 border-[#242424] shadow-[2px_2px_0px_#242424] text-xs font-black text-[#242424] hover:bg-[#cbf556] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#7655F7]" />
             <span className="tracking-tight uppercase">Cartoon</span>
           </motion.div>
         ) : (

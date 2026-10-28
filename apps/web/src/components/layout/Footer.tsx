@@ -27,13 +27,13 @@ export function Footer(): React.JSX.Element {
               {t('brandTagline')}
             </p>
             <div className="inline-flex items-center gap-2 bg-[#F5F0E8] px-3 py-1.5 text-[10px] font-bold font-sans uppercase tracking-widest text-[#8B7355] border border-[rgba(45,41,38,0.25)]">
-              <span>📍 Toshkent, Oʻzbekiston</span>
+              <span>📍 {t('footerLocation')}</span>
             </div>
           </div>
 
           <div>
             <h4 className="font-bold text-[10px] font-sans uppercase tracking-[0.2em] text-[#8B7355] mb-3">
-              Sport Katalogi
+              {t('footerSportsCatalog')}
             </h4>
             <ul className="space-y-2 text-xs font-sans font-medium text-[#4A3F30]">
               <li>
@@ -48,12 +48,12 @@ export function Footer(): React.JSX.Element {
               </li>
               <li>
                 <Link href="/discover?district=Chilonzor" className="hover:text-[#1A1510] transition-colors">
-                  Chilonzor zonalari
+                  {t('footerChilonzorZones')}
                 </Link>
               </li>
               <li>
                 <Link href="/discover?district=Yunusobod" className="hover:text-[#1A1510] transition-colors">
-                  Yunusobod zonalari
+                  {t('footerYunusobodZones')}
                 </Link>
               </li>
             </ul>
@@ -61,7 +61,7 @@ export function Footer(): React.JSX.Element {
 
           <div>
             <h4 className="font-bold text-[10px] font-sans uppercase tracking-[0.2em] text-[#8B7355] mb-3">
-              Platforma
+              {t('footerPlatform')}
             </h4>
             <ul className="space-y-2 text-xs font-sans font-medium text-[#4A3F30]">
               <li>
@@ -71,17 +71,17 @@ export function Footer(): React.JSX.Element {
               </li>
               <li>
                 <Link href="/#venue-partner" className="hover:text-[#1A1510] transition-colors">
-                  Zal egalari uchun
+                  {t('footerVenuePartners')}
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="hover:text-[#1A1510] transition-colors">
-                  Foydalanish shartlari
+                  {t('footerTerms')}
                 </Link>
               </li>
               <li>
                 <Link href="/privacy" className="hover:text-[#1A1510] transition-colors">
-                  Maxfiylik va bekor qilish
+                  {t('footerPrivacy')}
                 </Link>
               </li>
             </ul>
@@ -89,10 +89,10 @@ export function Footer(): React.JSX.Element {
 
           <div className="space-y-3">
             <h4 className="font-bold text-[10px] font-sans uppercase tracking-[0.2em] text-[#8B7355] mb-1">
-              Telegram Jamiyati
+              {t('footerCommunity')}
             </h4>
             <p className="text-xs font-sans text-[#4A3F30] leading-relaxed">
-              Yangi oʻyinlar, doʻstlar va chellenjlar uchun rasmiy kanalimizga qoʻshiling.
+              {t('footerCommunityDesc')}
             </p>
             <a
               href="https://t.me/pleyuz"
@@ -107,9 +107,9 @@ export function Footer(): React.JSX.Element {
         </div>
 
         <div className="max-w-7xl mx-auto pt-8 mt-8 border-t border-[rgba(45,41,38,0.15)] flex flex-col sm:flex-row items-center justify-between text-xs font-sans text-[#8B7355] gap-3">
-          <div>© 2026 Pley.uz. Barcha huquqlar himoyalangan.</div>
+          <div>© 2026 Pley.uz. {t('footerRights')}</div>
           <div className="flex items-center gap-1 font-bold text-[#4A3F30]">
-            <span>Toshkent sportchilari uchun muhabbat bilan</span>
+            <span>{t('footerMadeWithLove')}</span>
             <Heart className="w-3.5 h-3.5 text-[#B85450] fill-current" />
           </div>
         </div>
@@ -131,13 +131,13 @@ export function Footer(): React.JSX.Element {
             {t('brandTagline')}
           </p>
           <div className="inline-flex items-center gap-2 bg-[#333333] px-3 py-1.5 rounded-full text-xs font-bold text-[#D7FF64] border border-[#444444]">
-            <span>📍 Toshkent, Oʻzbekiston</span>
+            <span>📍 {t('footerLocation')}</span>
           </div>
         </div>
 
         <div>
           <h4 className="font-extrabold text-sm uppercase tracking-wider text-[#D7FF64] mb-3">
-            Oʻyinlar & Sport
+            {t('footerSportsCatalog')}
           </h4>
           <ul className="space-y-2 text-sm text-[#DDDDDD] font-medium">
             <li>
@@ -152,17 +152,17 @@ export function Footer(): React.JSX.Element {
             </li>
             <li>
               <Link href="/discover?sport=badminton" className="hover:text-[#D7FF64] transition-colors">
-                {t('badminton')} (Yaqinda)
+                {t('badminton')} ({t('comingSoon')})
               </Link>
             </li>
             <li>
               <Link href="/discover?district=Chilonzor" className="hover:text-[#D7FF64] transition-colors">
-                Chilonzor zonalari
+                {t('footerChilonzorZones')}
               </Link>
             </li>
             <li>
               <Link href="/discover?district=Yunusobod" className="hover:text-[#D7FF64] transition-colors">
-                Yunusobod zonalari
+                {t('footerYunusobodZones')}
               </Link>
             </li>
           </ul>
@@ -170,7 +170,7 @@ export function Footer(): React.JSX.Element {
 
         <div>
           <h4 className="font-extrabold text-sm uppercase tracking-wider text-[#D7FF64] mb-3">
-            Pley haqida
+            {t('footerPlatform')}
           </h4>
           <ul className="space-y-2 text-sm text-[#DDDDDD] font-medium">
             <li>
@@ -180,17 +180,17 @@ export function Footer(): React.JSX.Element {
             </li>
             <li>
               <Link href="/#venue-partner" className="hover:text-[#D7FF64] transition-colors">
-                Zal egalari uchun
+                {t('footerVenuePartners')}
               </Link>
             </li>
             <li>
               <Link href="/terms" className="hover:text-[#D7FF64] transition-colors">
-                Foydalanish shartlari
+                {t('footerTerms')}
               </Link>
             </li>
             <li>
               <Link href="/privacy" className="hover:text-[#D7FF64] transition-colors">
-                Maxfiylik va bekor qilish
+                {t('footerPrivacy')}
               </Link>
             </li>
           </ul>
@@ -198,10 +198,10 @@ export function Footer(): React.JSX.Element {
 
         <div className="space-y-3">
           <h4 className="font-extrabold text-sm uppercase tracking-wider text-[#D7FF64] mb-1">
-            Telegram Jamiyati
+            {t('footerCommunity')}
           </h4>
           <p className="text-xs text-[#BBBBBB] leading-relaxed">
-            Yangi oʻyinlar, doʻstlar va chellenjlar uchun rasmiy kanalimizga qoʻshiling.
+            {t('footerCommunityDesc')}
           </p>
           <a
             href="https://t.me/pleyuz"
@@ -216,9 +216,9 @@ export function Footer(): React.JSX.Element {
       </div>
 
       <div className="max-w-7xl mx-auto pt-8 mt-8 border-t border-[#3A3A3A] flex flex-col sm:flex-row items-center justify-between text-xs text-[#888888] gap-3">
-        <div>© 2026 Pley.uz. Barcha huquqlar himoyalangan.</div>
+        <div>© 2026 Pley.uz. {t('footerRights')}</div>
         <div className="flex items-center gap-1 font-bold">
-          <span>Toshkent sportchilari uchun muhabbat bilan</span>
+          <span>{t('footerMadeWithLove')}</span>
           <Heart className="w-3.5 h-3.5 text-[#FF795D] fill-current" />
         </div>
       </div>

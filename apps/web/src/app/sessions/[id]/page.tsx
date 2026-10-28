@@ -132,24 +132,24 @@ export default function SessionDetailPage(): React.JSX.Element {
           <div className="bg-[#EDE6D5] border border-[#2D2926] p-8 space-y-4">
             <Scroll className="w-10 h-10 text-[#8B7355] mx-auto" />
             <h2 className="text-2xl font-bold text-[#1A1510]" style={{ fontFamily: 'Georgia, serif' }}>
-              Oʻyin topilmadi
+              {t('sessionNotFound')}
             </h2>
             <p className="text-xs font-serif italic text-[#8B7355]">
-              Siz qidirayotgan arxiv maʼlumotnomasi mavjud emas yoki muddati oʻtgan.
+              {t('sessionNotFoundDescEditorial')}
             </p>
             <button
               onClick={() => router.push('/discover')}
               className="px-4 py-2 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926]"
             >
-              Barcha oʻyinlarga qaytish
+              {t('sessionBackToGames')}
             </button>
           </div>
         ) : (
           <>
             <Mascot size="lg" mood="sleepy" />
-            <h2 className="text-2xl font-black text-[#242424]">Oʻyin topilmadi</h2>
+            <h2 className="text-2xl font-black text-[#242424]">{t('sessionNotFound')}</h2>
             <Button variant="lime" size="sm" onClick={() => router.push('/discover')}>
-              Boshqa oʻyinlarni koʻrish
+              {t('sessionNotFoundDescCartoon')}
             </Button>
           </>
         )}
@@ -174,11 +174,11 @@ export default function SessionDetailPage(): React.JSX.Element {
             className="inline-flex items-center gap-2 text-xs font-sans font-bold tracking-widest uppercase text-[#8B7355] hover:text-[#1A1510] cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>SPORT JADVALLARIGA QAYTISH</span>
+            <span>{t('sessionBackToSchedule')}</span>
           </button>
 
           <span className="text-[11px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-            DOSSIER № {session.id.slice(0, 8).toUpperCase()}
+            {t('sessionDossier')} {session.id.slice(0, 8).toUpperCase()}
           </span>
         </div>
 
@@ -219,7 +219,7 @@ export default function SessionDetailPage(): React.JSX.Element {
                   className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-sans font-bold tracking-widest uppercase border border-[#2D2926] bg-[#F5F0E8] hover:bg-white text-[#1A1510] cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>Ulashish</span>
+                  <span>{t('shareGame')}</span>
                 </button>
               </div>
 
@@ -246,7 +246,7 @@ export default function SessionDetailPage(): React.JSX.Element {
                   <Calendar className="w-5 h-5 text-[#8B7355]" />
                   <div>
                     <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-                      OʻTKAZILISH VAQTI
+                      {t('sessionTime')}
                     </div>
                     <div className="text-xs sm:text-sm font-sans font-bold text-[#1A1510]" suppressHydrationWarning>
                       {formattedDate}
@@ -257,10 +257,10 @@ export default function SessionDetailPage(): React.JSX.Element {
                   <Clock className="w-5 h-5 text-[#8B7355]" />
                   <div>
                     <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-                      MUDDATI
+                      {t('sessionDuration')}
                     </div>
                     <div className="text-xs sm:text-sm font-sans font-bold text-[#1A1510]">
-                      {session.durationMinutes} daqiqa
+                      {session.durationMinutes} min
                     </div>
                   </div>
                 </div>
@@ -268,7 +268,7 @@ export default function SessionDetailPage(): React.JSX.Element {
 
               <div className="space-y-2">
                 <div className="text-[11px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-                  BOʻSH OʻRINLAR NISBATI
+                  {t('sessionCapacityState')}
                 </div>
                 <CapacityMeter
                   maxSlots={session.maxSlots}
@@ -280,7 +280,7 @@ export default function SessionDetailPage(): React.JSX.Element {
 
               <div className="space-y-3 pt-2">
                 <div className="text-[11px] font-sans font-bold uppercase tracking-widest text-[#8B7355] border-b border-[#2D2926]/20 pb-1">
-                  ROʻYXATDAN OʻTGAN ATLETLAR ({session.participants.length} / {session.maxSlots})
+                  {t('sessionParticipantsRegistry')} ({session.participants.length} / {session.maxSlots})
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -312,7 +312,7 @@ export default function SessionDetailPage(): React.JSX.Element {
                         № {String(session.participants.length + i + 1).padStart(2, '0')}
                       </span>
                       <span className="text-xs font-sans uppercase tracking-wider font-semibold">
-                        Boʻsh joy
+                        {t('sessionEmptySlot')}
                       </span>
                     </div>
                   ))}
@@ -322,7 +322,7 @@ export default function SessionDetailPage(): React.JSX.Element {
               {session.equipmentDetails && (
                 <div className="p-4 bg-[#F5F0E8] border border-[#2D2926]/30 space-y-1">
                   <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-                    § TAQDIM ETILUVCHI ANJOM VA INVENTAR
+                    § {t('equipmentProvided')}
                   </div>
                   <div className="text-xs font-serif text-[#1A1510]">
                     {session.equipmentDetails}
@@ -333,7 +333,7 @@ export default function SessionDetailPage(): React.JSX.Element {
               {session.rulesNotes && (
                 <div className="p-4 bg-[#F5F0E8] border border-[#2D2926]/30 space-y-1">
                   <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-                    § MAXSUS QOIDALAR VA ESLATMALAR
+                    § {t('rulesAndNotes')}
                   </div>
                   <div className="text-xs font-serif text-[#1A1510]">
                     {session.rulesNotes}
@@ -347,7 +347,7 @@ export default function SessionDetailPage(): React.JSX.Element {
             <div className="bg-[#EDE6D5] border-2 border-[#2D2926] p-6 shadow-[3px_3px_0px_#2D2926] space-y-5">
               <div className="text-center pb-3 border-b-2 border-dashed border-[#2D2926]/40">
                 <span className="text-[10px] font-sans font-extrabold tracking-widest uppercase text-[#8B7355] block">
-                  RASMIY CHIPTA VA HUJJAT
+                  {t('sessionTicketPass')}
                 </span>
                 <span
                   className="text-lg font-bold text-[#1A1510]"
@@ -359,20 +359,20 @@ export default function SessionDetailPage(): React.JSX.Element {
 
               <div className="space-y-2.5 text-xs font-sans">
                 <div className="flex justify-between text-[#8B7355]">
-                  <span>ZAL NARXI</span>
+                  <span>{t('sessionCardPriceLabelEditorial')}</span>
                   <span className="font-bold text-[#1A1510]">
                     {session.pricePerSlot.toLocaleString()} UZS
                   </span>
                 </div>
                 <div className="flex justify-between text-[#8B7355]">
-                  <span>PLATFORMA HAQI</span>
+                  <span>{t('serviceFee')}</span>
                   <span className="font-bold text-[#1A1510]">
                     {session.serviceFee.toLocaleString()} UZS
                   </span>
                 </div>
                 <div className="pt-2 border-t border-[#2D2926]/20 flex justify-between items-baseline">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#1A1510]">
-                    JAMI TOʻLOV
+                    {t('totalPrice')}
                   </span>
                   <span
                     className="text-2xl font-bold text-[#1A1510]"
@@ -388,14 +388,14 @@ export default function SessionDetailPage(): React.JSX.Element {
                   <div className="space-y-3">
                     <div className="flex items-center justify-center gap-2 p-2.5 bg-[#F5F0E8] border border-[#2D2926] text-xs font-sans font-bold uppercase tracking-wider text-[#1A1510]">
                       <CheckCircle2 className="w-4 h-4 text-[#C5A55A]" />
-                      <span>Siz roʻyxatdasiz</span>
+                      <span>{t('sessionAlreadyBooked')}</span>
                     </div>
                     <button
                       onClick={handleCancel}
                       disabled={actionLoading}
                       className="w-full py-2.5 text-xs font-sans font-bold tracking-widest uppercase bg-[#F2DDD9] border border-[#8B2E2E] text-[#8B2E2E] hover:bg-[#E8C5C0] cursor-pointer"
                     >
-                      {actionLoading ? 'Kutilmoqda...' : 'Bandlikni bekor qilish'}
+                      {actionLoading ? t('sessionCancelling') : t('cancelBooking')}
                     </button>
                   </div>
                 ) : isFull ? (
@@ -403,14 +403,14 @@ export default function SessionDetailPage(): React.JSX.Element {
                     disabled
                     className="w-full py-3 text-xs font-sans font-bold tracking-widest uppercase bg-[#E0D8C7] text-[#8B7355] border border-[#8B7355]/30 cursor-not-allowed"
                   >
-                    Barcha joylar band
+                    {t('spotsFull')}
                   </button>
                 ) : !isAuthenticated ? (
                   <button
                     onClick={() => openLoginModal(`/sessions/${sessionId}`)}
                     className="w-full py-3 text-xs font-sans font-extrabold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] hover:bg-[#332B24] border border-[#2D2926] transition-all cursor-pointer"
                   >
-                    Kirish va band qilish
+                    {t('sessionLoginToBook')}
                   </button>
                 ) : (
                   <button
@@ -418,7 +418,7 @@ export default function SessionDetailPage(): React.JSX.Element {
                     disabled={actionLoading}
                     className="w-full py-3.5 text-xs font-sans font-extrabold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] hover:bg-[#332B24] border border-[#2D2926] transition-all cursor-pointer"
                   >
-                    {actionLoading ? 'Yozilmoqda...' : 'Joyni band qilish'}
+                    {actionLoading ? t('sessionBookingProcess') : t('grabSpot')}
                   </button>
                 )}
               </div>
@@ -443,12 +443,12 @@ export default function SessionDetailPage(): React.JSX.Element {
         className="inline-flex items-center gap-1.5 text-xs font-black text-[#242424] hover:text-[#7655F7] transition-colors cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>Barcha oʻyinlarga qaytish</span>
+        <span>{t('sessionBackToGames')}</span>
       </button>
 
       {successMessage && (
         <div className="p-4 rounded-2xl bg-[#D7FF64] border-2 border-[#242424] shadow-[4px_4px_0px_#242424] flex items-center gap-3 animate-bounce">
-          <Sparkles className="w-6 h-6 text-[#7655F7] shrink-0" />
+          <Sparkles className="w-5 h-5 text-[#7655F7] shrink-0" />
           <div className="text-sm font-black text-[#242424]">
             {successMessage}
           </div>
@@ -502,7 +502,7 @@ export default function SessionDetailPage(): React.JSX.Element {
             <Calendar className="w-5 h-5 text-[#242424]" />
             <div>
               <div className="text-[11px] font-black uppercase text-[#888888]">
-                Sana va vaqt
+                {t('sessionTime')}
               </div>
               <div className="text-sm font-black text-[#242424]" suppressHydrationWarning>
                 {formattedDate}
@@ -513,10 +513,10 @@ export default function SessionDetailPage(): React.JSX.Element {
             <Clock className="w-5 h-5 text-[#242424]" />
             <div>
               <div className="text-[11px] font-black uppercase text-[#888888]">
-                Davomiyligi
+                {t('sessionDuration')}
               </div>
               <div className="text-sm font-black text-[#242424]">
-                {session.durationMinutes} daqiqa
+                {session.durationMinutes} min
               </div>
             </div>
           </div>
@@ -524,7 +524,7 @@ export default function SessionDetailPage(): React.JSX.Element {
 
         <div className="space-y-2">
           <div className="text-xs font-black uppercase text-[#888888]">
-            Joylar holati
+            {t('sessionCapacityState')}
           </div>
           <CapacityMeter
             maxSlots={session.maxSlots}
@@ -562,7 +562,7 @@ export default function SessionDetailPage(): React.JSX.Element {
                 key={i}
                 className="flex items-center gap-1.5 border-2 border-dashed border-[#CCCCCC] px-3 py-1.5 rounded-full text-xs font-bold text-[#888888]"
               >
-                <span>Boʻsh joy</span>
+                <span>{t('sessionEmptySlot')}</span>
               </div>
             ))}
           </div>
@@ -618,7 +618,7 @@ export default function SessionDetailPage(): React.JSX.Element {
               <div className="flex flex-col sm:flex-row items-center gap-3">
                 <div className="flex items-center gap-1.5 text-xs font-black text-[#D7FF64]">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Siz roʻyxatdasiz!</span>
+                  <span>{t('sessionAlreadyBooked')}</span>
                 </div>
                 <Button
                   variant="coral"
@@ -627,7 +627,7 @@ export default function SessionDetailPage(): React.JSX.Element {
                   disabled={actionLoading}
                   className="w-full sm:w-auto"
                 >
-                  {actionLoading ? 'Kutilmoqda...' : t('cancelBooking')}
+                  {actionLoading ? t('sessionCancelling') : t('cancelBooking')}
                 </Button>
               </div>
             ) : isFull ? (
@@ -642,7 +642,7 @@ export default function SessionDetailPage(): React.JSX.Element {
                 fullWidth
                 className="text-base font-black"
               >
-                Kirish va band qilish
+                {t('sessionLoginToBook')}
               </Button>
             ) : (
               <Button
@@ -653,7 +653,7 @@ export default function SessionDetailPage(): React.JSX.Element {
                 fullWidth
                 className="text-lg font-black"
               >
-                {actionLoading ? 'Band qilinmoqda...' : t('grabSpot')}
+                {actionLoading ? t('sessionBookingProcess') : t('grabSpot')}
               </Button>
             )}
           </div>

@@ -10,7 +10,6 @@ import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Card } from '../ui/Card';
 import {
-  Sparkles,
   ArrowRight,
   Users,
   Wallet,
@@ -60,7 +59,6 @@ export function CartoonHomePage({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 bg-[#D7FF64] border-2 border-[#242424] px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_#242424]">
-              <Sparkles className="w-3.5 h-3.5" />
               <span>{t('brandTagline')}</span>
             </div>
 
@@ -93,15 +91,15 @@ export function CartoonHomePage({
             <div className="flex items-center justify-center lg:justify-start gap-4 pt-4 text-xs font-bold text-[#666666]">
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-[#7655F7]" />
-                <span>Bitta joy narxi</span>
+                <span>{t('singleSpotPrice')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-[#7655F7]" />
-                <span>Tekshirilgan zallar</span>
+                <span>{t('verifiedVenues')}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-[#7655F7]" />
-                <span>Haqiqiy oʻyinchilar</span>
+                <span>{t('realPlayers')}</span>
               </div>
             </div>
           </div>
@@ -115,7 +113,7 @@ export function CartoonHomePage({
       <section id="how-it-works" className="px-4 sm:px-8 max-w-7xl mx-auto">
         <div className="text-center space-y-3 mb-10">
           <Badge variant="purple" size="md">
-            Oddiy va qulay
+            {t('simpleAndEasy')}
           </Badge>
           <h2 className="text-3xl sm:text-5xl font-black text-[#242424]">
             {t('howItWorksTitle')}
@@ -162,7 +160,7 @@ export function CartoonHomePage({
               </p>
             </div>
             <div className="pt-2 text-xs font-black text-[#7655F7]">
-              Adolatli UZS narx
+              {t('fairUzsPrice')}
             </div>
           </Card>
 
@@ -182,7 +180,7 @@ export function CartoonHomePage({
               </p>
             </div>
             <div className="pt-2 text-xs font-black text-[#7655F7]">
-              Doʻstona jamoa kutmoqda
+              {t('friendlyTeamAwaits')}
             </div>
           </Card>
         </div>
@@ -191,7 +189,7 @@ export function CartoonHomePage({
       <section className="px-4 sm:px-8 max-w-7xl mx-auto">
         <div className="text-center space-y-3 mb-10">
           <Badge variant="lime" size="md">
-            Faoliyatlar
+            {t('activities')}
           </Badge>
           <h2 className="text-3xl sm:text-5xl font-black text-[#242424]">
             {t('exploreSportsTitle')}
@@ -213,7 +211,7 @@ export function CartoonHomePage({
                 {t('tableTennis')}
               </h4>
               <Badge variant="purple" size="sm">
-                Faol
+                {t('active')}
               </Badge>
             </Card>
           </Link>
@@ -229,7 +227,7 @@ export function CartoonHomePage({
                 {t('basketball')}
               </h4>
               <Badge variant="coral" size="sm">
-                Faol
+                {t('active')}
               </Badge>
             </Card>
           </Link>
@@ -243,7 +241,7 @@ export function CartoonHomePage({
               {t('badminton')}
             </h4>
             <span className="text-[11px] font-bold text-[#888888] block">
-              Yaqinda
+              {t('comingSoon')}
             </span>
           </Card>
 
@@ -256,7 +254,7 @@ export function CartoonHomePage({
               {t('volleyball')}
             </h4>
             <span className="text-[11px] font-bold text-[#888888] block">
-              Yaqinda
+              {t('comingSoon')}
             </span>
           </Card>
         </div>
@@ -267,7 +265,7 @@ export function CartoonHomePage({
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
             <div>
               <Badge variant="coral" size="md">
-                Jonli sessiyalar
+                {t('liveSessions')}
               </Badge>
               <h2 className="text-2xl sm:text-4xl font-black text-[#242424] mt-2">
                 {t('upcomingGamesTitle')}
@@ -275,7 +273,7 @@ export function CartoonHomePage({
             </div>
             <Link href="/discover">
               <Button variant="white" size="sm">
-                <span>Barchasini koʻrish</span>
+                <span>{t('viewAll')}</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
@@ -341,7 +339,7 @@ export function CartoonHomePage({
         <Card variant="white" className="p-8 sm:p-12 border-[3px]">
           <div className="text-center space-y-3 mb-8">
             <Badge variant="lime" size="md">
-              Zallar uchun
+              {t('forVenues')}
             </Badge>
             <h2 className="text-3xl sm:text-4xl font-black text-[#242424]">
               {t('venuePartnerTitle')}
@@ -355,10 +353,10 @@ export function CartoonHomePage({
             <div className="bg-[#D7FF64] border-2 border-[#242424] rounded-2xl p-6 text-center space-y-2 shadow-[4px_4px_0px_#242424]">
               <Trophy className="w-10 h-10 mx-auto text-[#7655F7]" />
               <h3 className="text-xl font-black text-[#242424]">
-                Arizangiz qabul qilindi!
+                {t('partnerSuccessTitle')}
               </h3>
               <p className="text-xs sm:text-sm font-semibold text-[#333333]">
-                Tez orada mutaxassisimiz siz bilan bogʻlanadi va zalni platformaga ulaymiz.
+                {t('partnerSuccessSubtitle')}
               </p>
             </div>
           ) : (
@@ -366,7 +364,7 @@ export function CartoonHomePage({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-black uppercase text-[#242424] mb-1">
-                    Ismingiz
+                    {t('partnerNameLabel')}
                   </label>
                   <input
                     type="text"
@@ -381,7 +379,7 @@ export function CartoonHomePage({
                 </div>
                 <div>
                   <label className="block text-xs font-black uppercase text-[#242424] mb-1">
-                    Telefon raqam
+                    {t('partnerPhoneLabel')}
                   </label>
                   <input
                     type="text"
@@ -399,7 +397,7 @@ export function CartoonHomePage({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-black uppercase text-[#242424] mb-1">
-                    Sport majmuasi / Zal nomi
+                    {t('partnerVenueNameLabel')}
                   </label>
                   <input
                     type="text"
@@ -414,7 +412,7 @@ export function CartoonHomePage({
                 </div>
                 <div>
                   <label className="block text-xs font-black uppercase text-[#242424] mb-1">
-                    Tuman
+                    {t('partnerDistrictLabel')}
                   </label>
                   <select
                     value={partnerForm.district}
@@ -423,18 +421,18 @@ export function CartoonHomePage({
                     }
                     className="w-full px-4 py-3 rounded-2xl border-2 border-[#242424] bg-[#FFF9EF] font-bold text-sm outline-none focus:bg-white"
                   >
-                    <option value="Yunusobod">Yunusobod tumani</option>
-                    <option value="Chilonzor">Chilonzor tumani</option>
-                    <option value="Mirzo Ulugʻbek">Mirzo Ulugʻbek tumani</option>
-                    <option value="Yakkasaroy">Yakkasaroy tumani</option>
-                    <option value="Mirobod">Mirobod tumani</option>
+                    <option value="Yunusobod">Yunusobod</option>
+                    <option value="Chilonzor">Chilonzor</option>
+                    <option value="Mirzo Ulugʻbek">Mirzo Ulugʻbek</option>
+                    <option value="Yakkasaroy">Yakkasaroy</option>
+                    <option value="Mirobod">Mirobod</option>
                   </select>
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-black uppercase text-[#242424] mb-1">
-                  Sport turlari
+                  {t('partnerSportLabel')}
                 </label>
                 <input
                   type="text"
@@ -456,7 +454,7 @@ export function CartoonHomePage({
                 disabled={partnerSubmitting}
                 className="mt-2 text-base font-black"
               >
-                {partnerSubmitting ? 'Yuborilmoqda...' : t('venuePartnerBtn')}
+                {partnerSubmitting ? t('partnerSubmittingBtn') : t('partnerSubmitBtn')}
               </Button>
             </form>
           )}

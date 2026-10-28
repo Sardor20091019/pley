@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import { I18nProvider } from '../lib/i18n/useI18n';
+import { I18nProvider, LanguageTransition } from '../lib/i18n/useI18n';
 import { ThemeProvider } from '../lib/theme/ThemeContext';
 import { AuthModalProvider } from '../lib/auth/AuthModalContext';
 import { Navbar } from '../components/layout/Navbar';
@@ -61,7 +61,9 @@ export default function RootLayout({
           <ThemeProvider>
             <AuthModalProvider>
               <Navbar />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 flex flex-col">
+                <LanguageTransition>{children}</LanguageTransition>
+              </main>
               <Footer />
               <MobileBottomNav />
             </AuthModalProvider>

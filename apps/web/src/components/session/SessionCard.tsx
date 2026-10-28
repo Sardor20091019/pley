@@ -8,6 +8,7 @@ import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { CapacityMeter } from './CapacityMeter';
 import { useAppTheme } from '../../lib/theme/ThemeContext';
+import { useI18n } from '../../lib/i18n/useI18n';
 import { MapPin, Clock, Calendar, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -17,6 +18,7 @@ export interface SessionCardProps {
 
 export function SessionCard({ session }: SessionCardProps): React.JSX.Element {
   const { theme } = useAppTheme();
+  const { t } = useI18n();
   const isEditorial = theme === 'editorial';
 
   const dateObj = new Date(session.scheduledAt);
@@ -90,7 +92,7 @@ export function SessionCard({ session }: SessionCardProps): React.JSX.Element {
         <div className="pt-4 mt-4 border-t border-dashed border-[#2D2926]/30 flex items-center justify-between gap-3">
           <div>
             <span className="text-[10px] font-sans font-bold text-[#8B7355] block uppercase tracking-widest">
-              KIRISH NARXI
+              {t('sessionCardPriceLabelEditorial')}
             </span>
             <span
               className="text-base font-bold text-[#1A1510]"
@@ -109,7 +111,7 @@ export function SessionCard({ session }: SessionCardProps): React.JSX.Element {
                   : 'bg-[#1A1510] text-[#F5F0E8] hover:bg-[#332B24] border border-[#2D2926]'
               }`}
             >
-              <span>{isFull ? 'Toʻlgan' : 'Joy olish'}</span>
+              <span>{isFull ? t('sessionCardFullBtn') : t('sessionCardBookBtn')}</span>
               {!isFull && <ArrowRight className="w-3 h-3 text-[#C5A55A]" />}
             </button>
           </Link>
@@ -169,7 +171,7 @@ export function SessionCard({ session }: SessionCardProps): React.JSX.Element {
       <div className="pt-4 mt-4 border-t-2 border-dashed border-[#E5E5E5] flex items-center justify-between gap-3">
         <div>
           <span className="text-[11px] font-bold text-[#777777] block uppercase tracking-wider">
-            Joy narxi
+            {t('sessionCardPriceLabelCartoon')}
           </span>
           <span className="text-base sm:text-lg font-black text-[#242424]">
             {session.pricePerSlot.toLocaleString()} UZS
@@ -182,7 +184,7 @@ export function SessionCard({ session }: SessionCardProps): React.JSX.Element {
             variant={isFull ? 'white' : isAlmostFull ? 'coral' : 'lime'}
             disabled={isFull}
           >
-            {isFull ? 'Toʻlgan' : 'Joy olish'}
+            {isFull ? t('sessionCardFullBtn') : t('sessionCardBookBtn')}
           </Button>
         </Link>
       </div>

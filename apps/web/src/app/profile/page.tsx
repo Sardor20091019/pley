@@ -100,13 +100,13 @@ export default function ProfilePage(): React.JSX.Element {
           <div className="bg-[#EDE6D5] border-2 border-[#2D2926] p-8 text-center space-y-5 shadow-[3px_3px_0px_#2D2926]">
             <Scroll className="w-10 h-10 text-[#8B7355] mx-auto" />
             <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-              ATLETIKA GUVOXNOMASI
+              {t('profileRegisterTitle')}
             </div>
             <h2
               className="text-2xl sm:text-3xl font-bold text-[#1A1510]"
               style={{ fontFamily: 'Georgia, serif' }}
             >
-              Sportchi profiliga kirish
+              {t('profileDossierTitle')}
             </h2>
             <p className="text-xs font-serif italic text-[#8B7355] max-w-sm mx-auto">
               Profil sozlamalarini boshqarish va oʻyinlarga yozilish uchun rasmiy Google hisobi orqali autentifikatsiyadan oʻting.
@@ -116,7 +116,7 @@ export default function ProfilePage(): React.JSX.Element {
                 onClick={() => openLoginModal('/profile')}
                 className="w-full py-3 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] transition-all cursor-pointer"
               >
-                Google orqali tizimga kirish
+                {t('myGamesGoogleLogin')}
               </button>
             </div>
           </div>
@@ -128,7 +128,7 @@ export default function ProfilePage(): React.JSX.Element {
       <div className="max-w-md mx-auto my-16 px-4 text-center space-y-4">
         <Mascot size="lg" mood="happy" />
         <h2 className="text-2xl font-black text-[#242424]">
-          Profilingizga xush kelibsiz!
+          {t('navProfile')}
         </h2>
         <p className="text-sm font-semibold text-[#666666]">
           Profil sozlamalarini boshqarish va oʻyinlarga yozilish uchun Google hisobingiz bilan kiring.
@@ -141,7 +141,7 @@ export default function ProfilePage(): React.JSX.Element {
             fullWidth
             className="text-sm font-black"
           >
-            Google bilan kirish
+            {t('myGamesGoogleLogin')}
           </Button>
         </div>
       </div>
@@ -160,7 +160,7 @@ export default function ProfilePage(): React.JSX.Element {
             className="text-3xl sm:text-5xl font-bold text-[#1A1510]"
             style={{ fontFamily: 'Georgia, serif' }}
           >
-            SPORTCHI GUVOXNOMASI
+            {t('profileDossierTitle')}
           </h1>
           <p className="text-sm font-serif italic text-[#8B7355]">
             Jamoaviy oʻyinlardagi rasmiy koʻrsatkichlaringiz, sport toifangiz va qaydnoma maʼlumotlari.
@@ -202,7 +202,7 @@ export default function ProfilePage(): React.JSX.Element {
 
               {uploadingAvatar && (
                 <div className="text-[11px] font-sans font-bold text-[#8B7355] animate-pulse">
-                  Surat yuklanmoqda...
+                  {t('profilePhotoUploading')}
                 </div>
               )}
 
@@ -226,16 +226,16 @@ export default function ProfilePage(): React.JSX.Element {
 
               <div className="pt-2 border-t border-[#2D2926]/20 flex flex-col items-center gap-1.5">
                 <span className="text-[10px] font-sans font-bold uppercase tracking-widest px-2.5 py-1 bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926]">
-                  STATUS: {user.role}
+                  {t('profileRoleLabel')}: {user.role}
                 </span>
                 <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-0.5 bg-[#F5F0E8] border border-[#2D2926]/40 text-[#8B7355]">
-                  TOIFA: {user.skill_level}
+                  {t('profileLevelLabel')}: {user.skill_level}
                 </span>
               </div>
 
               <div className="pt-3 border-t border-[#2D2926]/20 space-y-1 text-left">
                 <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-                  AUTENTIFIKATSIYA
+                  {t('profileEmailLabel')}
                 </div>
                 <div className="p-2 bg-[#F5F0E8] border border-[#2D2926]/30 flex items-center gap-2 text-xs font-sans text-[#1A1510]">
                   <Check className="w-3.5 h-3.5 text-[#C5A55A]" />
@@ -252,7 +252,7 @@ export default function ProfilePage(): React.JSX.Element {
                   className="text-xl font-bold text-[#1A1510]"
                   style={{ fontFamily: 'Georgia, serif' }}
                 >
-                  Maʼlumotlarni tahrirlash
+                  {t('profileEditTitle')}
                 </h3>
                 <p className="text-xs font-serif italic text-[#8B7355]">
                   Ism va toifangiz oʻyinlar hisobotida boshqa atletlarga koʻrinadi.
@@ -262,14 +262,14 @@ export default function ProfilePage(): React.JSX.Element {
               {saveSuccess && (
                 <div className="p-3 bg-[#F5F0E8] border border-[#2D2926] text-xs font-sans font-bold uppercase tracking-wider text-[#1A1510] flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-[#C5A55A]" />
-                  <span>Oʻzgarishlar muvaffaqiyatli saqlandi!</span>
+                  <span>{t('profileSavedNotice')}</span>
                 </div>
               )}
 
               <form onSubmit={handleSave} className="space-y-4">
                 <div>
                   <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1.5">
-                    Ism-sharif
+                    {t('profileFirstNameLabel')}
                   </label>
                   <input
                     type="text"
@@ -283,7 +283,7 @@ export default function ProfilePage(): React.JSX.Element {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1.5">
-                      Sport toifasi
+                      {t('profileLevelLabel')}
                     </label>
                     <select
                       value={skillLevel}
@@ -299,7 +299,7 @@ export default function ProfilePage(): React.JSX.Element {
 
                   <div>
                     <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1.5">
-                      Yosh toifasi
+                      {t('profileAgeLabel')}
                     </label>
                     <select
                       value={ageBracket}
@@ -319,7 +319,7 @@ export default function ProfilePage(): React.JSX.Element {
                     disabled={saving}
                     className="px-6 py-2.5 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] transition-all cursor-pointer"
                   >
-                    {saving ? 'Saqlanmoqda...' : 'Oʻzgarishlarni qayd etish'}
+                    {saving ? t('profileSavingBtn') : t('profileSaveBtn')}
                   </button>
                 </div>
               </form>
@@ -334,7 +334,7 @@ export default function ProfilePage(): React.JSX.Element {
               className="text-2xl font-bold text-[#1A1510]"
               style={{ fontFamily: 'Georgia, serif' }}
             >
-              Sport unvonlari va medallar
+              {t('profileAchievementsTitle')}
             </h2>
           </div>
 
@@ -361,11 +361,11 @@ export default function ProfilePage(): React.JSX.Element {
                 <div className="pt-1">
                   {ach.isUnlocked ? (
                     <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#1A1510] bg-[#F5F0E8] border border-[#2D2926] px-2 py-0.5">
-                      Berilgan ★
+                      {t('profileUnlocked')} ★
                     </span>
                   ) : (
                     <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-                      Mavjud emas
+                      {t('profileLocked')}
                     </span>
                   )}
                 </div>
@@ -381,10 +381,10 @@ export default function ProfilePage(): React.JSX.Element {
     <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-8">
       <div className="space-y-2">
         <Badge variant="lime" size="md">
-          Sportchi profili
+          {t('navProfile')}
         </Badge>
         <h1 className="text-3xl sm:text-5xl font-black text-[#242424]">
-          PROFIL VA SOZLAMALAR
+          {t('navProfile')}
         </h1>
         <p className="text-sm sm:text-base font-semibold text-[#555555]">
           Oʻyin darajangiz, fotosuratingiz va Google hisobingiz.
@@ -423,7 +423,7 @@ export default function ProfilePage(): React.JSX.Element {
 
           {uploadingAvatar && (
             <div className="text-xs font-black text-[#7655F7] animate-pulse">
-              Yuklanmoqda...
+              {t('profilePhotoUploading')}
             </div>
           )}
 
@@ -450,7 +450,7 @@ export default function ProfilePage(): React.JSX.Element {
                   : 'bg-[#FFF9EF] text-[#242424]'
               }`}
             >
-              DB role = {user.role}
+              {t('profileRoleLabel')}: {user.role}
             </span>
             <Badge variant="lime" size="sm">
               {user.skill_level}
@@ -459,11 +459,11 @@ export default function ProfilePage(): React.JSX.Element {
 
           <div className="pt-4 border-t border-[#EEEEEE] space-y-2">
             <div className="text-[11px] font-black uppercase text-[#888888]">
-              Google hisobi
+              {t('profileEmailLabel')}
             </div>
             <div className="p-2.5 bg-[#FFF9EF] border-2 border-[#242424] rounded-2xl flex items-center justify-center gap-2 text-xs font-black text-[#242424]">
               <Check className="w-4 h-4 text-[#34A853]" />
-              <span>{user.email || 'Google orqali ulangan'}</span>
+              <span>{user.email || 'Google hisobi tasdiqlangan'}</span>
             </div>
           </div>
         </Card>
@@ -471,7 +471,7 @@ export default function ProfilePage(): React.JSX.Element {
         <Card variant="white" className="md:col-span-2 space-y-6 p-6 sm:p-8">
           <div>
             <h3 className="text-xl font-black text-[#242424]">
-              Maʼlumotlarni tahrirlash
+              {t('profileEditTitle')}
             </h3>
             <p className="text-xs text-[#777777]">
               Ism va sport darajangiz zalda boshqa ishtirokchilarga koʻrinadi.
@@ -481,14 +481,14 @@ export default function ProfilePage(): React.JSX.Element {
           {saveSuccess && (
             <div className="p-3 bg-[#D7FF64] border-2 border-[#242424] rounded-xl text-xs font-black text-[#242424] flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-[#7655F7]" />
-              <span>Oʻzgarishlar muvaffaqiyatli saqlandi!</span>
+              <span>{t('profileSavedNotice')}</span>
             </div>
           )}
 
           <form onSubmit={handleSave} className="space-y-4">
             <div>
               <label className="block text-xs font-black uppercase text-[#242424] mb-1">
-                Ism
+                {t('profileFirstNameLabel')}
               </label>
               <input
                 type="text"
@@ -502,7 +502,7 @@ export default function ProfilePage(): React.JSX.Element {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-black uppercase text-[#242424] mb-1">
-                  Sport darajasi
+                  {t('profileLevelLabel')}
                 </label>
                 <select
                   value={skillLevel}
@@ -518,7 +518,7 @@ export default function ProfilePage(): React.JSX.Element {
 
               <div>
                 <label className="block text-xs font-black uppercase text-[#242424] mb-1">
-                  Yosh toifasi
+                  {t('profileAgeLabel')}
                 </label>
                 <select
                   value={ageBracket}
@@ -540,7 +540,7 @@ export default function ProfilePage(): React.JSX.Element {
                 disabled={saving}
                 className="w-full sm:w-auto"
               >
-                {saving ? 'Saqlanmoqda...' : 'Saqlash'}
+                {saving ? t('profileSavingBtn') : t('profileSaveBtn')}
               </Button>
             </div>
           </form>
@@ -550,7 +550,7 @@ export default function ProfilePage(): React.JSX.Element {
       <div className="space-y-4 pt-4">
         <div className="flex items-center gap-2">
           <Medal className="w-5 h-5 text-[#7655F7]" />
-          <h2 className="text-2xl font-black text-[#242424]">Yutuqlar</h2>
+          <h2 className="text-2xl font-black text-[#242424]">{t('profileAchievementsTitle')}</h2>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -572,11 +572,11 @@ export default function ProfilePage(): React.JSX.Element {
               <div className="pt-1">
                 {ach.isUnlocked ? (
                   <span className="text-[10px] font-black uppercase text-[#7655F7] bg-[#EBE5FF] px-2 py-0.5 rounded-full">
-                    Ochilgan ✨
+                    {t('profileUnlocked')} ✨
                   </span>
                 ) : (
                   <span className="text-[10px] font-bold text-[#888888]">
-                    Qulflangan 🔒
+                    {t('profileLocked')} 🔒
                   </span>
                 )}
               </div>

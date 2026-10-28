@@ -138,7 +138,7 @@ export function Navbar(): React.JSX.Element {
                   onClick={() => openLoginModal()}
                   className="px-3.5 py-1.5 text-xs font-bold font-sans uppercase tracking-wider bg-[#1A1510] text-[#F5F0E8] hover:bg-[#332B24] transition-all cursor-pointer"
                 >
-                  Kirish
+                  {t('navLogin')}
                 </button>
               )}
 
@@ -172,14 +172,14 @@ export function Navbar(): React.JSX.Element {
                       onClick={() => setShowAccountMenu(false)}
                       className="block px-3 py-1.5 font-bold text-[#1A1510] hover:bg-[#EDE6D5]"
                     >
-                      Profil va fotosurat
+                      {t('navProfilePhoto')}
                     </Link>
                     <Link
                       href="/my-games"
                       onClick={() => setShowAccountMenu(false)}
                       className="block px-3 py-1.5 font-bold text-[#1A1510] hover:bg-[#EDE6D5]"
                     >
-                      Mening oʻyinlarim
+                      {t('navMyGames')}
                     </Link>
                     {isDbAdmin && (
                       <Link
@@ -187,7 +187,7 @@ export function Navbar(): React.JSX.Element {
                         onClick={() => setShowAccountMenu(false)}
                         className="block px-3 py-1.5 font-bold text-[#8B7355] hover:bg-[#EDE6D5]"
                       >
-                        Admin boshqaruv markazi
+                        {t('navAdminCenter')}
                       </Link>
                     )}
                   </div>
@@ -201,7 +201,7 @@ export function Navbar(): React.JSX.Element {
                       className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-bold font-sans text-[#B85450] hover:bg-[#EDE6D5]"
                     >
                       <LogOut className="w-3.5 h-3.5" />
-                      <span>Chiqish</span>
+                      <span>{t('navLogout')}</span>
                     </button>
                   </div>
                 </div>
@@ -328,7 +328,7 @@ export function Navbar(): React.JSX.Element {
                 onClick={() => openLoginModal()}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#D7FF64] hover:bg-[#cbf556] text-[#242424] font-black text-xs border-2 border-[#242424] shadow-[2px_2px_0px_#242424] hover:shadow-[3px_3px_0px_#242424] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
               >
-                <span>Kirish</span>
+                <span>{t('navLogin')}</span>
               </button>
             )}
 
@@ -362,14 +362,14 @@ export function Navbar(): React.JSX.Element {
                     onClick={() => setShowAccountMenu(false)}
                     className="block px-3 py-1.5 rounded-xl text-xs font-bold text-[#242424] hover:bg-[#FFF9EF] transition-colors"
                   >
-                    Profil va fotosurat
+                    {t('navProfilePhoto')}
                   </Link>
                   <Link
                     href="/my-games"
                     onClick={() => setShowAccountMenu(false)}
                     className="block px-3 py-1.5 rounded-xl text-xs font-bold text-[#242424] hover:bg-[#FFF9EF] transition-colors"
                   >
-                    Mening oʻyinlarim
+                    {t('navMyGames')}
                   </Link>
                   {isDbAdmin && (
                     <Link
@@ -377,7 +377,7 @@ export function Navbar(): React.JSX.Element {
                       onClick={() => setShowAccountMenu(false)}
                       className="block px-3 py-1.5 rounded-xl text-xs font-bold text-[#7655F7] hover:bg-[#FFF9EF] transition-colors"
                     >
-                      Admin boshqaruv markazi
+                      {t('navAdminCenter')}
                     </Link>
                   )}
                 </div>
@@ -391,7 +391,7 @@ export function Navbar(): React.JSX.Element {
                     className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold text-[#FF795D] hover:bg-[#FFF9EF] transition-colors"
                   >
                     <LogOut className="w-3.5 h-3.5" />
-                    <span>Chiqish</span>
+                    <span>{t('navLogout')}</span>
                   </button>
                 </div>
               </div>

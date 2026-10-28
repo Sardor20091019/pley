@@ -3,12 +3,14 @@
 import React from 'react';
 import Link from 'next/link';
 import { useAppTheme } from '../../lib/theme/ThemeContext';
+import { useI18n } from '../../lib/i18n/useI18n';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { ArrowLeft, Scroll } from 'lucide-react';
 
 export default function TermsPage(): React.JSX.Element {
   const { theme } = useAppTheme();
+  const { t } = useI18n();
   const isEditorial = theme === 'editorial';
 
   if (isEditorial) {
@@ -19,23 +21,23 @@ export default function TermsPage(): React.JSX.Element {
           className="inline-flex items-center gap-2 text-xs font-sans font-bold tracking-widest uppercase text-[#8B7355] hover:text-[#1A1510] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>BOSH SAHIFAGA QAYTISH</span>
+          <span>{t('termsBackHome')}</span>
         </Link>
 
         <div className="bg-[#EDE6D5] border-2 border-[#2D2926] p-8 sm:p-12 shadow-[3px_3px_0px_#2D2926] space-y-8">
           <div className="border-b-2 border-double border-[#2D2926] pb-6 space-y-2">
             <div className="flex items-center justify-between text-[11px] font-sans font-bold tracking-widest uppercase text-[#8B7355]">
-              <span>RASMIY HUJJAT</span>
-              <span>KODEKS № PLY-2026</span>
+              <span>{t('termsOfficialDoc')}</span>
+              <span>{t('termsCode')}</span>
             </div>
             <h1
               className="text-3xl sm:text-5xl font-bold text-[#1A1510]"
               style={{ fontFamily: 'Georgia, serif' }}
             >
-              Foydalanish Shartlari
+              {t('termsTitle')}
             </h1>
             <p className="text-xs font-serif italic text-[#8B7355]">
-              Pley.uz platformasidan foydalanish tartibi va jamoaviy majburiyatlar toʻgʻrisidagi ommaviy oferta.
+              {t('termsSubtitle')}
             </p>
           </div>
 
@@ -102,16 +104,16 @@ export default function TermsPage(): React.JSX.Element {
         className="inline-flex items-center gap-1.5 text-xs font-black text-[#242424] hover:text-[#7655F7]"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>Bosh sahifaga qaytish</span>
+        <span>{t('termsBackHome')}</span>
       </Link>
 
       <Card variant="white" className="p-8 sm:p-12 space-y-6">
         <Badge variant="purple" size="md">
-          Huquqiy hujjat
+          {t('termsOfficialDoc')}
         </Badge>
 
         <h1 className="text-3xl sm:text-4xl font-black text-[#242424]">
-          Foydalanish Shartlari
+          {t('termsTitle')}
         </h1>
 
         <div className="space-y-4 text-sm font-medium text-[#444444] leading-relaxed">

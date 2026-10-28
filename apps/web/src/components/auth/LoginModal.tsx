@@ -6,6 +6,7 @@ import { TurnstileWidget } from './TurnstileWidget';
 import { Mascot } from '../mascot/Mascot';
 import { fetchGoogleAuthUrl } from '../../lib/api';
 import { useAppTheme } from '../../lib/theme/ThemeContext';
+import { useI18n } from '../../lib/i18n/useI18n';
 import { X, ShieldCheck, ShieldAlert } from 'lucide-react';
 
 export interface LoginModalProps {
@@ -20,6 +21,7 @@ export function LoginModal({
   redirectPath = '/discover',
 }: LoginModalProps): React.JSX.Element | null {
   const { theme } = useAppTheme();
+  const { t } = useI18n();
   const isCartoon = theme === 'cartoon';
 
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -28,7 +30,7 @@ export function LoginModal({
 
   const handleGoogleLogin = async (): Promise<void> => {
     if (!turnstileToken) {
-      setError('Iltimos, avval xavfsizlik tekshiruvidan oʻting.');
+      setError(t('loginTurnstileError'));
       return;
     }
 
@@ -96,14 +98,14 @@ export function LoginModal({
                   }`}
                   style={!isCartoon ? { fontFamily: 'Georgia, serif' } : undefined}
                 >
-                  {isCartoon ? 'Pley.uz ga xush kelibsiz!' : 'Pley.uz Jamiyati'}
+                  {isCartoon ? t('loginModalTitleCartoon') : t('loginModalTitleEditorial')}
                 </h3>
                 <p
                   className={`text-xs mt-1 leading-relaxed ${
                     isCartoon ? 'text-[#666666] font-semibold' : 'text-[#4A3F30] italic font-sans'
                   }`}
                 >
-                  Oʻyinlarni band qilish va sport hamjamiyatiga qoʻshilish uchun hisobingizga kiring.
+                  {t('loginModalSubtitle')}
                 </p>
               </div>
             </div>
@@ -119,12 +121,12 @@ export function LoginModal({
                 {turnstileToken ? (
                   <span className="flex items-center gap-1.5 text-[#2E7D32]">
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Xavfsizlik tasdiqlandi</span>
+                    <span>{t('loginSecurityProtected')}</span>
                   </span>
                 ) : (
                   <span className="flex items-center gap-1.5 text-[#8B7355]">
                     <ShieldAlert className="w-4 h-4" />
-                    <span>Xavfsizlik tekshiruvi</span>
+                    <span>{t('loginSecurityVerify')}</span>
                   </span>
                 )}
               </div>
@@ -174,10 +176,10 @@ export function LoginModal({
                 </svg>
                 <span>
                   {loading
-                    ? 'Google orqali ulanmoqda...'
+                    ? t('loginConnecting')
                     : !turnstileToken
-                    ? 'Avval xavfsizlikni tasdiqlang'
-                    : 'Google orqali davom etish'}
+                    ? t('loginSecurityVerify')
+                    : t('loginGoogleBtn')}
                 </span>
               </button>
 
@@ -186,7 +188,7 @@ export function LoginModal({
                   isCartoon ? 'text-[#888888] font-semibold' : 'text-[#8B7355] font-sans'
                 }`}
               >
-                Yagona xavfsiz kirish usuli — rasmiy Google hisobi orqali amalga oshiriladi.
+                {t('loginSecurityNotice')}
               </p>
             </div>
           </motion.div>

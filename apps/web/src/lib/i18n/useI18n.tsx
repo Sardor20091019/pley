@@ -54,13 +54,20 @@ export function I18nProvider({ children }: { children: React.ReactNode }): React
 
   return (
     <I18nContext.Provider value={{ language, setLanguage, t, isTransitioning }}>
-      <div
-        className="min-h-screen flex flex-col transition-opacity duration-150 ease-in-out"
-        style={{ opacity: isTransitioning ? 0.35 : 1 }}
-      >
-        {children}
-      </div>
+      {children}
     </I18nContext.Provider>
+  );
+}
+
+export function LanguageTransition({ children }: { children: React.ReactNode }): React.JSX.Element {
+  const { isTransitioning } = useI18n();
+  return (
+    <div
+      className="w-full flex-1 flex flex-col transition-opacity duration-150 ease-in-out"
+      style={{ opacity: isTransitioning ? 0.35 : 1 }}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -71,4 +78,3 @@ export function useI18n(): I18nContextValue {
   }
   return ctx;
 }
-

@@ -75,9 +75,9 @@ export default function DiscoverPage(): React.JSX.Element {
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-10">
         <div className="border-b-2 border-double border-[#2D2926] pb-6 space-y-3">
           <div className="flex items-center justify-between text-[11px] font-sans font-bold tracking-widest uppercase text-[#8B7355]">
-            <span>SPORT JADVALLARI BOʻLIMI</span>
-            <span>TOM XXIV · TOSHKENT SHAHRIDA</span>
-            <span>BOB № 12</span>
+            <span>{t('discoverEditorialSection')}</span>
+            <span>{t('discoverEditorialVolume')}</span>
+            <span>{t('discoverEditorialChapter')}</span>
           </div>
 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-2">
@@ -86,23 +86,22 @@ export default function DiscoverPage(): React.JSX.Element {
                 className="text-3xl sm:text-5xl font-bold tracking-tight text-[#1A1510]"
                 style={{ fontFamily: 'Georgia, serif' }}
               >
-                OʻYINLAR MAʼLUMOTNOMASI
+                {t('discoverEditorialTitle')}
               </h1>
               <p className="text-sm font-serif italic text-[#8B7355] mt-1 max-w-2xl">
-                Oʻzingizga mos vaqt, sport turi va zalni tanlang. Ishtirokchilar roʻyxati transactional tartibda
-                yuritiladi.
+                {t('discoverEditorialSubtitle')}
               </p>
             </div>
 
             <div className="border border-[#2D2926] bg-[#EDE6D5] p-3 text-right shrink-0">
               <div className="text-[10px] font-sans font-extrabold uppercase tracking-widest text-[#8B7355]">
-                ROʻYXATDAGI OʻYINLAR
+                {t('discoverEditorialListed')}
               </div>
               <div
                 className="text-2xl font-bold text-[#1A1510]"
                 style={{ fontFamily: 'Georgia, serif' }}
               >
-                {filteredSessions.length} TA SANA
+                {filteredSessions.length} {t('discoverEditorialDatesCount')}
               </div>
             </div>
           </div>
@@ -112,7 +111,7 @@ export default function DiscoverPage(): React.JSX.Element {
           <div className="flex items-center justify-between border-b border-[#2D2926]/20 pb-3">
             <div className="flex items-center gap-2 text-xs font-sans font-bold tracking-widest uppercase text-[#1A1510]">
               <Filter className="w-3.5 h-3.5 text-[#C5A55A]" />
-              <span>SARALASH VA QIDIRUV MEZONLARI</span>
+              <span>{t('discoverFilterCriteria')}</span>
             </div>
             {(search || selectedSport || selectedDistrict || onlyAvailable) && (
               <button
@@ -120,7 +119,7 @@ export default function DiscoverPage(): React.JSX.Element {
                 className="inline-flex items-center gap-1.5 text-xs font-sans font-bold uppercase tracking-wider text-[#8B7355] hover:text-[#1A1510] cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
-                <span>Qayta tiklash</span>
+                <span>{t('discoverResetFilters')}</span>
               </button>
             )}
           </div>
@@ -131,7 +130,7 @@ export default function DiscoverPage(): React.JSX.Element {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Zal nomi, tuman yoki sport turi boʻyicha qidiring..."
+              placeholder={t('discoverSearchInputPlaceholder')}
               className="w-full pl-11 pr-4 py-3 bg-[#F5F0E8] border border-[#2D2926] font-sans text-xs sm:text-sm text-[#1A1510] placeholder:text-[#8B7355]/60 outline-none focus:border-[#1A1510]"
             />
           </div>
@@ -139,7 +138,7 @@ export default function DiscoverPage(): React.JSX.Element {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
             <div className="space-y-2">
               <div className="text-[11px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-                § I SPORT TURI
+                {t('discoverSectionSport')}
               </div>
               <div className="flex flex-wrap gap-2">
                 {sportsList.map((sport) => {
@@ -163,7 +162,7 @@ export default function DiscoverPage(): React.JSX.Element {
 
             <div className="space-y-2">
               <div className="text-[11px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-                § II HUDUD VA TUMAN
+                {t('discoverSectionDistrict')}
               </div>
               <div className="flex flex-wrap gap-2">
                 {districtsList.map((dist) => {
@@ -194,10 +193,10 @@ export default function DiscoverPage(): React.JSX.Element {
                 onChange={(e) => setOnlyAvailable(e.target.checked)}
                 className="w-4 h-4 accent-[#1A1510] rounded-none border-[#2D2926]"
               />
-              <span>Faqat boʻsh oʻrinli oʻyinlar</span>
+              <span>{t('discoverOnlyAvailable')}</span>
             </label>
             <div className="text-[11px] font-sans text-[#8B7355] italic">
-              * Barcha joylar individual kafolat bilan taqdim etiladi
+              {t('discoverGuaranteeNotice')}
             </div>
           </div>
         </div>
@@ -225,16 +224,16 @@ export default function DiscoverPage(): React.JSX.Element {
                 className="text-2xl font-bold text-[#1A1510]"
                 style={{ fontFamily: 'Georgia, serif' }}
               >
-                Hozircha oʻyinlar topilmadi
+                {t('discoverNoGamesTitle')}
               </h3>
               <p className="text-xs sm:text-sm font-serif italic text-[#8B7355] max-w-md mx-auto">
-                Kiritilgan filtrlar boʻyicha mos keluvchi oʻyin topilmadi. Qidiruvni tozalab barcha roʻyxatni koʻrishingiz mumkin.
+                {t('discoverNoGamesSubtitle')}
               </p>
               <button
                 onClick={resetFilters}
                 className="px-5 py-2 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24]"
               >
-                Barcha oʻyinlarni koʻrsatish
+                {t('discoverShowAllGames')}
               </button>
             </div>
           )}
@@ -250,10 +249,10 @@ export default function DiscoverPage(): React.JSX.Element {
           {t('brandTagline')}
         </Badge>
         <h1 className="text-3xl sm:text-5xl font-black text-[#242424]">
-          BUGUN NIMA OʻYNAYMIZ?
+          {t('discoverHeroTitle')}
         </h1>
         <p className="text-sm sm:text-base font-semibold text-[#555555]">
-          Oʻzingizga qulay vaqt, sport va zalni tanlang — jamoa zaldan topiladi.
+          {t('discoverHeroSubtitle')}
         </p>
       </div>
 
@@ -271,7 +270,7 @@ export default function DiscoverPage(): React.JSX.Element {
 
         <div className="space-y-2">
           <div className="text-xs font-black uppercase text-[#888888]">
-            Sport turi
+            {t('discoverSportLabel')}
           </div>
           <div className="flex flex-wrap gap-2">
             {sportsList.map((sport) => {
@@ -297,7 +296,7 @@ export default function DiscoverPage(): React.JSX.Element {
         <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-[#EEEEEE]">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-black uppercase text-[#888888] mr-1">
-              Tuman:
+              {t('discoverDistrictLabel')}
             </span>
             {districtsList.map((dist) => {
               const isSelected = selectedDistrict === dist.id;
@@ -325,7 +324,7 @@ export default function DiscoverPage(): React.JSX.Element {
                 onChange={(e) => setOnlyAvailable(e.target.checked)}
                 className="w-4 h-4 rounded accent-[#7655F7]"
               />
-              <span>Faqat boʻsh joyli</span>
+              <span>{t('discoverOnlyAvailableShort')}</span>
             </label>
 
             {(search || selectedSport || selectedDistrict || onlyAvailable) && (
@@ -334,7 +333,7 @@ export default function DiscoverPage(): React.JSX.Element {
                 className="inline-flex items-center gap-1 text-xs font-black text-[#FF795D] hover:underline cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
-                <span>Tozalash</span>
+                <span>{t('discoverClear')}</span>
               </button>
             )}
           </div>
@@ -367,7 +366,7 @@ export default function DiscoverPage(): React.JSX.Element {
               {t('emptyGamesSubtitle')}
             </p>
             <Button size="sm" variant="lime" onClick={resetFilters}>
-              Barcha oʻyinlarni koʻrsatish
+              {t('discoverShowAllGames')}
             </Button>
           </div>
         )}

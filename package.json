@@ -16,11 +16,5 @@
     "lint:api": "tsc -p apps/api/tsconfig.json --noEmit",
     "lint:web": "tsc -p apps/web/tsconfig.json --noEmit",
     "lint": "tsc -p apps/api/tsconfig.json --noEmit && tsc -p apps/web/tsconfig.json --noEmit"
-  },
-  "dependencies": {
-    "uploadthing": "^7.7.4"
-  },
-  "devDependencies": {
-    "@types/multer": "^2.3.0"
   }
 }

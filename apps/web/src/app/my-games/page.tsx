@@ -104,17 +104,17 @@ export default function MyGamesPage(): React.JSX.Element {
               className="text-2xl sm:text-3xl font-bold text-[#1A1510]"
               style={{ fontFamily: 'Georgia, serif' }}
             >
-              Shaxsiy oʻyinlar kitobi
+              {t('myGamesTitleEditorial')}
             </h2>
             <p className="text-xs font-serif italic text-[#8B7355] max-w-sm mx-auto">
-              Band qilingan oʻyinlar, chiptalar va ishtirok tarixini koʻrish uchun Google hisobi orqali tizimga kiring.
+              {t('myGamesSubtitleEditorial')}
             </p>
             <div className="pt-2">
               <button
                 onClick={() => openLoginModal('/my-games')}
                 className="w-full py-3 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] transition-all cursor-pointer"
               >
-                Google orqali tizimga kirish
+                {t('myGamesGoogleLogin')}
               </button>
             </div>
           </div>
@@ -126,10 +126,10 @@ export default function MyGamesPage(): React.JSX.Element {
       <div className="max-w-md mx-auto my-16 px-4 text-center space-y-4">
         <EmptyStateIllustration />
         <h2 className="text-2xl font-black text-[#242424]">
-          Mening oʻyinlarim
+          {t('myGamesTitleCartoon')}
         </h2>
         <p className="text-sm font-semibold text-[#666666]">
-          Band qilgan oʻyinlaringizni koʻrish va boshqarish uchun Google hisobingiz orqali tizimga kiring.
+          {t('myGamesSubtitleCartoon')}
         </p>
         <div className="pt-2">
           <Button
@@ -139,7 +139,7 @@ export default function MyGamesPage(): React.JSX.Element {
             fullWidth
             className="text-sm font-black"
           >
-            Google bilan kirish
+            {t('myGamesGoogleLogin')}
           </Button>
         </div>
       </div>
@@ -158,7 +158,7 @@ export default function MyGamesPage(): React.JSX.Element {
             className="text-3xl sm:text-5xl font-bold text-[#1A1510]"
             style={{ fontFamily: 'Georgia, serif' }}
           >
-            MENING OʻYINLARIM
+            {t('navMyGames')}
           </h1>
           <p className="text-sm font-serif italic text-[#8B7355]">
             Siz band qilgan jadvallar, kirish chiptalari va ishtirok hisoboti.
@@ -181,7 +181,7 @@ export default function MyGamesPage(): React.JSX.Element {
                 : 'bg-[#EDE6D5] text-[#1A1510] border-[#2D2926]/40 hover:border-[#1A1510]'
             }`}
           >
-            § I Yaqin kunlar ({upcomingBookings.length})
+            § I {t('myGamesTabUpcoming')} ({upcomingBookings.length})
           </button>
           <button
             onClick={() => setActiveTab('past')}
@@ -191,7 +191,7 @@ export default function MyGamesPage(): React.JSX.Element {
                 : 'bg-[#EDE6D5] text-[#1A1510] border-[#2D2926]/40 hover:border-[#1A1510]'
             }`}
           >
-            § II Oʻtganlar ({pastBookings.length})
+            § II {t('myGamesTabPast')} ({pastBookings.length})
           </button>
           <button
             onClick={() => setActiveTab('cancelled')}
@@ -201,7 +201,7 @@ export default function MyGamesPage(): React.JSX.Element {
                 : 'bg-[#EDE6D5] text-[#1A1510] border-[#2D2926]/40 hover:border-[#1A1510]'
             }`}
           >
-            § III Bekor qilingan ({cancelledBookings.length})
+            § III {t('myGamesTabCancelled')} ({cancelledBookings.length})
           </button>
         </div>
 
@@ -268,7 +268,7 @@ export default function MyGamesPage(): React.JSX.Element {
                     <div className="flex flex-row sm:flex-col items-end justify-between sm:justify-center w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-[#2D2926]/20 gap-3">
                       <div className="text-left sm:text-right">
                         <div className="text-[10px] font-sans font-bold text-[#8B7355] uppercase tracking-widest">
-                          TOʻLANGAN QIYMAT
+                          {t('totalPrice')}
                         </div>
                         <div
                           className="text-base sm:text-lg font-bold text-[#1A1510]"
@@ -281,7 +281,7 @@ export default function MyGamesPage(): React.JSX.Element {
                       <div className="flex items-center gap-2">
                         <Link href={`/sessions/${item.sessionId}`}>
                           <button className="px-3.5 py-1.5 text-xs font-sans font-bold tracking-widest uppercase bg-[#F5F0E8] border border-[#2D2926] text-[#1A1510] hover:bg-white cursor-pointer">
-                            Tafsilotlar
+                            {t('myGamesViewSession')}
                           </button>
                         </Link>
 
@@ -291,7 +291,7 @@ export default function MyGamesPage(): React.JSX.Element {
                             disabled={cancellingId === item.id}
                             className="px-3.5 py-1.5 text-xs font-sans font-bold tracking-widest uppercase bg-[#F2DDD9] border border-[#8B2E2E] text-[#8B2E2E] hover:bg-[#E8C5C0] cursor-pointer"
                           >
-                            {cancellingId === item.id ? '...' : 'Bekor qilish'}
+                            {cancellingId === item.id ? '...' : t('cancelBooking')}
                           </button>
                         )}
                       </div>
@@ -307,14 +307,14 @@ export default function MyGamesPage(): React.JSX.Element {
                 className="text-2xl font-bold text-[#1A1510]"
                 style={{ fontFamily: 'Georgia, serif' }}
               >
-                Hozircha oʻyinlar yoʻq
+                {t('emptyGamesTitle')}
               </h3>
-              <p className="text-xs sm:text-sm font-serif italic text-[#8B7355] max-w-sm mx-auto">
-                Ushbu boʻlimda hech qanday oʻyin qaydnomasi mavjud emas.
+              <p className="text-xs sm:text-sm font-serif italic text-[#8B7355] max-w-md mx-auto">
+                {t('emptyGamesSubtitle')}
               </p>
               <Link href="/discover">
                 <button className="inline-flex items-center gap-2 px-5 py-2 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] cursor-pointer">
-                  <span>Jadvallarga oʻtish</span>
+                  <span>{t('myGamesExploreBtn')}</span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#C5A55A]" />
                 </button>
               </Link>
@@ -332,7 +332,7 @@ export default function MyGamesPage(): React.JSX.Element {
           {t('navMyGames')}
         </Badge>
         <h1 className="text-3xl sm:text-5xl font-black text-[#242424]">
-          MENING OʻYINLARIM
+          {t('navMyGames')}
         </h1>
         <p className="text-sm sm:text-base font-semibold text-[#555555]">
           Barcha bandliklaringiz, oʻyin jadvallari va qatnashish tarixi.
@@ -438,7 +438,7 @@ export default function MyGamesPage(): React.JSX.Element {
                   <div className="flex flex-row sm:flex-col items-end justify-between sm:justify-center w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-[#EEEEEE] gap-3">
                     <div className="text-left sm:text-right">
                       <div className="text-[11px] font-bold text-[#888888] uppercase">
-                        Toʻlangan
+                        {t('totalPrice')}
                       </div>
                       <div className="text-base sm:text-lg font-black text-[#242424]">
                         {item.totalPrice.toLocaleString()} UZS
@@ -448,7 +448,7 @@ export default function MyGamesPage(): React.JSX.Element {
                     <div className="flex items-center gap-2">
                       <Link href={`/sessions/${item.sessionId}`}>
                         <Button size="sm" variant="white">
-                          <span>Tafsilotlar</span>
+                          <span>{t('myGamesViewSession')}</span>
                         </Button>
                       </Link>
 
@@ -477,11 +477,11 @@ export default function MyGamesPage(): React.JSX.Element {
               {t('emptyGamesTitle')}
             </h3>
             <p className="text-sm font-semibold text-[#666666] max-w-sm mx-auto">
-              Hozircha ushbu boʻlimda oʻyinlar yoʻq.
+              {t('emptyGamesSubtitle')}
             </p>
             <Link href="/discover">
               <Button size="md" variant="lime">
-                <span>Oʻyin qidirish</span>
+                <span>{t('myGamesExploreBtn')}</span>
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
