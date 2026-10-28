@@ -1,41 +1,26 @@
 {
-  "name": "pleyuz",
+  "name": "pleyuz-monorepo",
   "version": "1.0.0",
   "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "test": "vitest run",
-    "db:migrate": "node scripts/migrate.mjs",
-    "db:seed": "node scripts/seed.mjs"
+    "dev": "next dev apps/web",
+    "dev:api": "ts-node apps/api/src/main.ts",
+    "dev:web": "next dev apps/web",
+    "build:api": "tsc -p apps/api/tsconfig.json",
+    "build:web": "next build apps/web --webpack",
+    "build": "tsc -p apps/api/tsconfig.json && next build apps/web --webpack",
+    "test": "vitest run --root apps/api",
+    "lint:api": "tsc -p apps/api/tsconfig.json --noEmit",
+    "lint:web": "tsc -p apps/web/tsconfig.json --noEmit",
+    "lint": "tsc -p apps/api/tsconfig.json --noEmit && tsc -p apps/web/tsconfig.json --noEmit"
   },
   "dependencies": {
-    "better-sqlite3": "^11.8.1",
-    "canvas-confetti": "^1.9.4",
-    "clsx": "^2.1.1",
-    "date-fns": "^4.1.0",
-    "kysely": "^0.27.6",
-    "lucide-react": "^1.16.0",
-    "next": "^15.1.7",
-    "pg": "^8.13.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.0.2",
-    "zod": "^3.24.2"
+    "uploadthing": "^7.7.4"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.12",
-    "@types/canvas-confetti": "^1.9.0",
-    "@types/node": "^22.13.5",
-    "@types/pg": "^8.11.11",
-    "@types/react": "^19.0.10",
-    "@types/react-dom": "^19.0.4",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.3",
-    "vitest": "^3.0.7"
+    "@types/multer": "^2.3.0"
   }
 }

@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-fredoka: 'Fredoka', cursive, system-ui, sans-serif;
+  --font-inter: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background-color: #FFF9EF;
+  color: #242424;
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-fredoka);
+}
+
+.cartoon-border {
+  border: 2.5px solid #242424;
+}
+
+.cartoon-shadow {
+  box-shadow: 4px 4px 0px #242424;
+}
+
+.cartoon-shadow-sm {
+  box-shadow: 2px 2px 0px #242424;
+}
+
+.cartoon-shadow-lg {
+  box-shadow: 6px 6px 0px #242424;
+}
+
+.cartoon-shadow-xl {
+  box-shadow: 8px 8px 0px #242424;
+}
+
+.tactile-button {
+  border: 2.5px solid #242424;
+  box-shadow: 4px 4px 0px #242424;
+  transition: all 0.1s ease;
+}
+
+.tactile-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px #242424;
+}
+
+.tactile-button:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #242424;
+}
+
+.cartoon-card {
+  border: 2.5px solid #242424;
+  box-shadow: 4px 4px 0px #242424;
+  border-radius: 24px;
+  background-color: #FFFFFF;
+}
+
+.wiggle-hover:hover {
+  animation: wiggle 0.4s ease-in-out;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+

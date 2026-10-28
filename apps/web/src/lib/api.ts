@@ -1,0 +1,330 @@
+import {
+  SessionItem,
+  SessionDetail,
+  UserBooking,
+  UserProfile,
+  AdminMetrics,
+} from './types';
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+
+function getAuthHeaders(): HeadersInit {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('pley_token');
+    const devUserId = localStorage.getItem('pley_dev_user_id');
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    } else if (devUserId) {
+      headers['x-user-id'] = devUserId;
+    }
+  }
+
+  return headers;
+}
+
+export async function fetchSessions(filters?: {
+  sport?: string;
+  district?: string;
+  search?: string;
+  skillLevel?: string;
+  sessionVibe?: string;
+}): Promise<SessionItem[]> {
+  const params = new URLSearchParams();
+  if (filters?.sport) params.set('sport', filters.sport);
+  if (filters?.district) params.set('district', filters.district);
+  if (filters?.search) params.set('search', filters.search);
+  if (filters?.skillLevel && filters.skillLevel !== 'ALL_LEVELS') {
+    params.set('skillLevel', filters.skillLevel);
+  }
+  if (filters?.sessionVibe) params.set('sessionVibe', filters.sessionVibe);
+
+  const res = await fetch(`${API_BASE_URL}/sessions?${params.toString()}`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch sessions');
+  }
+
+  return res.json();
+}
+
+export async function fetchSessionById(id: string): Promise<SessionDetail> {
+  const res = await fetch(`${API_BASE_URL}/sessions/${id}`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch session: ${id}`);
+  }
+
+  return res.json();
+}
+
+export async function reserveSpot(sessionId: string): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/bookings`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ sessionId }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to reserve spot');
+  }
+
+  return res.json();
+}
+
+export async function cancelBooking(bookingId: string): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/bookings/${bookingId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to cancel booking');
+  }
+
+  return res.json();
+}
+
+export async function fetchMyBookings(): Promise<UserBooking[]> {
+  const res = await fetch(`${API_BASE_URL}/bookings/my`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to load user bookings');
+  }
+
+  return res.json();
+}
+
+export async function fetchMyProfile(): Promise<UserProfile> {
+  const res = await fetch(`${API_BASE_URL}/users/profile`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch user profile');
+  }
+
+  return res.json();
+}
+
+export async function updateProfile(data: Partial<UserProfile>): Promise<UserProfile> {
+  const res = await fetch(`${API_BASE_URL}/users/profile`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to update profile');
+  }
+
+  return res.json();
+}
+
+export async function fetchAchievements(): Promise<any[]> {
+  const res = await fetch(`${API_BASE_URL}/users/achievements`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  return res.json();
+}
+
+export async function devLogin(userId: string): Promise<{ token: string; user: UserProfile }> {
+  const res = await fetch(`${API_BASE_URL}/auth/dev-login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId }),
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed dev login');
+  }
+
+  const data = await res.json();
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('pley_token', data.token);
+    localStorage.setItem('pley_dev_user_id', data.user.id);
+  }
+
+  return data;
+}
+
+export async function telegramAuth(initData: string): Promise<{ token: string; user: UserProfile }> {
+  const res = await fetch(`${API_BASE_URL}/auth/telegram`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ initData }),
+  });
+
+  if (!res.ok) {
+    throw new Error('Telegram authentication failed');
+  }
+
+  const data = await res.json();
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('pley_token', data.token);
+  }
+
+  return data;
+}
+
+export async function submitPartnershipInquiry(data: {
+  contactName: string;
+  phone: string;
+  venueName: string;
+  district: string;
+  sportTypes: string;
+  message?: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/partnership/inquiry`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to submit partnership inquiry');
+  }
+
+  return res.json();
+}
+
+export async function fetchAdminMetrics(): Promise<AdminMetrics> {
+  const res = await fetch(`${API_BASE_URL}/admin/metrics`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch admin metrics');
+  }
+
+  return res.json();
+}
+
+export async function fetchAdminBookings(): Promise<any[]> {
+  const res = await fetch(`${API_BASE_URL}/admin/bookings`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  return res.json();
+}
+
+export async function fetchAdminAuditLogs(): Promise<any[]> {
+  const res = await fetch(`${API_BASE_URL}/admin/audit-logs`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  return res.json();
+}
+
+export async function fetchGoogleAuthUrl(redirectUri: string): Promise<string> {
+  const params = new URLSearchParams({ redirectUri });
+  const res = await fetch(`${API_BASE_URL}/auth/google/url?${params.toString()}`);
+  if (!res.ok) {
+    throw new Error('Failed to retrieve Google Auth URL');
+  }
+  const data = await res.json();
+  return data.url;
+}
+
+export async function loginWithGoogleCode(
+  code: string,
+  redirectUri: string,
+  turnstileToken?: string,
+): Promise<{ token: string; user: UserProfile }> {
+  const res = await fetch(`${API_BASE_URL}/auth/google/callback`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, redirectUri, turnstileToken }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Google sign-in failed');
+  }
+
+  const data = await res.json();
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('pley_token', data.token);
+  }
+
+  return data;
+}
+
+export async function uploadAvatar(file: File): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const headers: Record<string, string> = {};
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('pley_token');
+    const devUserId = localStorage.getItem('pley_dev_user_id');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    } else if (devUserId) {
+      headers['x-user-id'] = devUserId;
+    }
+  }
+
+  const res = await fetch(`${API_BASE_URL}/upload/avatar`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Avatar upload failed');
+  }
+
+  return res.json();
+}
+
+export async function createAdminSession(data: any): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/sessions`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to create session');
+  }
+
+  return res.json();
+}
+
