@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useI18n } from '../../lib/i18n/useI18n';
+import { useAppTheme } from '../../lib/theme/ThemeContext';
 import { fetchAchievements, updateProfile, uploadAvatar } from '../../lib/api';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
@@ -15,14 +16,17 @@ import {
   CheckCircle2,
   Camera,
   Shield,
-  UploadCloud,
   Check,
+  Award,
+  Scroll,
 } from 'lucide-react';
 
 export default function ProfilePage(): React.JSX.Element {
   const { user, refreshProfile } = useAuth();
   const { openLoginModal } = useAuthModal();
   const { t } = useI18n();
+  const { theme } = useAppTheme();
+  const isEditorial = theme === 'editorial';
 
   const [achievements, setAchievements] = useState<any[]>([]);
   const [firstName, setFirstName] = useState<string>('');
@@ -90,6 +94,36 @@ export default function ProfilePage(): React.JSX.Element {
   const isDbAdmin = user?.role === 'ADMIN';
 
   if (!user) {
+    if (isEditorial) {
+      return (
+        <div className="max-w-xl mx-auto my-16 px-4">
+          <div className="bg-[#EDE6D5] border-2 border-[#2D2926] p-8 text-center space-y-5 shadow-[3px_3px_0px_#2D2926]">
+            <Scroll className="w-10 h-10 text-[#8B7355] mx-auto" />
+            <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
+              ATLETIKA GUVOXNOMASI
+            </div>
+            <h2
+              className="text-2xl sm:text-3xl font-bold text-[#1A1510]"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              Sportchi profiliga kirish
+            </h2>
+            <p className="text-xs font-serif italic text-[#8B7355] max-w-sm mx-auto">
+              Profil sozlamalarini boshqarish va oʻyinlarga yozilish uchun rasmiy Google hisobi orqali autentifikatsiyadan oʻting.
+            </p>
+            <div className="pt-2">
+              <button
+                onClick={() => openLoginModal('/profile')}
+                className="w-full py-3 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] transition-all cursor-pointer"
+              >
+                Google orqali tizimga kirish
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="max-w-md mx-auto my-16 px-4 text-center space-y-4">
         <Mascot size="lg" mood="happy" />
@@ -109,6 +143,235 @@ export default function ProfilePage(): React.JSX.Element {
           >
             Google bilan kirish
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isEditorial) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-10">
+        <div className="border-b-2 border-double border-[#2D2926] pb-6 space-y-2">
+          <div className="flex items-center justify-between text-[11px] font-sans font-bold tracking-widest uppercase text-[#8B7355]">
+            <span>SPORTCHI DOSYESI VA KARTASI</span>
+            <span>№ {user.id ? user.id.slice(0, 8).toUpperCase() : 'PLY-001'}</span>
+          </div>
+          <h1
+            className="text-3xl sm:text-5xl font-bold text-[#1A1510]"
+            style={{ fontFamily: 'Georgia, serif' }}
+          >
+            SPORTCHI GUVOXNOMASI
+          </h1>
+          <p className="text-sm font-serif italic text-[#8B7355]">
+            Jamoaviy oʻyinlardagi rasmiy koʻrsatkichlaringiz, sport toifangiz va qaydnoma maʼlumotlari.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="md:col-span-1 space-y-6">
+            <div className="bg-[#EDE6D5] border-2 border-[#2D2926] p-6 text-center space-y-4 shadow-[3px_3px_0px_#2D2926]">
+              <div className="relative inline-block">
+                {user?.avatar_url ? (
+                  <img
+                    src={user.avatar_url}
+                    alt={user.first_name}
+                    className="w-24 h-24 object-cover border-2 border-[#2D2926] mx-auto"
+                  />
+                ) : (
+                  <div className="w-24 h-24 bg-[#F5F0E8] border-2 border-[#2D2926] flex items-center justify-center text-3xl font-bold font-serif text-[#1A1510] mx-auto">
+                    {user.first_name[0]}
+                  </div>
+                )}
+
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingAvatar}
+                  className="absolute bottom-0 right-0 p-2 bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] transition-all cursor-pointer"
+                  title="Suratni yangilash"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarSelect}
+                  className="hidden"
+                />
+              </div>
+
+              {uploadingAvatar && (
+                <div className="text-[11px] font-sans font-bold text-[#8B7355] animate-pulse">
+                  Surat yuklanmoqda...
+                </div>
+              )}
+
+              {uploadError && (
+                <div className="text-[11px] font-sans font-bold text-[#8B2E2E]">
+                  {uploadError}
+                </div>
+              )}
+
+              <div>
+                <h3
+                  className="text-xl font-bold text-[#1A1510]"
+                  style={{ fontFamily: 'Georgia, serif' }}
+                >
+                  {user.first_name} {user.last_name || ''}
+                </h3>
+                <div className="text-xs text-[#8B7355] font-sans mt-0.5">
+                  {user.email || 'Google hisobi'}
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-[#2D2926]/20 flex flex-col items-center gap-1.5">
+                <span className="text-[10px] font-sans font-bold uppercase tracking-widest px-2.5 py-1 bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926]">
+                  STATUS: {user.role}
+                </span>
+                <span className="text-[10px] font-sans font-bold uppercase tracking-wider px-2.5 py-0.5 bg-[#F5F0E8] border border-[#2D2926]/40 text-[#8B7355]">
+                  TOIFA: {user.skill_level}
+                </span>
+              </div>
+
+              <div className="pt-3 border-t border-[#2D2926]/20 space-y-1 text-left">
+                <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
+                  AUTENTIFIKATSIYA
+                </div>
+                <div className="p-2 bg-[#F5F0E8] border border-[#2D2926]/30 flex items-center gap-2 text-xs font-sans text-[#1A1510]">
+                  <Check className="w-3.5 h-3.5 text-[#C5A55A]" />
+                  <span className="truncate">{user.email || 'Google hisobi tasdiqlangan'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="md:col-span-2 space-y-6">
+            <div className="bg-[#EDE6D5] border border-[#2D2926] p-6 sm:p-8 shadow-[2px_2px_0px_#8B7355] space-y-6">
+              <div className="border-b border-[#2D2926]/20 pb-3">
+                <h3
+                  className="text-xl font-bold text-[#1A1510]"
+                  style={{ fontFamily: 'Georgia, serif' }}
+                >
+                  Maʼlumotlarni tahrirlash
+                </h3>
+                <p className="text-xs font-serif italic text-[#8B7355]">
+                  Ism va toifangiz oʻyinlar hisobotida boshqa atletlarga koʻrinadi.
+                </p>
+              </div>
+
+              {saveSuccess && (
+                <div className="p-3 bg-[#F5F0E8] border border-[#2D2926] text-xs font-sans font-bold uppercase tracking-wider text-[#1A1510] flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#C5A55A]" />
+                  <span>Oʻzgarishlar muvaffaqiyatli saqlandi!</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSave} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1.5">
+                    Ism-sharif
+                  </label>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    className="w-full px-4 py-2.5 bg-[#F5F0E8] border border-[#2D2926] font-sans text-xs sm:text-sm text-[#1A1510] outline-none focus:border-[#1A1510]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1.5">
+                      Sport toifasi
+                    </label>
+                    <select
+                      value={skillLevel}
+                      onChange={(e) => setSkillLevel(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-[#F5F0E8] border border-[#2D2926] font-sans text-xs sm:text-sm text-[#1A1510] outline-none"
+                    >
+                      <option value="BEGINNER">{t('beginner')}</option>
+                      <option value="CASUAL">{t('casual')}</option>
+                      <option value="INTERMEDIATE">{t('intermediate')}</option>
+                      <option value="ADVANCED">{t('advanced')}</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1.5">
+                      Yosh toifasi
+                    </label>
+                    <select
+                      value={ageBracket}
+                      onChange={(e) => setAgeBracket(e.target.value)}
+                      className="w-full px-4 py-2.5 bg-[#F5F0E8] border border-[#2D2926] font-sans text-xs sm:text-sm text-[#1A1510] outline-none"
+                    >
+                      <option value="18-24">18–24 yosh</option>
+                      <option value="25-34">25–34 yosh</option>
+                      <option value="35+">35+ yosh</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="px-6 py-2.5 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] transition-all cursor-pointer"
+                  >
+                    {saving ? 'Saqlanmoqda...' : 'Oʻzgarishlarni qayd etish'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4 pt-4 border-t border-[#2D2926]/30">
+          <div className="flex items-center gap-2">
+            <Award className="w-5 h-5 text-[#C5A55A]" />
+            <h2
+              className="text-2xl font-bold text-[#1A1510]"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              Sport unvonlari va medallar
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {achievements.map((ach) => (
+              <div
+                key={ach.id}
+                className={`p-4 space-y-2 text-center border transition-all ${
+                  ach.isUnlocked
+                    ? 'bg-[#EDE6D5] border-[#2D2926] shadow-[2px_2px_0px_#8B7355]'
+                    : 'bg-[#F5F0E8] border-[#2D2926]/30 opacity-60'
+                }`}
+              >
+                <div className="text-3xl">{ach.badge}</div>
+                <h4
+                  className="text-sm font-bold text-[#1A1510]"
+                  style={{ fontFamily: 'Georgia, serif' }}
+                >
+                  {ach.title}
+                </h4>
+                <p className="text-xs text-[#8B7355] font-serif italic leading-tight">
+                  {ach.description}
+                </p>
+                <div className="pt-1">
+                  {ach.isUnlocked ? (
+                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#1A1510] bg-[#F5F0E8] border border-[#2D2926] px-2 py-0.5">
+                      Berilgan ★
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
+                      Mavjud emas
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -144,8 +407,8 @@ export default function ProfilePage(): React.JSX.Element {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingAvatar}
-              className="absolute bottom-0 right-0 p-2 rounded-full bg-[#D7FF64] border-2 border-[#242424] shadow-[2px_2px_0px_#242424] hover:bg-[#cbf556] transition-transform active:translate-y-0.5"
-              title="Suratni yangilash (UploadThing)"
+              className="absolute bottom-0 right-0 p-2 rounded-full bg-[#D7FF64] border-2 border-[#242424] shadow-[2px_2px_0px_#242424] hover:bg-[#cbf556] transition-transform active:translate-y-0.5 cursor-pointer"
+              title="Suratni yangilash"
             >
               <Camera className="w-4 h-4 text-[#242424]" />
             </button>
@@ -160,7 +423,7 @@ export default function ProfilePage(): React.JSX.Element {
 
           {uploadingAvatar && (
             <div className="text-xs font-black text-[#7655F7] animate-pulse">
-              UploadThing ga yuklanmoqda...
+              Yuklanmoqda...
             </div>
           )}
 

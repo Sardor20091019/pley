@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { useAppTheme } from '../../lib/theme/ThemeContext';
 import {
   fetchAdminMetrics,
   fetchAdminBookings,
@@ -23,11 +24,15 @@ import {
   Clock,
   CheckCircle2,
   AlertTriangle,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 export default function AdminPage(): React.JSX.Element {
   const { user, isAdmin } = useAuth();
   const { openLoginModal } = useAuthModal();
+  const { theme } = useAppTheme();
+  const isEditorial = theme === 'editorial';
+
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
   const [bookings, setBookings] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -110,6 +115,40 @@ export default function AdminPage(): React.JSX.Element {
   const isDbAdmin = user?.role === 'ADMIN';
 
   if (!isDbAdmin) {
+    if (isEditorial) {
+      return (
+        <div className="max-w-xl mx-auto my-16 px-4">
+          <div className="bg-[#EDE6D5] border-2 border-[#2D2926] p-8 text-center space-y-4 shadow-[3px_3px_0px_#2D2926]">
+            <Shield className="w-10 h-10 mx-auto text-[#8B7355]" />
+            <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
+              MAXSUS MAQOM TALAB ETILADI
+            </div>
+            <h2
+              className="text-2xl font-bold text-[#1A1510]"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              Administrator huquqi
+            </h2>
+            <p className="text-xs font-serif italic text-[#8B7355]">
+              {user
+                ? `Siz '${user.role}' toifasidagi hisob bilan kirdingiz. Ushbu reyestr faqat role = 'ADMIN' atletlar uchun ochiq.`
+                : 'Ushbu sahifaga kirish uchun administrator Google hisobi bilan avtorizatsiyadan oʻting.'}
+            </p>
+            {!user && (
+              <div className="pt-2">
+                <button
+                  onClick={() => openLoginModal('/admin')}
+                  className="w-full py-3 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] cursor-pointer"
+                >
+                  Google bilan kirish
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center space-y-4">
         <Shield className="w-12 h-12 mx-auto text-[#FF795D]" />
@@ -134,6 +173,433 @@ export default function AdminPage(): React.JSX.Element {
             </Button>
           </div>
         )}
+      </div>
+    );
+  }
+
+  if (isEditorial) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-10">
+        <div className="border-b-2 border-double border-[#2D2926] pb-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-[11px] font-sans font-bold tracking-widest uppercase text-[#8B7355]">
+              <span>PLEY OPERATSIYALAR REYESTRI</span>
+              <span>·</span>
+              <span>ADMINISTRATIV KABINET</span>
+            </div>
+            <h1
+              className="text-3xl sm:text-5xl font-bold text-[#1A1510]"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              BOSHQARUV MARKAZI
+            </h1>
+            <p className="text-sm font-serif italic text-[#8B7355]">
+              Real koʻrsatkichlar, sessiyalarni rejalashtirish va tizim operatsion auditi.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] cursor-pointer"
+          >
+            <PlusCircle className="w-4 h-4 text-[#C5A55A]" />
+            <span>Yangi sessiya ochish</span>
+          </button>
+        </div>
+
+        {createSuccess && (
+          <div className="p-4 bg-[#EDE6D5] border-2 border-[#1A1510] text-[#1A1510] flex items-center gap-2 font-sans font-bold text-xs uppercase tracking-wider">
+            <CheckCircle2 className="w-4 h-4 text-[#C5A55A]" />
+            <span>{createSuccess}</span>
+          </div>
+        )}
+
+        {metrics && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-[#EDE6D5] border border-[#2D2926] p-5 space-y-1 shadow-[2px_2px_0px_#8B7355]">
+              <div className="text-[10px] font-sans font-bold text-[#8B7355] uppercase tracking-widest">
+                JAMI ATLETLAR
+              </div>
+              <div
+                className="text-2xl sm:text-3xl font-bold text-[#1A1510]"
+                style={{ fontFamily: 'Georgia, serif' }}
+              >
+                {metrics.totalUsers}
+              </div>
+              <div className="text-[11px] font-sans text-[#8B7355]">
+                {metrics.totalVenues} ta zal ulangan
+              </div>
+            </div>
+
+            <div className="bg-[#EDE6D5] border border-[#2D2926] p-5 space-y-1 shadow-[2px_2px_0px_#8B7355]">
+              <div className="text-[10px] font-sans font-bold text-[#8B7355] uppercase tracking-widest">
+                KUTILAYOTGAN OʻYINLAR
+              </div>
+              <div
+                className="text-2xl sm:text-3xl font-bold text-[#1A1510]"
+                style={{ fontFamily: 'Georgia, serif' }}
+              >
+                {metrics.upcomingSessions}
+              </div>
+              <div className="text-[11px] font-sans text-[#8B7355]">
+                {metrics.totalSessions} jami qaydlar
+              </div>
+            </div>
+
+            <div className="bg-[#EDE6D5] border border-[#2D2926] p-5 space-y-1 shadow-[2px_2px_0px_#8B7355]">
+              <div className="text-[10px] font-sans font-bold text-[#8B7355] uppercase tracking-widest">
+                JAMI AYLANMA
+              </div>
+              <div
+                className="text-xl sm:text-2xl font-bold text-[#1A1510]"
+                style={{ fontFamily: 'Georgia, serif' }}
+              >
+                {metrics.grossBookingVolumeUz.toLocaleString()} UZS
+              </div>
+              <div className="text-[11px] font-sans text-[#8B7355]">
+                {metrics.confirmedBookings} tasdiqlangan joy
+              </div>
+            </div>
+
+            <div className="bg-[#EDE6D5] border border-[#2D2926] p-5 space-y-1 shadow-[2px_2px_0px_#8B7355]">
+              <div className="text-[10px] font-sans font-bold text-[#8B7355] uppercase tracking-widest">
+                PLATFORMA HAQI
+              </div>
+              <div
+                className="text-xl sm:text-2xl font-bold text-[#1A1510]"
+                style={{ fontFamily: 'Georgia, serif' }}
+              >
+                {metrics.platformRevenueUz.toLocaleString()} UZS
+              </div>
+              <div className="text-[11px] font-sans text-[#8B7355]">
+                Toʻldirilish: {metrics.averageFillRatePercentage}%
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showCreateModal && (
+          <div className="fixed inset-0 z-50 bg-[#1A1510]/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+            <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#EDE6D5] border-2 border-[#2D2926] p-6 sm:p-8 space-y-6 shadow-[4px_4px_0px_#2D2926]">
+              <div className="flex items-center justify-between border-b border-[#2D2926]/20 pb-3">
+                <h3
+                  className="text-xl sm:text-2xl font-bold text-[#1A1510]"
+                  style={{ fontFamily: 'Georgia, serif' }}
+                >
+                  Yangi sessiya qaydnomasi
+                </h3>
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-2 py-0.5 border border-[#2D2926] bg-[#F5F0E8] text-xs font-sans font-bold hover:bg-white cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {createError && (
+                <div className="p-3 bg-[#F2DDD9] border border-[#8B2E2E] text-[#8B2E2E] text-xs font-sans font-bold">
+                  {createError}
+                </div>
+              )}
+
+              <form onSubmit={handleCreateSession} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Sessiya sarlavhasi
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Masalan, Saturday Evening Reflex Rally"
+                    value={sessionForm.title}
+                    onChange={(e) =>
+                      setSessionForm({ ...sessionForm, title: e.target.value })
+                    }
+                    className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Sport majmuasi
+                    </label>
+                    <select
+                      value={sessionForm.venueId}
+                      onChange={(e) =>
+                        setSessionForm({ ...sessionForm, venueId: e.target.value })
+                      }
+                      className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                    >
+                      <option value="ven_chilonzor_arena">Chilonzor Sports Club</option>
+                      <option value="ven_yunusobod_hub">Yunusobod PingPong & Hoops</option>
+                      <option value="ven_mirzo_court">Mirzo Ulugʻbek Community Court</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Sport turi
+                    </label>
+                    <select
+                      value={sessionForm.sportId}
+                      onChange={(e) =>
+                        setSessionForm({ ...sessionForm, sportId: e.target.value })
+                      }
+                      className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                    >
+                      <option value="sport_tt">Stol tennisi</option>
+                      <option value="sport_bball">3x3 Basketbol</option>
+                      <option value="sport_badmin">Badminton</option>
+                      <option value="sport_vball">Voleybol</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Boshlanish vaqti
+                    </label>
+                    <input
+                      type="datetime-local"
+                      required
+                      value={sessionForm.scheduledAt}
+                      onChange={(e) =>
+                        setSessionForm({ ...sessionForm, scheduledAt: e.target.value })
+                      }
+                      className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Davomiyligi (daqiqa)
+                    </label>
+                    <input
+                      type="number"
+                      min="30"
+                      step="15"
+                      value={sessionForm.durationMinutes}
+                      onChange={(e) =>
+                        setSessionForm({
+                          ...sessionForm,
+                          durationMinutes: parseInt(e.target.value, 10),
+                        })
+                      }
+                      className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Joylar soni
+                    </label>
+                    <input
+                      type="number"
+                      min="2"
+                      max="30"
+                      value={sessionForm.maxSlots}
+                      onChange={(e) =>
+                        setSessionForm({
+                          ...sessionForm,
+                          maxSlots: parseInt(e.target.value, 10),
+                        })
+                      }
+                      className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Zal narxi (UZS)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1000"
+                      value={sessionForm.pricePerSlot}
+                      onChange={(e) =>
+                        setSessionForm({
+                          ...sessionForm,
+                          pricePerSlot: parseInt(e.target.value, 10),
+                        })
+                      }
+                      className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Platforma haqi (UZS)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="500"
+                      value={sessionForm.serviceFee}
+                      onChange={(e) =>
+                        setSessionForm({
+                          ...sessionForm,
+                          serviceFee: parseInt(e.target.value, 10),
+                        })
+                      }
+                      className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Toifa
+                    </label>
+                    <select
+                      value={sessionForm.skillLevel}
+                      onChange={(e) =>
+                        setSessionForm({
+                          ...sessionForm,
+                          skillLevel: e.target.value as any,
+                        })
+                      }
+                      className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                    >
+                      <option value="ALL_LEVELS">Barcha toifalar</option>
+                      <option value="BEGINNER">Boshlangʻich</option>
+                      <option value="CASUAL">Havaskor</option>
+                      <option value="INTERMEDIATE">Oʻrta</option>
+                      <option value="ADVANCED">Ilgʻor</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                      Atmosfera
+                    </label>
+                    <select
+                      value={sessionForm.sessionVibe}
+                      onChange={(e) =>
+                        setSessionForm({
+                          ...sessionForm,
+                          sessionVibe: e.target.value as any,
+                        })
+                      }
+                      className="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                    >
+                      <option value="FRIENDLY">Doʻstona va erkin</option>
+                      <option value="SOCIAL">Ijtimoiy va muloqot</option>
+                      <option value="LEARNING">Oʻrganish va mashq</option>
+                      <option value="COMPETITIVE">Raqobatbardosh</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex justify-end gap-3 border-t border-[#2D2926]/20">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="px-4 py-2 text-xs font-sans font-bold tracking-widest uppercase bg-[#F5F0E8] border border-[#2D2926] text-[#1A1510] cursor-pointer"
+                  >
+                    Bekor qilish
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={formSubmitting}
+                    className="px-5 py-2 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] cursor-pointer"
+                  >
+                    {formSubmitting ? 'Yaratilmoqda...' : 'Sessiyani tasdiqlash'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="bg-[#EDE6D5] border border-[#2D2926] p-5 sm:p-6 shadow-[2px_2px_0px_#8B7355] space-y-4">
+            <h3
+              className="text-xl font-bold text-[#1A1510]"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              Soʻnggi bandliklar reyestri
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs font-sans">
+                <thead>
+                  <tr className="border-b border-[#2D2926]/20 text-[#8B7355] uppercase tracking-wider text-[10px]">
+                    <th className="py-2">Oʻyinchi</th>
+                    <th className="py-2">Sessiya</th>
+                    <th className="py-2">Narx</th>
+                    <th className="py-2">Holat</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#2D2926]/10">
+                  {bookings.map((b) => (
+                    <tr key={b.booking_id}>
+                      <td className="py-2.5">
+                        <div className="font-bold text-[#1A1510]">
+                          {b.user_name}
+                        </div>
+                        <div className="text-[10px] text-[#8B7355]">
+                          {b.user_email || b.user_name}
+                        </div>
+                      </td>
+                      <td className="py-2.5">
+                        <div className="text-[#1A1510]">{b.session_title}</div>
+                        <div className="text-[10px] text-[#8B7355]">{b.venue_name}</div>
+                      </td>
+                      <td className="py-2.5 text-[#1A1510] font-semibold">
+                        {(b.price + b.service_fee).toLocaleString()} UZS
+                      </td>
+                      <td className="py-2.5">
+                        <span className="px-2 py-0.5 border border-[#2D2926] bg-[#F5F0E8] text-[10px] uppercase font-bold text-[#1A1510]">
+                          {b.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-[#EDE6D5] border border-[#2D2926] p-5 sm:p-6 shadow-[2px_2px_0px_#8B7355] space-y-4">
+            <h3
+              className="text-xl font-bold text-[#1A1510]"
+              style={{ fontFamily: 'Georgia, serif' }}
+            >
+              Operatsion Audit Loglari
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs font-sans">
+                <thead>
+                  <tr className="border-b border-[#2D2926]/20 text-[#8B7355] uppercase tracking-wider text-[10px]">
+                    <th className="py-2">Vaqt</th>
+                    <th className="py-2">Amal</th>
+                    <th className="py-2">Nishon</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#2D2926]/10">
+                  {auditLogs.slice(0, 8).map((log) => (
+                    <tr key={log.id}>
+                      <td className="py-2.5 text-[#8B7355] text-[10px]">
+                        {new Date(log.created_at).toLocaleTimeString()}
+                      </td>
+                      <td className="py-2.5 font-bold uppercase tracking-wider text-[#1A1510]">
+                        {log.action}
+                      </td>
+                      <td className="py-2.5 text-[#8B7355] text-[11px]">
+                        {log.target_type}: {log.target_id}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -544,4 +1010,3 @@ export default function AdminPage(): React.JSX.Element {
     </div>
   );
 }
-
