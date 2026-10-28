@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Language, translations, TranslationKey } from './translations';
+import { getCookie, setCookie } from '../cookies';
 
 export interface I18nContextValue {
   language: Language;
@@ -18,7 +19,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }): React
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('pley_lang') as Language;
+      const saved = (getCookie('pley_lang') || localStorage.getItem('pley_lang')) as Language;
       if (saved && (saved === 'uz' || saved === 'ru' || saved === 'en')) {
         setLanguageState(saved);
         document.documentElement.setAttribute('lang', saved);
@@ -32,6 +33,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }): React
     setTimeout(() => {
       setLanguageState(lang);
       try {
+        setCookie('pley_lang', lang, 365);
         localStorage.setItem('pley_lang', lang);
         document.documentElement.setAttribute('lang', lang);
       } catch {}

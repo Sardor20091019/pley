@@ -5,6 +5,7 @@ import {
   UserProfile,
   AdminMetrics,
 } from './types';
+import { getCookie, setCookie } from './cookies';
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
@@ -15,7 +16,7 @@ function getAuthHeaders(): HeadersInit {
   };
 
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('pley_token');
+    const token = getCookie('pley_token') || localStorage.getItem('pley_token');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -261,6 +262,7 @@ export async function loginWithGoogleCode(
 
   const data = await res.json();
   if (typeof window !== 'undefined') {
+    setCookie('pley_token', data.token, 30);
     localStorage.setItem('pley_token', data.token);
   }
 
@@ -284,6 +286,7 @@ export async function loginWithGoogleCredential(
 
   const data = await res.json();
   if (typeof window !== 'undefined') {
+    setCookie('pley_token', data.token, 30);
     localStorage.setItem('pley_token', data.token);
   }
 
@@ -296,7 +299,7 @@ export async function uploadAvatar(file: File): Promise<{ url: string }> {
 
   const headers: Record<string, string> = {};
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('pley_token');
+    const token = getCookie('pley_token') || localStorage.getItem('pley_token');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }

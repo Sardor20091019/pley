@@ -7,6 +7,7 @@ import { AuthModalProvider } from '../lib/auth/AuthModalContext';
 import { Navbar } from '../components/layout/Navbar';
 import { MobileBottomNav } from '../components/layout/MobileBottomNav';
 import { Footer } from '../components/layout/Footer';
+import { CookieConsent } from '../components/cookies/CookieConsent';
 
 export const metadata: Metadata = {
   title: 'Pley.uz — No Team? No Problem. Just Show Up and Play.',
@@ -23,7 +24,11 @@ export const viewport: Viewport = {
 const themeInitScript = `
 (function() {
   try {
-    var t = localStorage.getItem('pley_theme_mode');
+    var m = document.cookie.match(/(^|;\\s*)pley_theme_mode=([^;]*)/);
+    var t = m ? decodeURIComponent(m[2]) : null;
+    if (!t) {
+      t = localStorage.getItem('pley_theme_mode');
+    }
     if (t === 'editorial' || t === 'cartoon') {
       document.documentElement.setAttribute('data-theme', t);
     } else {
@@ -65,6 +70,7 @@ export default function RootLayout({
                 <LanguageTransition>{children}</LanguageTransition>
               </main>
               <Footer />
+              <CookieConsent />
               <MobileBottomNav />
             </AuthModalProvider>
           </ThemeProvider>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { UserProfile } from '../lib/types';
 import { fetchMyProfile } from '../lib/api';
+import { getCookie, deleteCookie } from '../lib/cookies';
 
 export interface UseAuthReturn {
   user: UserProfile | null;
@@ -24,6 +25,7 @@ export function useAuth(): UseAuthReturn {
       setUser(profile);
     } catch {
       setUser(null);
+      deleteCookie('pley_token');
       localStorage.removeItem('pley_token');
     } finally {
       setLoading(false);
@@ -32,7 +34,7 @@ export function useAuth(): UseAuthReturn {
 
   useEffect(() => {
     async function init(): Promise<void> {
-      const token = localStorage.getItem('pley_token');
+      const token = getCookie('pley_token') || localStorage.getItem('pley_token');
       if (token) {
         await loadProfile();
       } else {
@@ -45,6 +47,7 @@ export function useAuth(): UseAuthReturn {
   }, [loadProfile]);
 
   const logout = useCallback((): void => {
+    deleteCookie('pley_token');
     localStorage.removeItem('pley_token');
     localStorage.removeItem('pley_dev_user_id');
     setUser(null);

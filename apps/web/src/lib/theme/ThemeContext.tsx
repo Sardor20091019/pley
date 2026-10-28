@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { getCookie, setCookie } from '../cookies';
 
 export type AppTheme = 'cartoon' | 'editorial';
 
@@ -19,7 +20,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('pley_theme_mode') as AppTheme;
+      const saved = (getCookie('pley_theme_mode') || localStorage.getItem('pley_theme_mode')) as AppTheme;
       if (saved === 'cartoon' || saved === 'editorial') {
         setThemeState(saved);
         document.documentElement.setAttribute('data-theme', saved);
@@ -39,6 +40,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
       setThemeState(next);
       document.documentElement.setAttribute('data-theme', next);
       try {
+        setCookie('pley_theme_mode', next, 365);
         localStorage.setItem('pley_theme_mode', next);
       } catch {}
       setTimeout(() => setIsTransitioning(false), 400);
