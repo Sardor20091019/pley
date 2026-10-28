@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useAppTheme } from '../../lib/theme/ThemeContext';
 
 export interface CapacityMeterProps {
   maxSlots: number;
@@ -15,9 +16,32 @@ export function CapacityMeter({
   remainingSlots,
   size = 'md',
 }: CapacityMeterProps): React.JSX.Element {
+  const { theme } = useAppTheme();
+  const isCartoon = theme === 'cartoon';
   const percentage = Math.min(100, Math.round((bookedSlots / maxSlots) * 100));
   const isFull = remainingSlots <= 0;
   const isAlmostFull = remainingSlots > 0 && remainingSlots <= 2;
+
+  if (!isCartoon) {
+    return (
+      <div className="w-full space-y-1 font-sans">
+        <div className="flex items-center justify-between text-xs text-[#8B7355]">
+          <span>
+            {bookedSlots}/{maxSlots} oʻyinchi
+          </span>
+          <span className="font-bold text-[#1A1510]">
+            {isFull ? 'Barcha oʻrinlar band' : `${remainingSlots} ta joy mavjud`}
+          </span>
+        </div>
+        <div className="w-full h-1.5 bg-[rgba(45,41,38,0.15)] overflow-hidden">
+          <div
+            className="h-full bg-[#1A1510] transition-all duration-300"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   let barColor = 'bg-[#D7FF64]';
   if (isFull) {
@@ -58,4 +82,3 @@ export function CapacityMeter({
     </div>
   );
 }
-

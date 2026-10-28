@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useAppTheme } from '../../lib/theme/ThemeContext';
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -18,6 +19,36 @@ export function Button({
   disabled,
   ...props
 }: ButtonProps): React.JSX.Element {
+  const { theme } = useAppTheme();
+  const isCartoon = theme === 'cartoon';
+
+  if (!isCartoon) {
+    const editorialVariants = {
+      lime: 'bg-[#C5A55A] text-[#1A1510] hover:bg-[#b89547]',
+      purple: 'bg-[#1A1510] text-[#F5F0E8] hover:bg-[#332B24]',
+      coral: 'bg-[#8B7355] text-[#F5F0E8] hover:bg-[#786144]',
+      sky: 'bg-[#EDE6D5] text-[#1A1510] border border-[#1A1510] hover:bg-[#E5DDC9]',
+      white: 'bg-transparent text-[#1A1510] border border-[#1A1510] hover:bg-[#EDE6D5]',
+      dark: 'bg-[#1A1510] text-[#F5F0E8] hover:bg-[#332B24]',
+    };
+
+    const editorialSizes = {
+      sm: 'px-3.5 py-1.5 text-xs font-bold font-sans tracking-widest uppercase',
+      md: 'px-5 py-2.5 text-xs font-bold font-sans tracking-widest uppercase',
+      lg: 'px-7 py-3.5 text-xs font-extrabold font-sans tracking-[0.15em] uppercase',
+    };
+
+    return (
+      <button
+        disabled={disabled}
+        className={`inline-flex items-center justify-center gap-2 transition-all cursor-pointer select-none disabled:opacity-40 disabled:cursor-not-allowed ${editorialVariants[variant]} ${editorialSizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  }
+
   const variantStyles = {
     lime: 'bg-[#D7FF64] hover:bg-[#cbf556] text-[#242424]',
     purple: 'bg-[#7655F7] hover:bg-[#6844eb] text-white',
@@ -49,4 +80,3 @@ export function Button({
     </button>
   );
 }
-

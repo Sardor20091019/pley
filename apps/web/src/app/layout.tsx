@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { I18nProvider } from '../lib/i18n/useI18n';
 import { ThemeProvider } from '../lib/theme/ThemeContext';
 import { AuthModalProvider } from '../lib/auth/AuthModalContext';
 import { Navbar } from '../components/layout/Navbar';
@@ -56,14 +57,16 @@ export default function RootLayout({
         suppressHydrationWarning
         className="min-h-screen flex flex-col font-sans selection:bg-[#D7FF64]"
       >
-        <ThemeProvider>
-          <AuthModalProvider>
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <MobileBottomNav />
-          </AuthModalProvider>
-        </ThemeProvider>
+        <I18nProvider>
+          <ThemeProvider>
+            <AuthModalProvider>
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <MobileBottomNav />
+            </AuthModalProvider>
+          </ThemeProvider>
+        </I18nProvider>
       </body>
     </html>
   );
