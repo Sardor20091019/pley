@@ -6,9 +6,9 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "next dev apps/web",
+    "dev": "next dev apps/web --webpack",
     "dev:api": "ts-node apps/api/src/main.ts",
-    "dev:web": "next dev apps/web",
+    "dev:web": "next dev apps/web --webpack",
     "build:api": "tsc -p apps/api/tsconfig.json",
     "build:web": "next build apps/web --webpack",
     "build": "tsc -p apps/api/tsconfig.json && next build apps/web --webpack",
