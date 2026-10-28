@@ -8,7 +8,7 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Mascot } from '../../components/mascot/Mascot';
-import { GoogleSignInButton } from '../../components/auth/GoogleSignInButton';
+import { useAuthModal } from '../../lib/auth/AuthModalContext';
 import {
   User,
   Medal,
@@ -21,6 +21,7 @@ import {
 
 export default function ProfilePage(): React.JSX.Element {
   const { user, refreshProfile } = useAuth();
+  const { openLoginModal } = useAuthModal();
   const { t } = useI18n();
 
   const [achievements, setAchievements] = useState<any[]>([]);
@@ -99,7 +100,15 @@ export default function ProfilePage(): React.JSX.Element {
           Profil sozlamalarini boshqarish va oʻyinlarga yozilish uchun Google hisobingiz bilan kiring.
         </p>
         <div className="pt-2">
-          <GoogleSignInButton redirectPath="/profile" className="w-full text-sm font-bold" />
+          <Button
+            variant="purple"
+            size="md"
+            onClick={() => openLoginModal('/profile')}
+            fullWidth
+            className="text-sm font-black"
+          >
+            Google bilan kirish
+          </Button>
         </div>
       </div>
     );

@@ -7,7 +7,7 @@ import { useAppTheme } from '../lib/theme/ThemeContext';
 import { fetchSessions, submitPartnershipInquiry } from '../lib/api';
 import { SessionItem } from '../lib/types';
 import { CartoonHomePage } from '../components/world/CartoonHomePage';
-import { KineticHomePage } from '../components/world/KineticHomePage';
+import { EditorialHomePage } from '../components/world/EditorialHomePage';
 
 export default function HomePage(): React.JSX.Element {
   const { t } = useI18n();
@@ -20,7 +20,6 @@ export default function HomePage(): React.JSX.Element {
     district: 'Yunusobod',
     sportTypes: 'table-tennis',
     message: '',
-    turnstileToken: '',
   });
   const [partnerSubmitting, setPartnerSubmitting] = useState<boolean>(false);
   const [partnerSuccess, setPartnerSuccess] = useState<boolean>(false);
@@ -52,11 +51,11 @@ export default function HomePage(): React.JSX.Element {
     <AnimatePresence mode="wait">
       {isCartoon ? (
         <motion.div
-          key="cartoon-world"
+          key="cartoon-mode"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.25 }}
         >
           <CartoonHomePage
             t={t}
@@ -70,13 +69,13 @@ export default function HomePage(): React.JSX.Element {
         </motion.div>
       ) : (
         <motion.div
-          key="kinetic-world"
+          key="editorial-mode"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.25 }}
         >
-          <KineticHomePage
+          <EditorialHomePage
             t={t}
             upcomingSessions={upcomingSessions}
             partnerForm={partnerForm}

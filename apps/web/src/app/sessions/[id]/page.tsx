@@ -6,7 +6,7 @@ import { fetchSessionById, reserveSpot, cancelBooking } from '../../../lib/api';
 import { SessionDetail } from '../../../lib/types';
 import { useAuth } from '../../../hooks/useAuth';
 import { useI18n } from '../../../lib/i18n/useI18n';
-import { GoogleSignInButton } from '../../../components/auth/GoogleSignInButton';
+import { useAuthModal } from '../../../lib/auth/AuthModalContext';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
 import { Button } from '../../../components/ui/Button';
@@ -31,6 +31,7 @@ export default function SessionDetailPage(): React.JSX.Element {
   const router = useRouter();
   const sessionId = params.id as string;
   const { user, isAuthenticated } = useAuth();
+  const { openLoginModal } = useAuthModal();
   const { t } = useI18n();
 
   const [session, setSession] = useState<SessionDetail | null>(null);
@@ -333,10 +334,15 @@ export default function SessionDetailPage(): React.JSX.Element {
                 {t('spotsFull')}
               </Button>
             ) : !isAuthenticated ? (
-              <GoogleSignInButton
-                redirectPath={`/sessions/${sessionId}`}
-                className="w-full sm:w-auto text-sm font-black py-3 px-6"
-              />
+              <Button
+                variant="purple"
+                size="lg"
+                onClick={() => openLoginModal(`/sessions/${sessionId}`)}
+                fullWidth
+                className="text-base font-black"
+              >
+                Kirish va band qilish
+              </Button>
             ) : (
               <Button
                 variant="lime"

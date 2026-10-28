@@ -12,7 +12,7 @@ import { AdminMetrics } from '../../lib/types';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { GoogleSignInButton } from '../../components/auth/GoogleSignInButton';
+import { useAuthModal } from '../../lib/auth/AuthModalContext';
 import {
   Shield,
   TrendingUp,
@@ -27,6 +27,7 @@ import {
 
 export default function AdminPage(): React.JSX.Element {
   const { user, isAdmin } = useAuth();
+  const { openLoginModal } = useAuthModal();
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
   const [bookings, setBookings] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -122,7 +123,15 @@ export default function AdminPage(): React.JSX.Element {
         </p>
         {!user && (
           <div className="pt-2">
-            <GoogleSignInButton redirectPath="/admin" className="w-full text-sm font-bold" />
+            <Button
+              variant="purple"
+              size="md"
+              onClick={() => openLoginModal('/admin')}
+              fullWidth
+              className="text-sm font-black"
+            >
+              Google bilan kirish
+            </Button>
           </div>
         )}
       </div>

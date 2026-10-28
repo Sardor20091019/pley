@@ -27,7 +27,7 @@ export function MobileBottomNav(): React.JSX.Element {
 
   if (!isCartoon) {
     return (
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[rgba(7,7,15,0.92)] backdrop-blur-2xl border-t border-[rgba(118,85,247,0.25)] px-4 py-2 flex items-center justify-around shadow-[0px_-4px_20px_rgba(0,0,0,0.5)]">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#F5F0E8] border-t border-[#2D2926] px-4 py-2 flex items-center justify-around shadow-sm transition-colors">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -36,14 +36,14 @@ export function MobileBottomNav(): React.JSX.Element {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-2xl transition-all ${
+              className={`flex flex-col items-center gap-1 py-1 px-3 transition-all ${
                 isActive
-                  ? 'bg-[rgba(118,85,247,0.25)] border border-[rgba(155,125,255,0.4)] text-[#C8FF00] shadow-[0_0_12px_rgba(118,85,247,0.3)]'
-                  : 'text-[#8B80C8] hover:text-[#F0EDFF]'
+                  ? 'text-[#1A1510] border-b-2 border-[#1A1510]'
+                  : 'text-[#8B7355] hover:text-[#1A1510]'
               }`}
             >
-              <Icon className="w-5 h-5 stroke-[2.5]" />
-              <span className="text-[11px] font-black">{item.label}</span>
+              <Icon className="w-5 h-5 stroke-[2]" />
+              <span className="text-[10px] font-bold font-sans tracking-widest uppercase">{item.label}</span>
             </Link>
           );
         })}

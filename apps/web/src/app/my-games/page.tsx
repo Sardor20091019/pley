@@ -10,7 +10,7 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { EmptyStateIllustration } from '../../components/illustrations/EmptyStateIllustration';
-import { GoogleSignInButton } from '../../components/auth/GoogleSignInButton';
+import { useAuthModal } from '../../lib/auth/AuthModalContext';
 import {
   Calendar,
   Clock,
@@ -25,6 +25,7 @@ import { format } from 'date-fns';
 export default function MyGamesPage(): React.JSX.Element {
   const { t } = useI18n();
   const { isAuthenticated } = useAuth();
+  const { openLoginModal } = useAuthModal();
   const [bookings, setBookings] = useState<UserBooking[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'cancelled'>(
@@ -97,7 +98,15 @@ export default function MyGamesPage(): React.JSX.Element {
           Band qilgan oʻyinlaringizni koʻrish va boshqarish uchun Google hisobingiz orqali tizimga kiring.
         </p>
         <div className="pt-2">
-          <GoogleSignInButton redirectPath="/my-games" className="w-full text-sm font-bold" />
+          <Button
+            variant="purple"
+            size="md"
+            onClick={() => openLoginModal('/my-games')}
+            fullWidth
+            className="text-sm font-black"
+          >
+            Google bilan kirish
+          </Button>
         </div>
       </div>
     );

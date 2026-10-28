@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { ThemeProvider } from '../lib/theme/ThemeContext';
+import { AuthModalProvider } from '../lib/auth/AuthModalContext';
 import { Navbar } from '../components/layout/Navbar';
 import { MobileBottomNav } from '../components/layout/MobileBottomNav';
 import { Footer } from '../components/layout/Footer';
@@ -22,7 +23,7 @@ const themeInitScript = `
 (function() {
   try {
     var t = localStorage.getItem('pley_theme_mode');
-    if (t === 'kinetic' || t === 'cartoon') {
+    if (t === 'editorial' || t === 'cartoon') {
       document.documentElement.setAttribute('data-theme', t);
     } else {
       document.documentElement.setAttribute('data-theme', 'cartoon');
@@ -56,10 +57,12 @@ export default function RootLayout({
         className="min-h-screen flex flex-col font-sans selection:bg-[#D7FF64]"
       >
         <ThemeProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <MobileBottomNav />
+          <AuthModalProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <MobileBottomNav />
+          </AuthModalProvider>
         </ThemeProvider>
       </body>
     </html>

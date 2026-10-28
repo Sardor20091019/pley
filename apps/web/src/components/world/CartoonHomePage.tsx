@@ -9,7 +9,6 @@ import { SessionCard } from '../session/SessionCard';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Card } from '../ui/Card';
-import { TurnstileWidget } from '../auth/TurnstileWidget';
 import {
   Sparkles,
   ArrowRight,
@@ -30,7 +29,6 @@ export interface CartoonHomePageProps {
     district: string;
     sportTypes: string;
     message: string;
-    turnstileToken: string;
   };
   setPartnerForm: React.Dispatch<
     React.SetStateAction<{
@@ -40,7 +38,6 @@ export interface CartoonHomePageProps {
       district: string;
       sportTypes: string;
       message: string;
-      turnstileToken: string;
     }>
   >;
   partnerSubmitting: boolean;
@@ -450,12 +447,6 @@ export function CartoonHomePage({
                   className="w-full px-4 py-3 rounded-2xl border-2 border-[#242424] bg-[#FFF9EF] font-semibold text-sm outline-none focus:bg-white"
                 />
               </div>
-
-              <TurnstileWidget
-                onVerify={(token) =>
-                  setPartnerForm((prev) => ({ ...prev, turnstileToken: token }))
-                }
-              />
 
               <Button
                 type="submit"

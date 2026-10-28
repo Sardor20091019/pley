@@ -28,7 +28,9 @@ function CallbackContent(): React.JSX.Element {
     async function handleExchange(): Promise<void> {
       try {
         const redirectUri = `${window.location.origin}/auth/callback`;
-        await loginWithGoogleCode(code!, redirectUri);
+        const turnstileToken = sessionStorage.getItem('pley_turnstile_token') || undefined;
+        sessionStorage.removeItem('pley_turnstile_token');
+        await loginWithGoogleCode(code!, redirectUri, turnstileToken);
 
         const target = sessionStorage.getItem('pley_post_login_redirect') || '/discover';
         sessionStorage.removeItem('pley_post_login_redirect');
