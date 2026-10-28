@@ -24,5 +24,9 @@ export class CreatePartnershipInquiryDto {
   @IsOptional()
   @IsString()
   message?: string;
+
+  @IsOptional()
+  @IsString()
+  turnstileToken?: string;
 }
 

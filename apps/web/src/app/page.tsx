@@ -11,6 +11,7 @@ import { SessionCard } from '../components/session/SessionCard';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { Card } from '../components/ui/Card';
+import { TurnstileWidget } from '../components/auth/TurnstileWidget';
 import {
   Sparkles,
   ArrowRight,
@@ -31,6 +32,7 @@ export default function HomePage(): React.JSX.Element {
     district: 'Yunusobod',
     sportTypes: 'table-tennis',
     message: '',
+    turnstileToken: '',
   });
   const [partnerSubmitting, setPartnerSubmitting] = useState<boolean>(false);
   const [partnerSuccess, setPartnerSuccess] = useState<boolean>(false);
@@ -451,6 +453,12 @@ export default function HomePage(): React.JSX.Element {
                   className="w-full px-4 py-3 rounded-2xl border-2 border-[#242424] bg-[#FFF9EF] font-semibold text-sm outline-none focus:bg-white"
                 />
               </div>
+
+              <TurnstileWidget
+                onVerify={(token) =>
+                  setPartnerForm((prev) => ({ ...prev, turnstileToken: token }))
+                }
+              />
 
               <Button
                 type="submit"

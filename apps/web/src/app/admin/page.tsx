@@ -106,7 +106,9 @@ export default function AdminPage(): React.JSX.Element {
     }
   };
 
-  if (!isAdmin) {
+  const isDbAdmin = user?.role === 'ADMIN';
+
+  if (!isDbAdmin) {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center space-y-4">
         <Shield className="w-12 h-12 mx-auto text-[#FF795D]" />
@@ -114,7 +116,7 @@ export default function AdminPage(): React.JSX.Element {
           Administrator huquqi talab qilinadi
         </h2>
         <p className="text-sm font-semibold text-[#666666]">
-          Ushbu sahifa faqat platforma maʼmurlari uchun ochiq.
+          Ushbu sahifa faqat maʼlumotlar bazasida (users table) role = &apos;ADMIN&apos; boʻlgan hisoblar uchun ochiq. Sizning joriy rolingiz: <span className="font-black text-[#7655F7]">{user?.role || 'Nomaʼlum'}</span>.
         </p>
         <Button
           variant="lime"
@@ -123,7 +125,7 @@ export default function AdminPage(): React.JSX.Element {
             await loginAs('usr_admin_1');
           }}
         >
-          Jasur (Admin) hisobiga oʻtish
+          Jasur (Admin, db role=ADMIN) hisobiga oʻtish
         </Button>
       </div>
     );

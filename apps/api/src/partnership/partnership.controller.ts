@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { PartnershipService } from './partnership.service';
 import { CreatePartnershipInquiryDto } from './dto/partnership.dto';
 import { Public, AuthGuard } from '../auth/auth.guard';
@@ -13,8 +13,10 @@ export class PartnershipController {
   @Post('inquiry')
   public async submitInquiry(
     @Body() dto: CreatePartnershipInquiryDto,
+    @Req() req: any,
   ): Promise<PartnershipInquiriesTable> {
-    return this.partnershipService.submitInquiry(dto);
+    const remoteIp = req.ip || req.headers['x-forwarded-for'];
+    return this.partnershipService.submitInquiry(dto, remoteIp);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
@@ -24,4 +26,3 @@ export class PartnershipController {
     return this.partnershipService.listInquiries();
   }
 }
-
