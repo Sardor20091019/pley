@@ -10,7 +10,20 @@ import {
 } from '../models/types';
 import { getCookie, setCookie } from './cookies';
 
-const API_BASE_URL = 'http://localhost:4000/api/v1';
+function resolveApiBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    const custom = (window as unknown as { __ENV?: { API_URL?: string } }).__ENV?.API_URL;
+    if (custom) {
+      return custom;
+    }
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      return `${window.location.origin}/api/v1`;
+    }
+  }
+  return 'http://localhost:4000/api/v1';
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 @Injectable({
   providedIn: 'root',
