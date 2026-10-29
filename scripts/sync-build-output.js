@@ -10,3 +10,4 @@ if (fs.existsSync(srcDir)) {
   fs.cpSync(srcDir, webBrowser, { recursive: true });
   console.log('Build output mirrored to ./browser and ./apps/web/browser');
 }
+
