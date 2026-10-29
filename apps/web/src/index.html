@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <title>Pley.uz — No Team? No Problem. Just Show Up and Play.</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-DN4DZEFLB8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    (function() {
+      try {
+        var c = document.cookie.match(/(^|;\s*)pley_cookie_consent=([^;]*)/);
+        var consent = c ? JSON.parse(decodeURIComponent(c[2])) : null;
+        var analyticsGranted = consent ? consent.analytics !== false : true;
+        gtag('consent', 'default', {
+          'analytics_storage': analyticsGranted ? 'granted' : 'denied'
+        });
+      } catch(e) {}
+    })();
+    gtag('js', new Date());
+
+    gtag('config', 'G-DN4DZEFLB8');
+  </script>
+  <script>
+    (function() {
+      try {
+        var c = document.cookie.match(/(^|;\s*)pley_cookie_consent=([^;]*)/);
+        if (c) {
+          try {
+            var p = JSON.parse(decodeURIComponent(c[2]));
+            if (p && p.preferences === false) {
+              document.documentElement.setAttribute('data-theme', 'cartoon');
+              return;
+            }
+          } catch(e) {}
+        }
+        var m = document.cookie.match(/(^|;\s*)pley_theme_mode=([^;]*)/);
+        var t = m ? decodeURIComponent(m[2]) : null;
+        if (!t) {
+          t = localStorage.getItem('pley_theme_mode');
+        }
+        if (t === 'editorial' || t === 'cartoon') {
+          document.documentElement.setAttribute('data-theme', t);
+        } else {
+          document.documentElement.setAttribute('data-theme', 'cartoon');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-[#D7FF64]">
+  <app-root></app-root>
+</body>
+</html>

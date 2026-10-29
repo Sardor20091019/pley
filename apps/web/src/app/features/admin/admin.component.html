@@ -1,0 +1,1909 @@
+@if (!authService.isAdmin()) {
+  @if (themeService.isEditorial()) {
+    <div class="max-w-xl mx-auto my-16 px-4">
+      <div class="bg-[#EDE6D5] border-2 border-[#2D2926] p-8 text-center space-y-4 shadow-[3px_3px_0px_#2D2926]">
+        <svg class="w-10 h-10 mx-auto text-[#8B7355]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        <div class="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
+          MAXSUS MAQOM TALAB ETILADI
+        </div>
+        <h2 class="text-2xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+          Administrator huquqi
+        </h2>
+        <p class="text-xs font-serif italic text-[#8B7355]">
+          @if (authService.user()) {
+            Siz '{{ authService.user()?.role }}' toifasidagi hisob bilan kirdingiz. Ushbu list faqat role = 'ADMIN' uchun ochiq.
+          } @else {
+            Ushbu sahifaga kirish uchun administrator Google hisobi bilan avtorizatsiyadan oʻting.
+          }
+        </p>
+        @if (!authService.user()) {
+          <div class="pt-2">
+            <button
+              type="button"
+              (click)="authService.openLoginModal('/admin')"
+              class="w-full py-3 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] cursor-pointer"
+            >
+              Google bilan kirish
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="max-w-md mx-auto px-4 py-16 text-center space-y-4">
+      <svg class="w-12 h-12 mx-auto text-[#FF795D]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+      <h2 class="text-2xl font-black text-[#242424]">
+        Administrator huquqi talab qilinadi
+      </h2>
+      <p class="text-sm font-semibold text-[#666666]">
+        @if (authService.user()) {
+          Siz tizimga {{ authService.user()?.email || authService.user()?.first_name }} sifatida kirgansiz. Maʼlumotlar bazasida rolingiz: '{{ authService.user()?.role }}'. Ushbu sahifa faqat role = 'ADMIN' boʻlgan hisoblar uchun ochiq.
+        } @else {
+          Ushbu sahifaga kirish uchun administrator Google hisobi bilan avtorizatsiyadan oʻtishingiz kerak.
+        }
+      </p>
+      @if (!authService.user()) {
+        <div class="pt-2">
+          <button
+            type="button"
+            (click)="authService.openLoginModal('/admin')"
+            class="w-full py-3 px-6 rounded-2xl bg-[#7655F7] text-white font-black text-sm border-2 border-[#242424] shadow-[3px_3px_0px_#242424] hover:bg-[#6846e3] transition-all cursor-pointer"
+          >
+            Google bilan kirish
+          </button>
+        </div>
+      }
+    </div>
+  }
+} @else {
+  @if (themeService.isEditorial()) {
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-10">
+      <div class="border-b-2 border-double border-[#2D2926] pb-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-[11px] font-sans font-bold tracking-widest uppercase text-[#8B7355]">
+            <span>PLEY OPERATSIYALAR REYESTRI</span>
+            <span>·</span>
+            <span>ADMINISTRATIV KABINET</span>
+          </div>
+          <h1 class="text-3xl sm:text-5xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+            BOSHQARUV MARKAZI
+          </h1>
+          <p class="text-sm font-serif italic text-[#8B7355]">
+            Real koʻrsatkichlar, sessiyalarni rejalashtirish va tizim operatsion auditi.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            (click)="showCreateVenueModal.set(true)"
+            class="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-sans font-bold tracking-widest uppercase bg-[#EDE6D5] text-[#1A1510] border-2 border-[#2D2926] hover:bg-[#DDD4C0] cursor-pointer shadow-[2px_2px_0px_#2D2926]"
+          >
+            <svg class="w-4 h-4 text-[#8B7355]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span>Yangi majmua qoʻshish</span>
+          </button>
+          <button
+            type="button"
+            (click)="showCreateModal.set(true)"
+            class="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] cursor-pointer"
+          >
+            <svg class="w-4 h-4 text-[#C5A55A]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Yangi sessiya ochish</span>
+          </button>
+        </div>
+      </div>
+
+      @if (venueSuccess()) {
+        <div class="p-4 bg-[#EDE6D5] border-2 border-[#1A1510] text-[#1A1510] flex items-center gap-2 font-sans font-bold text-xs uppercase tracking-wider">
+          <svg class="w-4 h-4 text-[#C5A55A]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ venueSuccess() }}</span>
+        </div>
+      }
+
+      @if (createSuccess()) {
+        <div class="p-4 bg-[#EDE6D5] border-2 border-[#1A1510] text-[#1A1510] flex items-center gap-2 font-sans font-bold text-xs uppercase tracking-wider">
+          <svg class="w-4 h-4 text-[#C5A55A]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ createSuccess() }}</span>
+        </div>
+      }
+
+      @if (metrics(); as m) {
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-[#EDE6D5] border border-[#2D2926] p-5 space-y-1 shadow-[2px_2px_0px_#8B7355]">
+            <div class="text-[10px] font-sans font-bold text-[#8B7355] uppercase tracking-widest">
+              JAMI ZALLAR
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+              {{ m.totalUsers }}
+            </div>
+            <div class="text-[11px] font-sans text-[#8B7355]">
+              {{ m.totalVenues }} ta zal ulangan
+            </div>
+          </div>
+
+          <div class="bg-[#EDE6D5] border border-[#2D2926] p-5 space-y-1 shadow-[2px_2px_0px_#8B7355]">
+            <div class="text-[10px] font-sans font-bold text-[#8B7355] uppercase tracking-widest">
+              KUTILAYOTGAN OʻYINLAR
+            </div>
+            <div class="text-2xl sm:text-3xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+              {{ m.upcomingSessions }}
+            </div>
+            <div class="text-[11px] font-sans text-[#8B7355]">
+              {{ m.totalSessions }} jami qaydlar
+            </div>
+          </div>
+
+          <div class="bg-[#EDE6D5] border border-[#2D2926] p-5 space-y-1 shadow-[2px_2px_0px_#8B7355]">
+            <div class="text-[10px] font-sans font-bold text-[#8B7355] uppercase tracking-widest">
+              JAMI AYLANMA
+            </div>
+            <div class="text-xl sm:text-2xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+              {{ m.grossBookingVolumeUz | number }} UZS
+            </div>
+            <div class="text-[11px] font-sans text-[#8B7355]">
+              {{ m.confirmedBookings }} tasdiqlangan joy
+            </div>
+          </div>
+
+          <div class="bg-[#EDE6D5] border border-[#2D2926] p-5 space-y-1 shadow-[2px_2px_0px_#8B7355]">
+            <div class="text-[10px] font-sans font-bold text-[#8B7355] uppercase tracking-widest">
+              PLATFORMA HAQI
+            </div>
+            <div class="text-xl sm:text-2xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+              {{ m.platformRevenueUz | number }} UZS
+            </div>
+            <div class="text-[11px] font-sans text-[#8B7355]">
+              Toʻldirilish: {{ m.averageFillRatePercentage }}%
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (showCreateModal()) {
+        <div class="fixed inset-0 z-50 bg-[#1A1510]/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#EDE6D5] border-2 border-[#2D2926] p-6 sm:p-8 space-y-6 shadow-[4px_4px_0px_#2D2926]">
+            <div class="flex items-center justify-between border-b border-[#2D2926]/20 pb-3">
+              <h3 class="text-xl sm:text-2xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+                Yangi sessiya qaydnomasi
+              </h3>
+              <button
+                type="button"
+                (click)="showCreateModal.set(false)"
+                class="px-2 py-0.5 border border-[#2D2926] bg-[#F5F0E8] text-xs font-sans font-bold hover:bg-white cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            @if (createError()) {
+              <div class="p-3 bg-[#F2DDD9] border border-[#8B2E2E] text-[#8B2E2E] text-xs font-sans font-bold">
+                {{ createError() }}
+              </div>
+            }
+
+            <form (ngSubmit)="handleCreateSession()" class="space-y-4">
+              <div>
+                <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                  Sessiya sarlavhasi
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Masalan, Saturday Evening Reflex Rally"
+                  [ngModel]="sessionForm().title"
+                  (ngModelChange)="updateSessionFormField('title', $event)"
+                  name="title"
+                  class="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510]">
+                      Sport majmuasi
+                    </label>
+                    <button
+                      type="button"
+                      (click)="showCreateVenueModal.set(true)"
+                      class="text-[10px] font-sans font-bold text-[#8B7355] hover:text-[#1A1510] underline cursor-pointer"
+                    >
+                      + Majmua qoʻshish
+                    </button>
+                  </div>
+                  @if (venues().length > 0) {
+                    <select
+                      [ngModel]="sessionForm().venueId"
+                      (ngModelChange)="updateSessionFormField('venueId', $event)"
+                      name="venueId"
+                      class="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                    >
+                      @for (v of venues(); track v.id) {
+                        <option [value]="v.id">
+                          {{ v.name }} ({{ v.district }})
+                        </option>
+                      }
+                    </select>
+                  } @else {
+                    <div class="p-3 border border-dashed border-[#8B7355] bg-[#F5F0E8] text-xs font-sans text-[#8B7355] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <span>Majmualar mavjud emas.</span>
+                      <button
+                        type="button"
+                        (click)="showCreateVenueModal.set(true)"
+                        class="px-2.5 py-1 bg-[#1A1510] text-[#F5F0E8] text-[10px] font-bold uppercase tracking-wider cursor-pointer"
+                      >
+                        + Majmua qoʻshish
+                      </button>
+                    </div>
+                  }
+                </div>
+
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Sport turi
+                  </label>
+                  @if (sports().length > 0) {
+                    <select
+                      [ngModel]="sessionForm().sportId"
+                      (ngModelChange)="updateSessionFormField('sportId', $event)"
+                      name="sportId"
+                      class="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                    >
+                      @for (s of sports(); track s.id) {
+                        <option [value]="s.id">
+                          {{ s.name }}
+                        </option>
+                      }
+                    </select>
+                  } @else {
+                    <div class="p-3 border border-dashed border-[#8B7355] bg-[#F5F0E8] text-xs font-sans text-[#8B7355]">
+                      Sport turlari yuklanmadi.
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Boshlanish vaqti
+                  </label>
+                  <input
+                    type="datetime-local"
+                    required
+                    [ngModel]="sessionForm().scheduledAt"
+                    (ngModelChange)="updateSessionFormField('scheduledAt', $event)"
+                    name="scheduledAt"
+                    class="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Davomiyligi (daqiqa)
+                  </label>
+                  <input
+                    type="number"
+                    min="30"
+                    step="15"
+                    [ngModel]="sessionForm().durationMinutes"
+                    (ngModelChange)="updateSessionFormField('durationMinutes', $event)"
+                    name="durationMinutes"
+                    class="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Joylar soni
+                  </label>
+                  <input
+                    type="number"
+                    min="2"
+                    max="30"
+                    [ngModel]="sessionForm().maxSlots"
+                    (ngModelChange)="updateSessionFormField('maxSlots', $event)"
+                    name="maxSlots"
+                    class="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Zal narxi (UZS)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    [ngModel]="sessionForm().pricePerSlot"
+                    (ngModelChange)="updateSessionFormField('pricePerSlot', $event)"
+                    name="pricePerSlot"
+                    class="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Platforma haqi (UZS)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="500"
+                    [ngModel]="sessionForm().serviceFee"
+                    (ngModelChange)="updateSessionFormField('serviceFee', $event)"
+                    name="serviceFee"
+                    class="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Toifa
+                  </label>
+                  <select
+                    [ngModel]="sessionForm().skillLevel"
+                    (ngModelChange)="updateSessionFormField('skillLevel', $event)"
+                    name="skillLevel"
+                    class="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                  >
+                    <option value="ALL_LEVELS">Barcha toifalar</option>
+                    <option value="BEGINNER">Boshlangʻich</option>
+                    <option value="CASUAL">Havaskor</option>
+                    <option value="INTERMEDIATE">Oʻrta</option>
+                    <option value="ADVANCED">Ilgʻor</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Atmosfera
+                  </label>
+                  <select
+                    [ngModel]="sessionForm().sessionVibe"
+                    (ngModelChange)="updateSessionFormField('sessionVibe', $event)"
+                    name="sessionVibe"
+                    class="w-full px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] text-xs sm:text-sm font-sans text-[#1A1510] outline-none"
+                  >
+                    <option value="FRIENDLY">Doʻstona va erkin</option>
+                    <option value="SOCIAL">Ijtimoiy va muloqot</option>
+                    <option value="LEARNING">Oʻrganish va mashq</option>
+                    <option value="COMPETITIVE">Raqobatbardosh</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                  Sessiya rasmi / Banner (Pics)
+                </label>
+                <div class="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="admin-session-pic-editorial"
+                    class="hidden"
+                    (change)="handleUploadSessionPic($event)"
+                    [disabled]="uploadingSessionPic()"
+                  />
+                  <label
+                    for="admin-session-pic-editorial"
+                    class="inline-flex items-center gap-2 px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-xs font-sans font-bold tracking-widest uppercase hover:bg-white cursor-pointer transition-colors"
+                  >
+                    <svg class="w-4 h-4 text-[#8B7355]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{{ uploadingSessionPic() ? 'Yuklanmoqda...' : 'Rasm yuklash (Fayl)' }}</span>
+                  </label>
+                </div>
+                @if (sessionForm().imageUrl) {
+                  <div class="mt-2 relative w-28 h-16 rounded border border-[#2D2926] overflow-hidden">
+                    <img [src]="sessionForm().imageUrl" alt="preview" class="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      (click)="updateSessionFormField('imageUrl', '')"
+                      class="absolute top-0 right-0 bg-[#1A1510] text-[#F5F0E8] text-[9px] px-1 font-bold cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <div class="pt-2 flex justify-end gap-3 border-t border-[#2D2926]/20">
+                <button
+                  type="button"
+                  (click)="showCreateModal.set(false)"
+                  class="px-4 py-2 text-xs font-sans font-bold tracking-widest uppercase bg-[#F5F0E8] border border-[#2D2926] text-[#1A1510] cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="formSubmitting()"
+                  class="px-5 py-2 text-xs font-sans font-bold tracking-widest uppercase bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] hover:bg-[#332B24] cursor-pointer disabled:opacity-50"
+                >
+                  {{ formSubmitting() ? 'Yaratilmoqda...' : 'Sessiyani tasdiqlash' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+      @if (showCreateVenueModal()) {
+        <div class="fixed inset-0 z-50 bg-[#1A1510]/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div class="w-full max-w-xl max-h-[90vh] overflow-y-auto bg-[#EDE6D5] border-2 border-[#2D2926] p-6 sm:p-8 space-y-6 shadow-[4px_4px_0px_#2D2926]">
+            <div class="flex items-center justify-between border-b border-[#2D2926]/20 pb-3">
+              <h3 class="text-xl sm:text-2xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+                Yangi sport majmuasi qoʻshish
+              </h3>
+              <button
+                type="button"
+                (click)="showCreateVenueModal.set(false)"
+                class="px-2 py-0.5 border border-[#2D2926] bg-[#F5F0E8] text-xs font-sans font-bold hover:bg-white cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            @if (venueError()) {
+              <div class="p-3 bg-[#F2DDD9] border border-[#8B2E2E] text-[#8B2E2E] text-xs font-sans font-bold">
+                {{ venueError() }}
+              </div>
+            }
+
+            <form (ngSubmit)="handleCreateVenue()" class="space-y-4">
+              <div>
+                <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                  Majmua nomi
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Masalan, Chilonzor Sports Club"
+                  [ngModel]="venueForm().name"
+                  (ngModelChange)="updateVenueFormField('name', $event)"
+                  name="venueName"
+                  class="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Tuman
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Masalan, Chilonzor"
+                    [ngModel]="venueForm().district"
+                    (ngModelChange)="updateVenueFormField('district', $event)"
+                    name="venueDistrict"
+                    class="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Soatlik narxi (UZS)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="10000"
+                    [ngModel]="venueForm().hourlyRate"
+                    (ngModelChange)="updateVenueFormField('hourlyRate', $event)"
+                    name="venueHourlyRate"
+                    class="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                  Toʻliq manzil
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Masalan, Chilonzor 9-mavze, 21-uy"
+                  [ngModel]="venueForm().address"
+                  (ngModelChange)="updateVenueFormField('address', $event)"
+                  name="venueAddress"
+                  class="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                  Tavsif
+                </label>
+                <textarea
+                  rows="2"
+                  required
+                  placeholder="Majmua sharoitlari, pol qoplamasi va imkoniyatlari haqida qisqacha..."
+                  [ngModel]="venueForm().description"
+                  (ngModelChange)="updateVenueFormField('description', $event)"
+                  name="venueDescription"
+                  class="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                ></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Telefon raqami
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="+998 71 200 00 00"
+                    [ngModel]="venueForm().contactPhone"
+                    (ngModelChange)="updateVenueFormField('contactPhone', $event)"
+                    name="venueContactPhone"
+                    class="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Qulayliklar (vergul bilan)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Dush, Kiyinish xonasi, Bepul suv"
+                    [ngModel]="venueForm().amenities"
+                    (ngModelChange)="updateVenueFormField('amenities', $event)"
+                    name="venueAmenities"
+                    class="w-full px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-sm font-sans text-[#1A1510] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div class="pt-2 flex justify-end gap-3 font-sans">
+                <button
+                  type="button"
+                  (click)="showCreateVenueModal.set(false)"
+                  class="px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-xs font-bold uppercase text-[#1A1510] hover:bg-white cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="venueSubmitting()"
+                  class="px-5 py-2 bg-[#1A1510] text-[#F5F0E8] border border-[#2D2926] text-xs font-bold uppercase hover:bg-[#332B24] cursor-pointer disabled:opacity-50"
+                >
+                  {{ venueSubmitting() ? 'Saqlanmoqda...' : 'Majmuani saqlash' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-[#EDE6D5] border border-[#2D2926] p-5 sm:p-6 shadow-[2px_2px_0px_#8B7355] space-y-4">
+          <h3 class="text-xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+            Soʻnggi bandliklar reyestri
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-sans">
+              <thead>
+                <tr class="border-b border-[#2D2926]/20 text-[#8B7355] uppercase tracking-wider text-[10px]">
+                  <th class="py-2">Oʻyinchi</th>
+                  <th class="py-2">Sessiya</th>
+                  <th class="py-2">Narx</th>
+                  <th class="py-2">Holat</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#2D2926]/10">
+                @for (b of bookings(); track b.booking_id) {
+                  <tr>
+                    <td class="py-2.5">
+                      <div class="font-bold text-[#1A1510]">{{ b.user_name }}</div>
+                      <div class="text-[10px] text-[#8B7355]">{{ b.user_email || b.user_name }}</div>
+                    </td>
+                    <td class="py-2.5">
+                      <div class="text-[#1A1510]">{{ b.session_title }}</div>
+                      <div class="text-[10px] text-[#8B7355]">{{ b.venue_name }}</div>
+                    </td>
+                    <td class="py-2.5 text-[#1A1510] font-semibold">
+                      {{ (b.price + b.service_fee) | number }} UZS
+                    </td>
+                    <td class="py-2.5">
+                      <span class="px-2 py-0.5 border border-[#2D2926] bg-[#F5F0E8] text-[10px] uppercase font-bold text-[#1A1510]">
+                        {{ b.status }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-[#EDE6D5] border border-[#2D2926] p-5 sm:p-6 shadow-[2px_2px_0px_#8B7355] space-y-4">
+          <h3 class="text-xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+            Operatsion Audit Loglari
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-sans">
+              <thead>
+                <tr class="border-b border-[#2D2926]/20 text-[#8B7355] uppercase tracking-wider text-[10px]">
+                  <th class="py-2">Vaqt</th>
+                  <th class="py-2">Amal</th>
+                  <th class="py-2">Nishon</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#2D2926]/10">
+                @for (log of auditLogs().slice(0, 8); track log.id) {
+                  <tr>
+                    <td class="py-2.5 text-[#8B7355] text-[10px]">
+                      {{ log.created_at | date:'HH:mm:ss' }}
+                    </td>
+                    <td class="py-2.5 font-bold uppercase tracking-wider text-[#1A1510]">
+                      {{ log.action }}
+                    </td>
+                    <td class="py-2.5 text-[#8B7355] text-[11px]">
+                      {{ log.target_type }}: {{ log.target_id }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-[#EDE6D5] border border-[#2D2926] p-5 sm:p-6 shadow-[2px_2px_0px_#8B7355] space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2D2926]/20 pb-3">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#8B7355]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <h3 class="text-xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+              Hamkorlik arizalari (Zal egalari)
+            </h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-sans font-bold text-[#8B7355] uppercase tracking-wider">
+              {{ pendingInquiriesCount() }} ta kutilmoqda ({{ inquiries().length }} jami)
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1 border-b border-[#2D2926]/10 pb-2 flex-wrap">
+          <button
+            type="button"
+            (click)="inquiryStatusFilter.set('ALL')"
+            [class]="'px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ' +
+              (inquiryStatusFilter() === 'ALL' ? 'bg-[#1A1510] text-[#F5F0E8]' : 'text-[#8B7355] hover:text-[#1A1510]')"
+          >
+            Barchasi ({{ inquiries().length }})
+          </button>
+          <button
+            type="button"
+            (click)="inquiryStatusFilter.set('PENDING')"
+            [class]="'px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ' +
+              (inquiryStatusFilter() === 'PENDING' ? 'bg-[#1A1510] text-[#F5F0E8]' : 'text-[#8B7355] hover:text-[#1A1510]')"
+          >
+            Kutilmoqda ({{ pendingInquiriesCount() }})
+          </button>
+          <button
+            type="button"
+            (click)="inquiryStatusFilter.set('ACCEPTED')"
+            [class]="'px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ' +
+              (inquiryStatusFilter() === 'ACCEPTED' ? 'bg-[#1A1510] text-[#F5F0E8]' : 'text-[#8B7355] hover:text-[#1A1510]')"
+          >
+            Qabul qilingan ({{ acceptedInquiriesCount() }})
+          </button>
+          <button
+            type="button"
+            (click)="inquiryStatusFilter.set('REJECTED')"
+            [class]="'px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ' +
+              (inquiryStatusFilter() === 'REJECTED' ? 'bg-[#1A1510] text-[#F5F0E8]' : 'text-[#8B7355] hover:text-[#1A1510]')"
+          >
+            Rad etilgan ({{ rejectedInquiriesCount() }})
+          </button>
+        </div>
+
+        @if (filteredInquiries().length === 0) {
+          <p class="text-xs font-sans text-[#8B7355] py-4 text-center italic">
+            {{ inquiryStatusFilter() === 'ALL' ? 'Hozircha yangi hamkorlik arizalari yoʻq.' : 'Ushbu toifadagi arizalar topilmadi.' }}
+          </p>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-sans">
+              <thead>
+                <tr class="border-b border-[#2D2926]/20 text-[#8B7355] uppercase tracking-wider text-[10px]">
+                  <th class="py-2">Turi</th>
+                  <th class="py-2">Holat</th>
+                  <th class="py-2">Vaqt</th>
+                  <th class="py-2">Masʼul shaxs</th>
+                  <th class="py-2">Zal / Oʻyin nomi</th>
+                  <th class="py-2">Tuman & Sport</th>
+                  <th class="py-2">Rasm</th>
+                  <th class="py-2">Izoh</th>
+                  <th class="py-2 text-right">Amal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#2D2926]/10">
+                @for (inq of filteredInquiries(); track inq.id) {
+                  <tr>
+                    <td class="py-2.5">
+                      <span
+                        [class]="'px-2 py-0.5 border text-[9px] font-bold uppercase tracking-wider ' +
+                          (inq.inquiry_type === 'SESSION' ? 'bg-[#1A1510] text-[#F5F0E8] border-[#2D2926]' : 'bg-[#F5F0E8] text-[#8B7355] border-[#2D2926]/40')"
+                      >
+                        {{ inq.inquiry_type === 'SESSION' ? 'Sessiya' : 'Majmua' }}
+                      </span>
+                    </td>
+                    <td class="py-2.5">
+                      @if (inq.status === 'ACCEPTED') {
+                        <span class="px-2 py-0.5 border text-[9px] font-bold uppercase tracking-wider bg-[#E6F4EA] text-[#137333] border-[#137333]/30">
+                          Qabul qilingan
+                        </span>
+                      } @else if (inq.status === 'REJECTED') {
+                        <span class="px-2.5 py-0.5 border text-[9px] font-bold uppercase tracking-wider bg-[#FCE8E6] text-[#C5221F] border-[#C5221F]/30">
+                          Rad etilgan
+                        </span>
+                      } @else {
+                        <span class="px-2 py-0.5 border text-[9px] font-bold uppercase tracking-wider bg-[#FEF7E0] text-[#B06000] border-[#B06000]/30">
+                          Kutilmoqda
+                        </span>
+                      }
+                    </td>
+                    <td class="py-2.5 text-[#8B7355] text-[10px] whitespace-nowrap">
+                      {{ inq.created_at | date:'dd.MM.yyyy HH:mm' }}
+                    </td>
+                    <td class="py-2.5">
+                      <div class="font-bold text-[#1A1510]">{{ inq.contact_name }}</div>
+                      <a [href]="'tel:' + inq.phone" class="text-[11px] text-[#8B7355] hover:underline flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        <span>{{ inq.phone }}</span>
+                      </a>
+                    </td>
+                    <td class="py-2.5 font-bold text-[#1A1510]">
+                      {{ inq.venue_name }}
+                    </td>
+                    <td class="py-2.5 text-[#1A1510]">
+                      <div>{{ inq.district }}</div>
+                      <div class="text-[10px] text-[#8B7355] uppercase font-bold">{{ inq.sport_types }}</div>
+                    </td>
+                    <td class="py-2.5">
+                      @if (inq.image_url) {
+                        <div class="w-10 h-8 rounded border border-[#2D2926] overflow-hidden">
+                          <img [src]="inq.image_url" alt="pic" class="w-full h-full object-cover" />
+                        </div>
+                      } @else {
+                        <span class="text-[10px] text-[#8B7355]">—</span>
+                      }
+                    </td>
+                    <td class="py-2.5 text-[#555555] max-w-xs truncate text-[11px]">
+                      {{ inq.message || '—' }}
+                    </td>
+                    <td class="py-2.5 text-right whitespace-nowrap">
+                      @if (inq.status === 'ACCEPTED') {
+                        <div class="flex items-center justify-end gap-1.5">
+                          <span class="text-[10px] text-[#137333] font-bold flex items-center gap-1 mr-1">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Bajarildi</span>
+                          </span>
+                          <button
+                            type="button"
+                            title="Oʻchirish"
+                            (click)="handleDeleteInquiry(inq.id)"
+                            class="p-1.5 border border-[#2D2926]/20 text-[#8B7355] hover:text-[#C5221F] hover:border-[#C5221F] transition-colors cursor-pointer"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      } @else if (inq.status === 'REJECTED') {
+                        <div class="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            (click)="handleAcceptInquiry(inq.id)"
+                            class="px-2.5 py-1 border border-[#2D2926]/40 text-[10px] font-bold uppercase text-[#1A1510] hover:bg-[#1A1510] hover:text-[#F5F0E8] cursor-pointer"
+                          >
+                            Qayta qabul qilish
+                          </button>
+                          <button
+                            type="button"
+                            title="Oʻchirish"
+                            (click)="handleDeleteInquiry(inq.id)"
+                            class="p-1.5 border border-[#2D2926]/20 text-[#8B7355] hover:text-[#C5221F] hover:border-[#C5221F] transition-colors cursor-pointer"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      } @else {
+                        <div class="flex items-center justify-end gap-1.5 flex-wrap">
+                          @if (inq.inquiry_type === 'SESSION') {
+                            <button
+                              type="button"
+                              (click)="handleConvertInquiryToSession(inq)"
+                              class="px-2.5 py-1.5 bg-[#1A1510] text-[#F5F0E8] text-[10px] font-bold uppercase tracking-wider hover:bg-[#332B24] cursor-pointer"
+                            >
+                              + Sessiyaga aylantirish
+                            </button>
+                          } @else {
+                            <button
+                              type="button"
+                              (click)="handleConvertInquiryToVenue(inq)"
+                              class="px-2.5 py-1.5 bg-[#1A1510] text-[#F5F0E8] text-[10px] font-bold uppercase tracking-wider hover:bg-[#332B24] cursor-pointer"
+                            >
+                              + Majmuaga qoʻshish
+                            </button>
+                          }
+                          <button
+                            type="button"
+                            title="Toʻgʻridan-toʻgʻri qabul qilish"
+                            (click)="handleAcceptInquiry(inq.id)"
+                            class="p-1.5 border border-[#137333]/40 text-[#137333] hover:bg-[#E6F4EA] transition-colors cursor-pointer"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            title="Rad etish"
+                            (click)="handleRejectInquiry(inq.id)"
+                            class="p-1.5 border border-[#C5221F]/40 text-[#C5221F] hover:bg-[#FCE8E6] transition-colors cursor-pointer"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            title="Oʻchirish"
+                            (click)="handleDeleteInquiry(inq.id)"
+                            class="p-1.5 border border-[#2D2926]/20 text-[#8B7355] hover:text-[#C5221F] hover:border-[#C5221F] transition-colors cursor-pointer"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      <div class="bg-[#EDE6D5] border border-[#2D2926] p-5 sm:p-6 shadow-[2px_2px_0px_#8B7355] space-y-4">
+        <div class="flex items-center justify-between border-b border-[#2D2926]/20 pb-3">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#8B7355]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3 class="text-xl font-bold text-[#1A1510]" style="font-family: Georgia, serif">
+              Faol Sessiyalar Reyestri
+            </h3>
+          </div>
+          <span class="text-xs font-sans font-bold text-[#8B7355] uppercase tracking-wider">
+            {{ sessionsList().length }} ta sessiya
+          </span>
+        </div>
+
+        @if (sessionsList().length === 0) {
+          <p class="text-xs font-sans text-[#8B7355] py-4 text-center italic">
+            Bazada faol sessiyalar mavjud emas.
+          </p>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-sans">
+              <thead>
+                <tr class="border-b border-[#2D2926]/20 text-[#8B7355] uppercase tracking-wider text-[10px]">
+                  <th class="py-2">Rasm</th>
+                  <th class="py-2">Sessiya nomi</th>
+                  <th class="py-2">Sport & Majmua</th>
+                  <th class="py-2">Sana va vaqt</th>
+                  <th class="py-2">Bandlik</th>
+                  <th class="py-2">Narx</th>
+                  <th class="py-2 text-right">Amallar</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#2D2926]/10">
+                @for (s of sessionsList(); track s.id) {
+                  <tr>
+                    <td class="py-2.5">
+                      <div class="w-12 h-9 rounded overflow-hidden border border-[#2D2926] bg-[#D8CFBC]">
+                        @if (s.imageUrl) {
+                          <img [src]="s.imageUrl" [alt]="s.title" class="w-full h-full object-cover" />
+                        } @else {
+                          <div class="w-full h-full flex items-center justify-center text-[10px] text-[#8B7355]">
+                            Pley
+                          </div>
+                        }
+                      </div>
+                    </td>
+                    <td class="py-2.5 font-bold text-[#1A1510]">
+                      <div>{{ s.title }}</div>
+                      <div class="text-[10px] text-[#8B7355] uppercase font-bold">{{ s.skillLevel }} · {{ s.sessionVibe }}</div>
+                    </td>
+                    <td class="py-2.5">
+                      <div class="font-semibold text-[#1A1510]">{{ s.venue.name }}</div>
+                      <div class="text-[10px] text-[#8B7355]">{{ s.sport.name }} · {{ s.venue.district }}</div>
+                    </td>
+                    <td class="py-2.5 text-[#1A1510] whitespace-nowrap text-[11px]">
+                      {{ s.scheduledAt | date:'dd.MM.yyyy HH:mm' }}
+                    </td>
+                    <td class="py-2.5">
+                      <span class="font-bold text-[#1A1510]">{{ s.bookedSlots }}</span> / {{ s.maxSlots }}
+                    </td>
+                    <td class="py-2.5 font-bold text-[#1A1510] whitespace-nowrap">
+                      {{ s.totalPrice | number }} UZS
+                    </td>
+                    <td class="py-2.5 text-right whitespace-nowrap space-x-2">
+                      <a
+                        [routerLink]="['/sessions', s.id]"
+                        target="_blank"
+                        class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#EDE6D5] border border-[#2D2926] text-[10px] font-bold uppercase tracking-wider text-[#1A1510] hover:bg-white"
+                      >
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        <span>Ochish</span>
+                      </a>
+                      <button
+                        type="button"
+                        (click)="handleCancelSession(s.id)"
+                        class="px-2.5 py-1 bg-[#F2DDD9] border border-[#8B2E2E] text-[#8B2E2E] text-[10px] font-bold uppercase tracking-wider hover:bg-[#E8C5C0] cursor-pointer"
+                      >
+                        Bekor qilish
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-8">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <span class="inline-block px-3 py-1 rounded-full text-xs font-black uppercase bg-[#7655F7] text-white border-2 border-[#242424] shadow-[2px_2px_0px_#242424]">
+            Pley Operatsion Markazi
+          </span>
+          <h1 class="text-3xl sm:text-5xl font-black text-[#242424]">
+            BOSHQARUV PANELI
+          </h1>
+          <p class="text-sm font-semibold text-[#555555]">
+            Haqiqiy metrikalar, sessiyalarni rejalashtirish va audit loglari.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            (click)="showCreateVenueModal.set(true)"
+            class="py-3 px-5 rounded-2xl bg-white text-[#242424] font-black text-sm border-2 border-[#242424] shadow-[3px_3px_0px_#242424] hover:bg-[#FFF9EF] inline-flex items-center gap-2 cursor-pointer"
+          >
+            <svg class="w-5 h-5 text-[#7655F7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span>Yangi majmua</span>
+          </button>
+          <button
+            type="button"
+            (click)="showCreateModal.set(true)"
+            class="py-3 px-5 rounded-2xl bg-[#D7FF64] text-[#242424] font-black text-sm border-2 border-[#242424] shadow-[3px_3px_0px_#242424] hover:bg-[#cbf556] inline-flex items-center gap-2 cursor-pointer"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Yangi sessiya</span>
+          </button>
+        </div>
+      </div>
+
+      @if (venueSuccess()) {
+        <div class="p-4 bg-[#D7FF64] border-2 border-[#242424] rounded-2xl flex items-center gap-2 font-bold text-sm">
+          <svg class="w-5 h-5 text-[#7655F7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ venueSuccess() }}</span>
+        </div>
+      }
+
+      @if (createSuccess()) {
+        <div class="p-4 bg-[#D7FF64] border-2 border-[#242424] rounded-2xl flex items-center gap-2 font-bold text-sm">
+          <svg class="w-5 h-5 text-[#7655F7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ createSuccess() }}</span>
+        </div>
+      }
+
+      @if (metrics(); as m) {
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          <div class="bg-white rounded-3xl border-[3px] border-[#242424] shadow-[4px_4px_0px_#242424] p-5 space-y-1">
+            <div class="text-xs font-bold text-[#888888] uppercase">Jami foydalanuvchilar</div>
+            <div class="text-2xl sm:text-3xl font-black text-[#242424]">{{ m.totalUsers }}</div>
+            <div class="text-[11px] font-semibold text-[#7655F7]">{{ m.totalVenues }} ta zal ulangan</div>
+          </div>
+
+          <div class="bg-white rounded-3xl border-[3px] border-[#242424] shadow-[4px_4px_0px_#242424] p-5 space-y-1">
+            <div class="text-xs font-bold text-[#888888] uppercase">Kutilayotgan oʻyinlar</div>
+            <div class="text-2xl sm:text-3xl font-black text-[#7655F7]">{{ m.upcomingSessions }}</div>
+            <div class="text-[11px] font-semibold text-[#555555]">{{ m.totalSessions }} jami oʻyin</div>
+          </div>
+
+          <div class="bg-white rounded-3xl border-[3px] border-[#242424] shadow-[4px_4px_0px_#242424] p-5 space-y-1">
+            <div class="text-xs font-bold text-[#888888] uppercase">Jami aylanma (UZS)</div>
+            <div class="text-xl sm:text-2xl font-black text-[#242424]">{{ m.grossBookingVolumeUz | number }}</div>
+            <div class="text-[11px] font-semibold text-[#FF795D]">{{ m.confirmedBookings }} tasdiqlangan joy</div>
+          </div>
+
+          <div class="bg-[#D7FF64] rounded-3xl border-[3px] border-[#242424] shadow-[4px_4px_0px_#242424] p-5 space-y-1">
+            <div class="text-xs font-bold text-[#242424] uppercase">Platforma daromadi (UZS)</div>
+            <div class="text-xl sm:text-2xl font-black text-[#242424]">{{ m.platformRevenueUz | number }}</div>
+            <div class="text-[11px] font-black text-[#7655F7]">Toʻldirilish darajasi: {{ m.averageFillRatePercentage }}%</div>
+          </div>
+        </div>
+      }
+
+      @if (showCreateModal()) {
+        <div class="fixed inset-0 z-50 bg-[#242424]/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl border-[3px] border-[#242424] shadow-[6px_6px_0px_#242424] p-6 sm:p-8 space-y-6">
+            <div class="flex items-center justify-between border-b border-[#EEEEEE] pb-3">
+              <h3 class="text-xl sm:text-2xl font-black text-[#242424]">
+                Yangi sessiya yaratish
+              </h3>
+              <button
+                type="button"
+                (click)="showCreateModal.set(false)"
+                class="w-8 h-8 rounded-full bg-[#FFF9EF] border-2 border-[#242424] font-black text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            @if (createError()) {
+              <div class="p-3 bg-[#FF795D] text-white rounded-xl text-xs font-bold">
+                {{ createError() }}
+              </div>
+            }
+
+            <form (ngSubmit)="handleCreateSession()" class="space-y-4">
+              <div>
+                <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                  Sessiya sarlavhasi
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Masalan, Saturday Evening Reflex Rally"
+                  [ngModel]="sessionForm().title"
+                  (ngModelChange)="updateSessionFormField('title', $event)"
+                  name="title"
+                  class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold outline-none"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs font-black uppercase text-[#242424]">
+                      Sport majmuasi
+                    </label>
+                    <button
+                      type="button"
+                      (click)="showCreateVenueModal.set(true)"
+                      class="text-xs font-black text-[#7655F7] hover:underline cursor-pointer"
+                    >
+                      + Majmua qoʻshish
+                    </button>
+                  </div>
+                  @if (venues().length > 0) {
+                    <select
+                      [ngModel]="sessionForm().venueId"
+                      (ngModelChange)="updateSessionFormField('venueId', $event)"
+                      name="venueId"
+                      class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold outline-none"
+                    >
+                      @for (v of venues(); track v.id) {
+                        <option [value]="v.id">
+                          {{ v.name }} ({{ v.district }})
+                        </option>
+                      }
+                    </select>
+                  } @else {
+                    <div class="p-3 rounded-xl border-2 border-dashed border-[#242424] bg-[#FFE5E5] text-xs font-bold text-[#D03030] flex items-center justify-between">
+                      <span>Bazada sport majmuasi yoʻq</span>
+                      <button
+                        type="button"
+                        (click)="showCreateVenueModal.set(true)"
+                        class="px-2 py-1 bg-[#242424] text-white rounded text-[11px] font-black uppercase cursor-pointer"
+                      >
+                        Qoʻshish
+                      </button>
+                    </div>
+                  }
+                </div>
+
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Sport turi
+                  </label>
+                  @if (sports().length > 0) {
+                    <select
+                      [ngModel]="sessionForm().sportId"
+                      (ngModelChange)="updateSessionFormField('sportId', $event)"
+                      name="sportId"
+                      class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold outline-none"
+                    >
+                      @for (s of sports(); track s.id) {
+                        <option [value]="s.id">
+                          {{ s.name }}
+                        </option>
+                      }
+                    </select>
+                  } @else {
+                    <div class="p-3 rounded-xl border-2 border-dashed border-[#242424] bg-[#FFE5E5] text-xs font-bold text-[#D03030]">
+                      Sport turlari topilmadi
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Boshlanish sanasi va vaqti
+                  </label>
+                  <input
+                    type="datetime-local"
+                    required
+                    [ngModel]="sessionForm().scheduledAt"
+                    (ngModelChange)="updateSessionFormField('scheduledAt', $event)"
+                    name="scheduledAt"
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Davomiyligi (daqiqa)
+                  </label>
+                  <input
+                    type="number"
+                    min="30"
+                    step="15"
+                    [ngModel]="sessionForm().durationMinutes"
+                    (ngModelChange)="updateSessionFormField('durationMinutes', $event)"
+                    name="durationMinutes"
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold outline-none"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Maksimal joy (Slot)
+                  </label>
+                  <input
+                    type="number"
+                    min="2"
+                    max="30"
+                    [ngModel]="sessionForm().maxSlots"
+                    (ngModelChange)="updateSessionFormField('maxSlots', $event)"
+                    name="maxSlots"
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Zal narxi / joy (UZS)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    [ngModel]="sessionForm().pricePerSlot"
+                    (ngModelChange)="updateSessionFormField('pricePerSlot', $event)"
+                    name="pricePerSlot"
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Xizmat haqi (UZS)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="500"
+                    [ngModel]="sessionForm().serviceFee"
+                    (ngModelChange)="updateSessionFormField('serviceFee', $event)"
+                    name="serviceFee"
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold outline-none"
+                  />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Daraja
+                  </label>
+                  <select
+                    [ngModel]="sessionForm().skillLevel"
+                    (ngModelChange)="updateSessionFormField('skillLevel', $event)"
+                    name="skillLevel"
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold outline-none"
+                  >
+                    <option value="ALL_LEVELS">Barcha darajalar</option>
+                    <option value="BEGINNER">Boshlangʻich</option>
+                    <option value="CASUAL">Havaskor</option>
+                    <option value="INTERMEDIATE">Oʻrta</option>
+                    <option value="ADVANCED">Ilgʻor</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Atmosfera / Vibe
+                  </label>
+                  <select
+                    [ngModel]="sessionForm().sessionVibe"
+                    (ngModelChange)="updateSessionFormField('sessionVibe', $event)"
+                    name="sessionVibe"
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] text-sm font-bold outline-none"
+                  >
+                    <option value="FRIENDLY">Doʻstona va erkin</option>
+                    <option value="SOCIAL">Ijtimoiy va muloqot</option>
+                    <option value="LEARNING">Oʻrganish va mashq</option>
+                    <option value="COMPETITIVE">Raqobatbardosh</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                  Sessiya rasmi / Banner (Pics)
+                </label>
+                <div class="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="admin-session-pic-cartoon"
+                    class="hidden"
+                    (change)="handleUploadSessionPic($event)"
+                    [disabled]="uploadingSessionPic()"
+                  />
+                  <label
+                    for="admin-session-pic-cartoon"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] hover:bg-[#EADEFF] font-black text-xs uppercase cursor-pointer transition-colors"
+                  >
+                    <svg class="w-4 h-4 text-[#7655F7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{{ uploadingSessionPic() ? 'Yuklanmoqda...' : 'Rasm yuklash (Fayl)' }}</span>
+                  </label>
+                </div>
+                @if (sessionForm().imageUrl) {
+                  <div class="mt-2 relative w-28 h-16 rounded-xl border-2 border-[#242424] overflow-hidden">
+                    <img [src]="sessionForm().imageUrl" alt="preview" class="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      (click)="updateSessionFormField('imageUrl', '')"
+                      class="absolute top-1 right-1 bg-[#242424] text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-black cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <div class="pt-2 flex justify-end gap-3">
+                <button
+                  type="button"
+                  (click)="showCreateModal.set(false)"
+                  class="py-2.5 px-4 rounded-xl bg-white text-[#242424] font-black text-xs border-2 border-[#242424] shadow-[2px_2px_0px_#242424] hover:bg-[#FFF9EF] cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="formSubmitting() || venues().length === 0"
+                  class="py-2.5 px-5 rounded-xl bg-[#D7FF64] text-[#242424] font-black text-xs border-2 border-[#242424] shadow-[2px_2px_0px_#242424] hover:bg-[#cbf556] cursor-pointer disabled:opacity-50"
+                >
+                  {{ formSubmitting() ? 'Yaratilmoqda...' : 'Eʼlon qilish' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+      @if (showCreateVenueModal()) {
+        <div class="fixed inset-0 z-50 bg-[#242424]/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div class="w-full max-w-xl max-h-[90vh] overflow-y-auto bg-[#FFF9EF] rounded-3xl border-4 border-[#242424] shadow-[8px_8px_0px_#242424] p-6 sm:p-8 space-y-6">
+            <div class="flex items-center justify-between border-b-2 border-[#242424] pb-4">
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-[#7655F7] px-2 py-0.5 rounded-full bg-[#EADEFF] border border-[#242424]">
+                  Baza boshqaruvi
+                </span>
+                <h3 class="text-xl font-black text-[#242424] mt-1">
+                  Yangi sport majmuasi qoʻshish
+                </h3>
+              </div>
+              <button
+                type="button"
+                (click)="showCreateVenueModal.set(false)"
+                class="w-8 h-8 rounded-full bg-white border-2 border-[#242424] font-black text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            @if (venueError()) {
+              <div class="p-3 rounded-xl border-2 border-[#242424] bg-[#FFE5E5] text-[#D03030] text-xs font-black">
+                {{ venueError() }}
+              </div>
+            }
+
+            <form (ngSubmit)="handleCreateVenue()" class="space-y-4">
+              <div>
+                <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                  Majmua nomi
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Masalan, Chilonzor Sports Club"
+                  [ngModel]="venueForm().name"
+                  (ngModelChange)="updateVenueFormField('name', $event)"
+                  name="venueName"
+                  class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-white text-sm font-bold outline-none"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Tuman
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Masalan, Chilonzor"
+                    [ngModel]="venueForm().district"
+                    (ngModelChange)="updateVenueFormField('district', $event)"
+                    name="venueDistrict"
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-white text-sm font-bold outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Soatlik narxi (UZS)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    step="10000"
+                    [ngModel]="venueForm().hourlyRate"
+                    (ngModelChange)="updateVenueFormField('hourlyRate', $event)"
+                    name="venueHourlyRate"
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-white text-sm font-bold outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                  Toʻliq manzil
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Masalan, Chilonzor 9-mavze, 21-uy"
+                  [ngModel]="venueForm().address"
+                  (ngModelChange)="updateVenueFormField('address', $event)"
+                  name="venueAddress"
+                  class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-white text-sm font-bold outline-none"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                  Tavsif
+                </label>
+                <textarea
+                  rows="2"
+                  required
+                  placeholder="Majmua sharoitlari, pol qoplamasi va imkoniyatlari haqida qisqacha..."
+                  [ngModel]="venueForm().description"
+                  (ngModelChange)="updateVenueFormField('description', $event)"
+                  name="venueDescription"
+                  class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-white text-sm font-bold outline-none"
+                ></textarea>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Telefon raqami
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="+998 71 200 00 00"
+                    [ngModel]="venueForm().contactPhone"
+                    (ngModelChange)="updateVenueFormField('contactPhone', $event)"
+                    name="venueContactPhone"
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-white text-sm font-bold outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-black uppercase text-[#242424] mb-1">
+                    Qulayliklar (vergul bilan)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Dush, Kiyinish xonasi, Bepul suv"
+                    [ngModel]="venueForm().amenities"
+                    (ngModelChange)="updateVenueFormField('amenities', $event)"
+                    name="venueAmenities"
+                    class="w-full px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-white text-sm font-bold outline-none"
+                  />
+                </div>
+              </div>
+
+              <div class="pt-2 flex justify-end gap-3">
+                <button
+                  type="button"
+                  (click)="showCreateVenueModal.set(false)"
+                  class="py-2.5 px-4 rounded-xl bg-white text-[#242424] font-black text-xs border-2 border-[#242424] shadow-[2px_2px_0px_#242424] hover:bg-[#FFF9EF] cursor-pointer"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="venueSubmitting()"
+                  class="py-2.5 px-5 rounded-xl bg-[#D7FF64] text-[#242424] font-black text-xs border-2 border-[#242424] shadow-[2px_2px_0px_#242424] hover:bg-[#cbf556] cursor-pointer disabled:opacity-50"
+                >
+                  {{ venueSubmitting() ? 'Saqlanmoqda...' : 'Majmuani saqlash' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white rounded-3xl border-[3px] border-[#242424] shadow-[4px_4px_0px_#242424] space-y-4 p-5 sm:p-6">
+          <h3 class="text-xl font-black text-[#242424]">
+            Soʻnggi bandliklar
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-bold">
+              <thead>
+                <tr class="border-b border-[#EEEEEE] text-[#888888]">
+                  <th class="py-2">Oʻyinchi</th>
+                  <th class="py-2">Sessiya</th>
+                  <th class="py-2">Narx</th>
+                  <th class="py-2">Holat</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#F2F2F2]">
+                @for (b of bookings(); track b.booking_id) {
+                  <tr>
+                    <td class="py-2.5">
+                      <div class="font-extrabold text-[#242424]">{{ b.user_name }}</div>
+                      <div class="text-[10px] text-[#7655F7]">{{ b.user_email || b.user_name }}</div>
+                    </td>
+                    <td class="py-2.5">
+                      <div class="text-[#242424]">{{ b.session_title }}</div>
+                      <div class="text-[10px] text-[#888888]">{{ b.venue_name }}</div>
+                    </td>
+                    <td class="py-2.5 text-[#242424]">
+                      {{ (b.price + b.service_fee) | number }} UZS
+                    </td>
+                    <td class="py-2.5">
+                      <span class="px-2 py-0.5 rounded-full bg-[#D7FF64] border border-[#242424] text-[10px]">
+                        {{ b.status }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border-[3px] border-[#242424] shadow-[4px_4px_0px_#242424] space-y-4 p-5 sm:p-6">
+          <h3 class="text-xl font-black text-[#242424]">
+            Audit Loglari
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-bold">
+              <thead>
+                <tr class="border-b border-[#EEEEEE] text-[#888888]">
+                  <th class="py-2">Vaqt</th>
+                  <th class="py-2">Amal</th>
+                  <th class="py-2">Nishon</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#F2F2F2]">
+                @for (log of auditLogs().slice(0, 8); track log.id) {
+                  <tr>
+                    <td class="py-2.5 text-[#888888] text-[10px]">
+                      {{ log.created_at | date:'HH:mm:ss' }}
+                    </td>
+                    <td class="py-2.5 font-extrabold text-[#7655F7]">
+                      {{ log.action }}
+                    </td>
+                    <td class="py-2.5 text-[#242424] text-[11px]">
+                      {{ log.target_type }}: {{ log.target_id }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-3xl border-[3px] border-[#242424] shadow-[4px_4px_0px_#242424] space-y-4 p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EEEEEE] pb-3">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#7655F7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <h3 class="text-xl font-black text-[#242424]">
+              Hamkorlik arizalari (Zal egalari)
+            </h3>
+          </div>
+          <span class="text-xs font-black text-[#7655F7] px-2.5 py-1 rounded-full bg-[#EADEFF] border border-[#242424]">
+            {{ pendingInquiriesCount() }} ta kutilmoqda ({{ inquiries().length }} jami)
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            (click)="inquiryStatusFilter.set('ALL')"
+            [class]="'px-3 py-1 rounded-full text-xs font-black border border-[#242424] transition-all cursor-pointer ' +
+              (inquiryStatusFilter() === 'ALL' ? 'bg-[#242424] text-white' : 'bg-white text-[#242424] hover:bg-[#F2F2F2]')"
+          >
+            Barchasi ({{ inquiries().length }})
+          </button>
+          <button
+            type="button"
+            (click)="inquiryStatusFilter.set('PENDING')"
+            [class]="'px-3 py-1 rounded-full text-xs font-black border border-[#242424] transition-all cursor-pointer ' +
+              (inquiryStatusFilter() === 'PENDING' ? 'bg-[#7655F7] text-white shadow-[2px_2px_0px_#242424]' : 'bg-white text-[#242424] hover:bg-[#F2F2F2]')"
+          >
+            Kutilmoqda ({{ pendingInquiriesCount() }})
+          </button>
+          <button
+            type="button"
+            (click)="inquiryStatusFilter.set('ACCEPTED')"
+            [class]="'px-3 py-1 rounded-full text-xs font-black border border-[#242424] transition-all cursor-pointer ' +
+              (inquiryStatusFilter() === 'ACCEPTED' ? 'bg-[#D7FF64] text-[#242424] shadow-[2px_2px_0px_#242424]' : 'bg-white text-[#242424] hover:bg-[#F2F2F2]')"
+          >
+            Qabul qilingan ({{ acceptedInquiriesCount() }})
+          </button>
+          <button
+            type="button"
+            (click)="inquiryStatusFilter.set('REJECTED')"
+            [class]="'px-3 py-1 rounded-full text-xs font-black border border-[#242424] transition-all cursor-pointer ' +
+              (inquiryStatusFilter() === 'REJECTED' ? 'bg-[#FFD1D1] text-[#D9383A] shadow-[2px_2px_0px_#242424]' : 'bg-white text-[#242424] hover:bg-[#F2F2F2]')"
+          >
+            Rad etilgan ({{ rejectedInquiriesCount() }})
+          </button>
+        </div>
+
+        @if (filteredInquiries().length === 0) {
+          <p class="text-xs font-bold text-[#888888] py-4 text-center">
+            {{ inquiryStatusFilter() === 'ALL' ? 'Hozircha yangi hamkorlik arizalari mavjud emas.' : 'Ushbu toifadagi arizalar topilmadi.' }}
+          </p>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-bold">
+              <thead>
+                <tr class="border-b border-[#EEEEEE] text-[#888888]">
+                  <th class="py-2">Turi</th>
+                  <th class="py-2">Holat</th>
+                  <th class="py-2">Vaqt</th>
+                  <th class="py-2">Masʼul shaxs</th>
+                  <th class="py-2">Zal / Oʻyin nomi</th>
+                  <th class="py-2">Tuman & Sport</th>
+                  <th class="py-2">Rasm</th>
+                  <th class="py-2">Izoh</th>
+                  <th class="py-2 text-right">Amal</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#F2F2F2]">
+                @for (inq of filteredInquiries(); track inq.id) {
+                  <tr>
+                    <td class="py-2.5">
+                      <span
+                        [class]="'px-2 py-0.5 rounded-full text-[10px] font-black border ' +
+                          (inq.inquiry_type === 'SESSION' ? 'bg-[#D7FF64] border-[#242424] text-[#242424]' : 'bg-[#FFF9EF] border-[#242424] text-[#7655F7]')"
+                      >
+                        {{ inq.inquiry_type === 'SESSION' ? 'Sessiya' : 'Majmua' }}
+                      </span>
+                    </td>
+                    <td class="py-2.5">
+                      @if (inq.status === 'ACCEPTED') {
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black border border-[#242424] bg-[#D7FF64] text-[#242424]">
+                          Qabul qilingan
+                        </span>
+                      } @else if (inq.status === 'REJECTED') {
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black border border-[#242424] bg-[#FFD1D1] text-[#D9383A]">
+                          Rad etilgan
+                        </span>
+                      } @else {
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black border border-[#242424] bg-[#FFF275] text-[#242424]">
+                          Kutilmoqda
+                        </span>
+                      }
+                    </td>
+                    <td class="py-2.5 text-[#888888] text-[10px] whitespace-nowrap">
+                      {{ inq.created_at | date:'dd.MM.yyyy HH:mm' }}
+                    </td>
+                    <td class="py-2.5">
+                      <div class="font-extrabold text-[#242424]">{{ inq.contact_name }}</div>
+                      <a [href]="'tel:' + inq.phone" class="text-[11px] text-[#7655F7] hover:underline flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        <span>{{ inq.phone }}</span>
+                      </a>
+                    </td>
+                    <td class="py-2.5 font-black text-[#242424]">
+                      {{ inq.venue_name }}
+                    </td>
+                    <td class="py-2.5 text-[#242424]">
+                      <div>{{ inq.district }}</div>
+                      <div class="text-[10px] text-[#888888] font-extrabold uppercase">{{ inq.sport_types }}</div>
+                    </td>
+                    <td class="py-2.5">
+                      @if (inq.image_url) {
+                        <div class="w-10 h-8 rounded-lg overflow-hidden border border-[#242424]">
+                          <img [src]="inq.image_url" alt="pic" class="w-full h-full object-cover" />
+                        </div>
+                      } @else {
+                        <span class="text-[10px] text-[#888888]">—</span>
+                      }
+                    </td>
+                    <td class="py-2.5 text-[#555555] max-w-xs truncate text-[11px]">
+                      {{ inq.message || '—' }}
+                    </td>
+                    <td class="py-2.5 text-right whitespace-nowrap">
+                      @if (inq.status === 'ACCEPTED') {
+                        <div class="flex items-center justify-end gap-1.5">
+                          <span class="text-[11px] text-[#242424] font-black flex items-center gap-1 bg-[#D7FF64] px-2.5 py-1 rounded-xl border border-[#242424] mr-1">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span>Qoʻshildi</span>
+                          </span>
+                          <button
+                            type="button"
+                            title="Oʻchirish"
+                            (click)="handleDeleteInquiry(inq.id)"
+                            class="p-1.5 rounded-xl border border-[#242424] bg-white text-[#D9383A] hover:bg-[#FFD1D1] transition-colors cursor-pointer"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      } @else if (inq.status === 'REJECTED') {
+                        <div class="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            (click)="handleAcceptInquiry(inq.id)"
+                            class="py-1.5 px-3 rounded-xl bg-white text-[#242424] font-black text-xs border border-[#242424] hover:bg-[#FFF9EF] cursor-pointer"
+                          >
+                            Qayta qabul qilish
+                          </button>
+                          <button
+                            type="button"
+                            title="Oʻchirish"
+                            (click)="handleDeleteInquiry(inq.id)"
+                            class="p-1.5 rounded-xl border border-[#242424] bg-white text-[#D9383A] hover:bg-[#FFD1D1] transition-colors cursor-pointer"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      } @else {
+                        <div class="flex items-center justify-end gap-1.5 flex-wrap">
+                          @if (inq.inquiry_type === 'SESSION') {
+                            <button
+                              type="button"
+                              (click)="handleConvertInquiryToSession(inq)"
+                              class="py-1.5 px-3 rounded-xl bg-[#D7FF64] text-[#242424] font-black text-xs border border-[#242424] hover:bg-[#cbf556] cursor-pointer"
+                            >
+                              + Sessiyaga aylantirish
+                            </button>
+                          } @else {
+                            <button
+                              type="button"
+                              (click)="handleConvertInquiryToVenue(inq)"
+                              class="py-1.5 px-3 rounded-xl bg-[#7655F7] text-white font-black text-xs border border-[#242424] hover:bg-[#6846e3] cursor-pointer"
+                            >
+                              + Majmuaga qoʻshish
+                            </button>
+                          }
+                          <button
+                            type="button"
+                            title="Toʻgʻridan-toʻgʻri qabul qilish"
+                            (click)="handleAcceptInquiry(inq.id)"
+                            class="p-1.5 rounded-xl border border-[#242424] bg-[#D7FF64] text-[#242424] hover:brightness-95 transition-colors cursor-pointer"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            title="Rad etish"
+                            (click)="handleRejectInquiry(inq.id)"
+                            class="p-1.5 rounded-xl border border-[#242424] bg-[#FFD1D1] text-[#D9383A] hover:brightness-95 transition-colors cursor-pointer"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            title="Oʻchirish"
+                            (click)="handleDeleteInquiry(inq.id)"
+                            class="p-1.5 rounded-xl border border-[#242424] bg-white text-[#D9383A] hover:bg-[#FFD1D1] transition-colors cursor-pointer"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      <div class="bg-white rounded-3xl border-[3px] border-[#242424] shadow-[4px_4px_0px_#242424] space-y-4 p-5 sm:p-6">
+        <div class="flex items-center justify-between border-b border-[#EEEEEE] pb-3">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#7655F7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3 class="text-xl font-black text-[#242424]">
+              Faol Sessiyalar Reyestri
+            </h3>
+          </div>
+          <span class="text-xs font-black text-[#242424] px-2.5 py-1 rounded-full bg-[#D7FF64] border border-[#242424]">
+            {{ sessionsList().length }} ta sessiya
+          </span>
+        </div>
+
+        @if (sessionsList().length === 0) {
+          <p class="text-xs font-bold text-[#888888] py-4 text-center">
+            Bazada faol sessiyalar mavjud emas.
+          </p>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-bold">
+              <thead>
+                <tr class="border-b border-[#EEEEEE] text-[#888888]">
+                  <th class="py-2">Rasm</th>
+                  <th class="py-2">Sessiya nomi</th>
+                  <th class="py-2">Sport & Majmua</th>
+                  <th class="py-2">Sana va vaqt</th>
+                  <th class="py-2">Bandlik</th>
+                  <th class="py-2">Narx</th>
+                  <th class="py-2 text-right">Amallar</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#F2F2F2]">
+                @for (s of sessionsList(); track s.id) {
+                  <tr>
+                    <td class="py-2.5">
+                      <div class="w-12 h-9 rounded-lg overflow-hidden border-2 border-[#242424] bg-[#FFEED5]">
+                        @if (s.imageUrl) {
+                          <img [src]="s.imageUrl" [alt]="s.title" class="w-full h-full object-cover" />
+                        } @else {
+                          <div class="w-full h-full flex items-center justify-center text-[10px] text-[#7655F7] font-black">
+                            Pley
+                          </div>
+                        }
+                      </div>
+                    </td>
+                    <td class="py-2.5">
+                      <div class="font-extrabold text-[#242424]">{{ s.title }}</div>
+                      <div class="text-[10px] text-[#7655F7] font-black uppercase">{{ s.skillLevel }} · {{ s.sessionVibe }}</div>
+                    </td>
+                    <td class="py-2.5">
+                      <div class="text-[#242424]">{{ s.venue.name }}</div>
+                      <div class="text-[10px] text-[#888888]">{{ s.sport.name }} · {{ s.venue.district }}</div>
+                    </td>
+                    <td class="py-2.5 text-[#242424] whitespace-nowrap text-[11px]">
+                      {{ s.scheduledAt | date:'dd.MM.yyyy HH:mm' }}
+                    </td>
+                    <td class="py-2.5">
+                      <span class="font-black text-[#242424]">{{ s.bookedSlots }}</span> / {{ s.maxSlots }}
+                    </td>
+                    <td class="py-2.5 font-black text-[#242424] whitespace-nowrap">
+                      {{ s.totalPrice | number }} UZS
+                    </td>
+                    <td class="py-2.5 text-right whitespace-nowrap space-x-2">
+                      <a
+                        [routerLink]="['/sessions', s.id]"
+                        target="_blank"
+                        class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border-2 border-[#242424] bg-white text-[10px] font-black uppercase text-[#242424] hover:bg-[#FFF9EF]"
+                      >
+                        <svg class="w-3 h-3 text-[#7655F7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        <span>Ochish</span>
+                      </a>
+                      <button
+                        type="button"
+                        (click)="handleCancelSession(s.id)"
+                        class="py-1.5 px-3 rounded-xl bg-[#FF795D] text-white font-black text-xs border-2 border-[#242424] hover:bg-[#e6694f] cursor-pointer"
+                      >
+                        Bekor qilish
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  }
+}

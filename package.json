@@ -6,15 +6,15 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "next dev apps/web --webpack",
+    "dev": "npm --prefix apps/web run start",
     "dev:api": "ts-node apps/api/src/main.ts",
-    "dev:web": "next dev apps/web --webpack",
+    "dev:web": "npm --prefix apps/web run start",
     "build:api": "tsc -p apps/api/tsconfig.json",
-    "build:web": "next build apps/web --webpack",
-    "build": "tsc -p apps/api/tsconfig.json && next build apps/web --webpack",
+    "build:web": "npm --prefix apps/web run build",
+    "build": "tsc -p apps/api/tsconfig.json && npm --prefix apps/web run build",
     "test": "vitest run --root apps/api",
     "lint:api": "tsc -p apps/api/tsconfig.json --noEmit",
-    "lint:web": "tsc -p apps/web/tsconfig.json --noEmit",
-    "lint": "tsc -p apps/api/tsconfig.json --noEmit && tsc -p apps/web/tsconfig.json --noEmit"
+    "lint:web": "tsc -p apps/web/tsconfig.app.json --noEmit",
+    "lint": "tsc -p apps/api/tsconfig.json --noEmit && tsc -p apps/web/tsconfig.app.json --noEmit"
   }
 }
