@@ -19,10 +19,15 @@ export default function HomePage(): React.JSX.Element {
     venueName: '',
     district: 'Yunusobod',
     sportTypes: 'table-tennis',
+    inquiryType: 'VENUE' as 'VENUE' | 'SESSION',
+    imageUrl: '',
+    scheduledAt: '',
+    pricePerSlot: 28000,
     message: '',
   });
   const [partnerSubmitting, setPartnerSubmitting] = useState<boolean>(false);
   const [partnerSuccess, setPartnerSuccess] = useState<boolean>(false);
+  const [partnerError, setPartnerError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load(): Promise<void> {
@@ -37,9 +42,12 @@ export default function HomePage(): React.JSX.Element {
   const handlePartnerSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setPartnerSubmitting(true);
+    setPartnerError(null);
     try {
       await submitPartnershipInquiry(partnerForm);
       setPartnerSuccess(true);
+    } catch (err: any) {
+      setPartnerError(err.message || 'Hamkorlik arizasini yuborishda xatolik yuz berdi');
     } finally {
       setPartnerSubmitting(false);
     }
@@ -64,6 +72,7 @@ export default function HomePage(): React.JSX.Element {
             setPartnerForm={setPartnerForm}
             partnerSubmitting={partnerSubmitting}
             partnerSuccess={partnerSuccess}
+            partnerError={partnerError}
             handlePartnerSubmit={handlePartnerSubmit}
           />
         </motion.div>
@@ -82,6 +91,7 @@ export default function HomePage(): React.JSX.Element {
             setPartnerForm={setPartnerForm}
             partnerSubmitting={partnerSubmitting}
             partnerSuccess={partnerSuccess}
+            partnerError={partnerError}
             handlePartnerSubmit={handlePartnerSubmit}
           />
         </motion.div>

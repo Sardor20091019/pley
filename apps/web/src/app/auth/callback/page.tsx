@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { loginWithGoogleCode } from '../../../lib/api';
+import { getCookie, deleteCookie } from '../../../lib/cookies';
 import { Mascot } from '../../../components/mascot/Mascot';
 import { Button } from '../../../components/ui/Button';
 
@@ -10,38 +11,66 @@ function CallbackContent(): React.JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
+  const isProcessingRef = useRef<boolean>(false);
 
   useEffect(() => {
+    if (isProcessingRef.current) {
+      return;
+    }
+
     const code = searchParams.get('code');
     const errorParam = searchParams.get('error');
 
     if (errorParam) {
+      isProcessingRef.current = true;
       setError(`Google kirish bekor qilindi: ${errorParam}`);
       return;
     }
 
     if (!code) {
+      isProcessingRef.current = true;
       setError('Google tomonidan tasdiqlash kodi yuborilmadi.');
       return;
     }
 
+    isProcessingRef.current = true;
+
     async function handleExchange(): Promise<void> {
       try {
         const redirectUri = `${window.location.origin}/auth/callback`;
-        const turnstileToken = sessionStorage.getItem('pley_turnstile_token') || undefined;
-        sessionStorage.removeItem('pley_turnstile_token');
+        const turnstileToken =
+          sessionStorage.getItem('pley_turnstile_token') ||
+          getCookie('pley_turnstile_token');
+
+        if (!turnstileToken) {
+          setError(
+            'Xavfsizlik tekshiruvi (Turnstile) oʻtilmagan yoki rad etilgan. Tizimga kirish imkonsiz.',
+          );
+          return;
+        }
+
         await loginWithGoogleCode(code!, redirectUri, turnstileToken);
 
-        const target = sessionStorage.getItem('pley_post_login_redirect') || '/discover';
+        sessionStorage.removeItem('pley_turnstile_token');
+        deleteCookie('pley_turnstile_token');
+
+        const target =
+          sessionStorage.getItem('pley_post_login_redirect') ||
+          getCookie('pley_post_login_redirect') ||
+          '/discover';
         sessionStorage.removeItem('pley_post_login_redirect');
-        router.push(target);
+        deleteCookie('pley_post_login_redirect');
+
+        window.location.href = target;
       } catch (err: any) {
-        setError(err.message || 'Google hisobi bilan tizimga kirishda xatolik yuz berdi');
+        setError(
+          err.message || 'Google hisobi bilan tizimga kirishda xatolik yuz berdi',
+        );
       }
     }
 
     handleExchange();
-  }, [searchParams, router]);
+  }, [searchParams]);
 
   if (error) {
     return (
@@ -49,7 +78,7 @@ function CallbackContent(): React.JSX.Element {
         <Mascot size="lg" mood="sleepy" />
         <h2 className="text-xl font-black text-[#242424]">Kirish amalga oshmadi</h2>
         <p className="text-xs font-semibold text-[#FF795D]">{error}</p>
-        <Button variant="lime" size="sm" onClick={() => router.push('/')}>
+        <Button variant="lime" size="sm" onClick={() => (window.location.href = '/')}>
           Bosh sahifaga qaytish
         </Button>
       </div>

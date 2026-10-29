@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsNumber, IsIn } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreatePartnershipInquiryDto {
   @IsNotEmpty()
@@ -24,6 +25,23 @@ export class CreatePartnershipInquiryDto {
   @IsOptional()
   @IsString()
   message?: string;
+
+  @IsOptional()
+  @IsIn(['VENUE', 'SESSION'])
+  inquiryType?: 'VENUE' | 'SESSION';
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  scheduledAt?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  pricePerSlot?: number;
 
   @IsOptional()
   @IsString()

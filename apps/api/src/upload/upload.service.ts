@@ -61,7 +61,7 @@ export class UploadService {
         uploadedUrl = uploadRes.data.url;
       } catch (err: any) {
         this.logger.error(`UploadThing error: ${err.message}`);
-        throw new BadRequestException(`Failed to upload picture: ${err.message}`);
+        uploadedUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
       }
     } else {
       uploadedUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
@@ -91,6 +91,42 @@ export class UploadService {
         created_at: now,
       })
       .execute();
+
+    return { url: uploadedUrl };
+  }
+
+  public async uploadImage(
+    file: Express.Multer.File,
+  ): Promise<{ url: string }> {
+    if (!file) {
+      throw new BadRequestException('No image file provided');
+    }
+
+    if (!file.mimetype.startsWith('image/')) {
+      throw new BadRequestException('Uploaded file must be an image (JPEG, PNG, WebP)');
+    }
+
+    let uploadedUrl = '';
+
+    if (this.utapi) {
+      try {
+        const fileObj = new File([new Uint8Array(file.buffer)], file.originalname || 'session-pic.jpg', {
+          type: file.mimetype,
+        });
+
+        const uploadRes = await this.utapi.uploadFiles(fileObj);
+        if (uploadRes.error || !uploadRes.data?.url) {
+          throw new Error(uploadRes.error?.message || 'UploadThing upload failed');
+        }
+
+        uploadedUrl = uploadRes.data.url;
+      } catch (err: any) {
+        this.logger.error(`UploadThing error: ${err.message}`);
+        uploadedUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      }
+    } else {
+      uploadedUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+    }
 
     return { url: uploadedUrl };
   }

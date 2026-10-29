@@ -98,7 +98,7 @@ export default function MyGamesPage(): React.JSX.Element {
           <div className="bg-[#EDE6D5] border-2 border-[#2D2926] p-8 text-center space-y-5 shadow-[3px_3px_0px_#2D2926]">
             <FileText className="w-10 h-10 text-[#8B7355] mx-auto" />
             <div className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
-              ATLETLAR ARXIVI · REESTR
+              ZALLAR ARXIVI 
             </div>
             <h2
               className="text-2xl sm:text-3xl font-bold text-[#1A1510]"

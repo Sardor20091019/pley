@@ -82,6 +82,10 @@ export class CreateSessionDto {
   @IsOptional()
   @IsString()
   status?: SessionStatus;
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 }
 
 export class UpdateSessionDto {
@@ -132,6 +136,10 @@ export class UpdateSessionDto {
   @IsOptional()
   @IsString()
   status?: SessionStatus;
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 }
 
 export class FilterSessionsDto {

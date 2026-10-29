@@ -9,9 +9,9 @@ export class GoogleCallbackDto {
   @IsString()
   redirectUri!: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  turnstileToken?: string;
+  turnstileToken!: string;
 }
 
 export class GoogleCredentialDto {
@@ -19,9 +19,9 @@ export class GoogleCredentialDto {
   @IsString()
   credential!: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  turnstileToken?: string;
+  turnstileToken!: string;
 }
 
 export class UpdateProfileDto {

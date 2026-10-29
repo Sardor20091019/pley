@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from 'react';
 export interface TurnstileWidgetProps {
   onVerify: (token: string) => void;
   onExpire?: () => void;
-  onError?: () => void;
+  onError?: (errorCode?: string) => void;
   className?: string;
   theme?: 'light' | 'dark' | 'auto';
 }
@@ -58,19 +58,20 @@ export function TurnstileWidget({
               onExpireRef.current?.();
             }
           },
-          'error-callback': () => {
+          'error-callback': (errorCode?: string) => {
             if (isMounted) {
-              if (onErrorRef.current) {
-                onErrorRef.current();
-              } else {
-                onVerifyRef.current('test_bypass_token');
-              }
+              onErrorRef.current?.(errorCode);
+            }
+          },
+          'timeout-callback': () => {
+            if (isMounted) {
+              onErrorRef.current?.('timeout');
             }
           },
         });
       } catch {
         if (isMounted) {
-          onVerifyRef.current('test_bypass_token');
+          onErrorRef.current?.('render_error');
         }
       }
     };

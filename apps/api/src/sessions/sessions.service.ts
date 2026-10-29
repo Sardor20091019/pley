@@ -40,6 +40,7 @@ export interface SessionListItem {
   sessionVibe: string;
   status: SessionStatus;
   equipmentProvided: boolean;
+  imageUrl: string | null;
   venue: {
     id: string;
     name: string;
@@ -92,6 +93,7 @@ export class SessionsService {
         'sessions.session_vibe as session_vibe',
         'sessions.status as status',
         'sessions.equipment_provided as equipment_provided',
+        'sessions.image_url as image_url',
         'venues.id as venue_id',
         'venues.name as venue_name',
         'venues.district as venue_district',
@@ -154,6 +156,7 @@ export class SessionsService {
         sessionVibe: row.session_vibe,
         status: row.status,
         equipmentProvided: row.equipment_provided === 1,
+        imageUrl: row.image_url || null,
         venue: {
           id: row.venue_id,
           name: row.venue_name,
@@ -283,6 +286,7 @@ export class SessionsService {
       sessionVibe: session.session_vibe,
       status: session.status,
       equipmentProvided: session.equipment_provided === 1,
+      imageUrl: session.image_url || null,
       equipmentDetails: session.equipment_details,
       rulesNotes: session.rules_notes,
       bookingDeadline: session.booking_deadline,
@@ -362,6 +366,7 @@ export class SessionsService {
         booking_deadline: dto.bookingDeadline,
         cancellation_deadline_hours: dto.cancellationDeadlineHours,
         status: dto.status || 'PUBLISHED',
+        image_url: dto.imageUrl || null,
         created_at: now,
         updated_at: now,
       })
@@ -426,6 +431,7 @@ export class SessionsService {
         rules_notes:
           dto.rulesNotes !== undefined ? dto.rulesNotes : existing.rules_notes,
         status: dto.status !== undefined ? dto.status : existing.status,
+        image_url: dto.imageUrl !== undefined ? dto.imageUrl : existing.image_url,
         updated_at: now,
       })
       .where('id', '=', sessionId)

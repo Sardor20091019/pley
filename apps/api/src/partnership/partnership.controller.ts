@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { PartnershipService } from './partnership.service';
 import { CreatePartnershipInquiryDto } from './dto/partnership.dto';
 import { Public, AuthGuard } from '../auth/auth.guard';
@@ -24,5 +34,24 @@ export class PartnershipController {
   @Get('inquiries')
   public async listInquiries(): Promise<PartnershipInquiriesTable[]> {
     return this.partnershipService.listInquiries();
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Patch('inquiries/:id/status')
+  public async updateInquiryStatus(
+    @Param('id') id: string,
+    @Body('status') status: 'PENDING' | 'ACCEPTED' | 'REJECTED',
+  ): Promise<PartnershipInquiriesTable> {
+    return this.partnershipService.updateInquiryStatus(id, status);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Delete('inquiries/:id')
+  public async deleteInquiry(
+    @Param('id') id: string,
+  ): Promise<{ success: boolean }> {
+    return this.partnershipService.deleteInquiry(id);
   }
 }

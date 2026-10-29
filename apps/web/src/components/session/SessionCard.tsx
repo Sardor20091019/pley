@@ -36,22 +36,40 @@ export function SessionCard({ session }: SessionCardProps): React.JSX.Element {
     volleyball: 'lime',
   };
 
+  const defaultSportPhotos: Record<string, string> = {
+    'table-tennis':
+      'https://images.unsplash.com/photo-1534158914592-062992fbe900?auto=format&fit=crop&w=600&q=80',
+    'basketball-3x3':
+      'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=600&q=80',
+    badminton:
+      'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=600&q=80',
+    volleyball:
+      'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=600&q=80',
+  };
+
   const badgeVariant = sportColorMap[session.sport.slug] || 'lime';
+  const displayImage =
+    session.imageUrl ||
+    defaultSportPhotos[session.sport.slug] ||
+    defaultSportPhotos['table-tennis'];
 
   if (isEditorial) {
     return (
       <div className="flex flex-col justify-between h-full bg-[#EDE6D5] border border-[#2D2926] p-5 shadow-[2px_2px_0px_#8B7355] hover:shadow-[4px_4px_0px_#2D2926] hover:-translate-y-0.5 transition-all">
         <div className="space-y-3.5">
-          <div className="flex items-center justify-between pb-2 border-b border-[#2D2926]/20">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C5A55A]" />
-              <span className="text-[11px] font-sans font-extrabold uppercase tracking-widest text-[#1A1510]">
-                {session.sport.name}
-              </span>
+          <div className="relative w-full h-36 overflow-hidden border border-[#2D2926] bg-[#D8CFBC]">
+            <img
+              src={displayImage}
+              alt={session.title}
+              className="w-full h-full object-cover grayscale contrast-125 hover:grayscale-0 transition-all duration-300"
+              loading="lazy"
+            />
+            <div className="absolute top-2 left-2 px-2 py-0.5 bg-[#1A1510] text-[#F5F0E8] text-[9px] font-sans font-extrabold uppercase tracking-widest">
+              {session.sport.name}
             </div>
-            <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-[#8B7355] border border-[#8B7355]/40 px-2 py-0.5 bg-[#F5F0E8]">
+            <div className="absolute top-2 right-2 px-2 py-0.5 bg-[#F5F0E8]/90 text-[#1A1510] border border-[#2D2926] text-[9px] font-sans font-bold uppercase tracking-wider backdrop-blur-xs">
               {session.skillLevel}
-            </span>
+            </div>
           </div>
 
           <div>
@@ -124,16 +142,24 @@ export function SessionCard({ session }: SessionCardProps): React.JSX.Element {
     <Card
       variant="white"
       interactive
-      className="flex flex-col justify-between h-full border-[2.5px] border-[#242424] hover:border-[#7655F7] transition-colors"
+      className="flex flex-col justify-between h-full border-[2.5px] border-[#242424] hover:border-[#7655F7] transition-colors overflow-hidden"
     >
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <Badge variant={badgeVariant} size="md">
-            {session.sport.name}
-          </Badge>
-          <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#FFF9EF] border border-[#242424]">
+        <div className="relative w-full h-36 -mx-0 overflow-hidden rounded-xl border-2 border-[#242424] bg-[#FFEED5] group">
+          <img
+            src={displayImage}
+            alt={session.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+          />
+          <div className="absolute top-2.5 left-2.5">
+            <Badge variant={badgeVariant} size="sm">
+              {session.sport.name}
+            </Badge>
+          </div>
+          <div className="absolute top-2.5 right-2.5 text-[10px] font-black px-2 py-0.5 rounded-full bg-[#FFF9EF] border border-[#242424] shadow-[1px_1px_0px_#242424]">
             {session.skillLevel}
-          </span>
+          </div>
         </div>
 
         <div>

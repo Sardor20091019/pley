@@ -82,6 +82,7 @@ export interface SessionsTable {
   booking_deadline: string;
   cancellation_deadline_hours: number;
   status: SessionStatus;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -143,6 +144,11 @@ export interface PartnershipInquiriesTable {
   district: string;
   sport_types: string;
   message: string | null;
+  inquiry_type: 'VENUE' | 'SESSION';
+  image_url: string | null;
+  scheduled_at: string | null;
+  price_per_slot: number | null;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
   created_at: string;
 }
 

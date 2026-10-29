@@ -8,18 +8,17 @@ export class TurnstileService {
     token?: string,
     remoteIp?: string,
   ): Promise<boolean> {
-    const secretKey = process.env.CLOUDFLARE_SECRET_KEY;
-
-    if (!secretKey) {
-      this.logger.warn('CLOUDFLARE_SECRET_KEY is not configured; skipping captcha check');
-      return true;
-    }
-
     if (!token) {
       throw new BadRequestException('Cloudflare Turnstile captcha token is required');
     }
 
-    if (token === 'test_bypass_token' && process.env.NODE_ENV !== 'production') {
+    if (token === 'test_bypass_token' && process.env.NODE_ENV === 'test') {
+      return true;
+    }
+
+    const secretKey = process.env.CLOUDFLARE_SECRET_KEY;
+    if (!secretKey) {
+      this.logger.warn('CLOUDFLARE_SECRET_KEY is not configured; skipping captcha check');
       return true;
     }
 

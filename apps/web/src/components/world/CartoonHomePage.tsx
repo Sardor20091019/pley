@@ -7,6 +7,9 @@ import { TranslationKey } from '../../lib/i18n/translations';
 import { SportsHeroIllustration } from '../illustrations/SportsHeroIllustration';
 import { SessionCard } from '../session/SessionCard';
 import { Button } from '../ui/Button';
+import { useState } from 'react';
+import { uploadImage } from '../../lib/api';
+import { compressImage } from '../../lib/image';
 import { Badge } from '../ui/Badge';
 import { Card } from '../ui/Card';
 import {
@@ -16,31 +19,30 @@ import {
   Smile,
   CheckCircle2,
   Trophy,
+  Image as ImageIcon,
 } from 'lucide-react';
+
+export interface PartnerFormData {
+  contactName: string;
+  phone: string;
+  venueName: string;
+  district: string;
+  sportTypes: string;
+  inquiryType: 'VENUE' | 'SESSION';
+  imageUrl: string;
+  scheduledAt: string;
+  pricePerSlot: number;
+  message: string;
+}
 
 export interface CartoonHomePageProps {
   t: (key: TranslationKey) => string;
   upcomingSessions: SessionItem[];
-  partnerForm: {
-    contactName: string;
-    phone: string;
-    venueName: string;
-    district: string;
-    sportTypes: string;
-    message: string;
-  };
-  setPartnerForm: React.Dispatch<
-    React.SetStateAction<{
-      contactName: string;
-      phone: string;
-      venueName: string;
-      district: string;
-      sportTypes: string;
-      message: string;
-    }>
-  >;
+  partnerForm: PartnerFormData;
+  setPartnerForm: React.Dispatch<React.SetStateAction<PartnerFormData>>;
   partnerSubmitting: boolean;
   partnerSuccess: boolean;
+  partnerError?: string | null;
   handlePartnerSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
@@ -51,8 +53,33 @@ export function CartoonHomePage({
   setPartnerForm,
   partnerSubmitting,
   partnerSuccess,
+  partnerError,
   handlePartnerSubmit,
 }: CartoonHomePageProps): React.JSX.Element {
+  const [uploadingPic, setUploadingPic] = useState<boolean>(false);
+
+  const handlePicUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
+
+    setUploadingPic(true);
+    try {
+      const { file, dataUrl } = await compressImage(rawFile);
+      if (dataUrl) {
+        setPartnerForm((prev) => ({ ...prev, imageUrl: dataUrl }));
+      }
+      const res = await uploadImage(file);
+      if (res?.url) {
+        setPartnerForm((prev) => ({ ...prev, imageUrl: res.url }));
+      }
+    } catch {
+    } finally {
+      setUploadingPic(false);
+    }
+  };
+
+  const isSessionMode = partnerForm.inquiryType === 'SESSION';
+
   return (
     <div className="space-y-16 sm:space-y-24 pb-16">
       <section className="relative px-4 sm:px-8 pt-8 sm:pt-16 max-w-7xl mx-auto overflow-hidden">
@@ -337,15 +364,46 @@ export function CartoonHomePage({
 
       <section id="venue-partner" className="px-4 sm:px-8 max-w-4xl mx-auto">
         <Card variant="white" className="p-8 sm:p-12 border-[3px]">
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex bg-[#FFF9EF] p-1.5 rounded-2xl border-2 border-[#242424] shadow-[2px_2px_0px_#242424]">
+              <button
+                type="button"
+                onClick={() =>
+                  setPartnerForm((prev) => ({ ...prev, inquiryType: 'VENUE' }))
+                }
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
+                  !isSessionMode
+                    ? 'bg-[#242424] text-white shadow-[2px_2px_0px_#7655F7]'
+                    : 'text-[#242424] hover:bg-black/5'
+                }`}
+              >
+                {t('partnerModeVenue')}
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setPartnerForm((prev) => ({ ...prev, inquiryType: 'SESSION' }))
+                }
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
+                  isSessionMode
+                    ? 'bg-[#D7FF64] text-[#242424] shadow-[2px_2px_0px_#242424]'
+                    : 'text-[#242424] hover:bg-black/5'
+                }`}
+              >
+                {t('partnerModeSession')}
+              </button>
+            </div>
+          </div>
+
           <div className="text-center space-y-3 mb-8">
-            <Badge variant="lime" size="md">
-              {t('forVenues')}
+            <Badge variant={isSessionMode ? 'purple' : 'lime'} size="md">
+              {isSessionMode ? '⚡ ' + t('partnerModeSession') : t('forVenues')}
             </Badge>
             <h2 className="text-3xl sm:text-4xl font-black text-[#242424]">
-              {t('venuePartnerTitle')}
+              {isSessionMode ? t('sessionPartnerTitle') : t('venuePartnerTitle')}
             </h2>
             <p className="text-sm sm:text-base font-medium text-[#666666]">
-              {t('venuePartnerSubtitle')}
+              {isSessionMode ? t('sessionPartnerSubtitle') : t('venuePartnerSubtitle')}
             </p>
           </div>
 
@@ -397,7 +455,7 @@ export function CartoonHomePage({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-black uppercase text-[#242424] mb-1">
-                    {t('partnerVenueNameLabel')}
+                    {isSessionMode ? 'Sessiya / Joy nomi' : t('partnerVenueNameLabel')}
                   </label>
                   <input
                     type="text"
@@ -406,7 +464,7 @@ export function CartoonHomePage({
                     onChange={(e) =>
                       setPartnerForm({ ...partnerForm, venueName: e.target.value })
                     }
-                    placeholder="Masalan, Arena Club"
+                    placeholder={isSessionMode ? 'Masalan, Sunday Ping Pong Rally' : 'Masalan, Arena Club'}
                     className="w-full px-4 py-3 rounded-2xl border-2 border-[#242424] bg-[#FFF9EF] font-semibold text-sm outline-none focus:bg-white"
                   />
                 </div>
@@ -446,15 +504,102 @@ export function CartoonHomePage({
                 />
               </div>
 
+              {isSessionMode && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-black uppercase text-[#242424] mb-1">
+                      Oʻyin sanasi va vaqti
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={partnerForm.scheduledAt}
+                      onChange={(e) =>
+                        setPartnerForm({ ...partnerForm, scheduledAt: e.target.value })
+                      }
+                      className="w-full px-4 py-3 rounded-2xl border-2 border-[#242424] bg-[#FFF9EF] font-semibold text-sm outline-none focus:bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-black uppercase text-[#242424] mb-1">
+                      Kutilayotgan joy narxi (UZS)
+                    </label>
+                    <input
+                      type="number"
+                      step="1000"
+                      value={partnerForm.pricePerSlot}
+                      onChange={(e) =>
+                        setPartnerForm({
+                          ...partnerForm,
+                          pricePerSlot: parseInt(e.target.value, 10) || 0,
+                        })
+                      }
+                      placeholder="28000"
+                      className="w-full px-4 py-3 rounded-2xl border-2 border-[#242424] bg-[#FFF9EF] font-semibold text-sm outline-none focus:bg-white"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-black uppercase text-[#242424] mb-1">
+                  {t('uploadSessionPic')} (Rasm qoʻshish)
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="partner-pic-upload"
+                    className="hidden"
+                    onChange={handlePicUpload}
+                    disabled={uploadingPic}
+                  />
+                  <label
+                    htmlFor="partner-pic-upload"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] hover:bg-[#EADEFF] font-black text-xs uppercase cursor-pointer transition-colors"
+                  >
+                    <ImageIcon className="w-4 h-4 text-[#7655F7]" />
+                    <span>{uploadingPic ? 'Yuklanmoqda...' : 'Rasm tanlash (Fayl)'}</span>
+                  </label>
+                </div>
+                {partnerForm.imageUrl && (
+                  <div className="mt-3 relative w-32 h-20 rounded-xl border-2 border-[#242424] overflow-hidden">
+                    <img
+                      src={partnerForm.imageUrl}
+                      alt="preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPartnerForm({ ...partnerForm, imageUrl: '' })
+                      }
+                      className="absolute top-1 right-1 bg-[#242424] text-white w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-black hover:bg-[#D9383A]"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {partnerError && (
+                <div className="p-3.5 rounded-2xl bg-[#FFD1D1] border-2 border-[#242424] text-[#D9383A] text-xs font-black">
+                  {partnerError}
+                </div>
+              )}
+
               <Button
                 type="submit"
-                variant="purple"
+                variant={isSessionMode ? 'lime' : 'purple'}
                 size="md"
                 fullWidth
                 disabled={partnerSubmitting}
                 className="mt-2 text-base font-black"
               >
-                {partnerSubmitting ? t('partnerSubmittingBtn') : t('partnerSubmitBtn')}
+                {partnerSubmitting
+                  ? t('partnerSubmittingBtn')
+                  : isSessionMode
+                    ? t('sessionPartnerBtn')
+                    : t('partnerSubmitBtn')}
               </Button>
             </form>
           )}

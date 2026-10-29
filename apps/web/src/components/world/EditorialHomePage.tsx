@@ -13,32 +13,34 @@ import {
   BookOpen,
   ChevronRight,
   Trophy,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useState } from 'react';
+import { uploadImage } from '../../lib/api';
+import { compressImage } from '../../lib/image';
+
+export interface PartnerFormData {
+  contactName: string;
+  phone: string;
+  venueName: string;
+  district: string;
+  sportTypes: string;
+  inquiryType: 'VENUE' | 'SESSION';
+  imageUrl: string;
+  scheduledAt: string;
+  pricePerSlot: number;
+  message: string;
+}
 
 export interface EditorialHomePageProps {
   t: (key: TranslationKey) => string;
   upcomingSessions: SessionItem[];
-  partnerForm: {
-    contactName: string;
-    phone: string;
-    venueName: string;
-    district: string;
-    sportTypes: string;
-    message: string;
-  };
-  setPartnerForm: React.Dispatch<
-    React.SetStateAction<{
-      contactName: string;
-      phone: string;
-      venueName: string;
-      district: string;
-      sportTypes: string;
-      message: string;
-    }>
-  >;
+  partnerForm: PartnerFormData;
+  setPartnerForm: React.Dispatch<React.SetStateAction<PartnerFormData>>;
   partnerSubmitting: boolean;
   partnerSuccess: boolean;
+  partnerError?: string | null;
   handlePartnerSubmit: (e: React.FormEvent) => Promise<void>;
 }
 
@@ -49,8 +51,32 @@ export function EditorialHomePage({
   setPartnerForm,
   partnerSubmitting,
   partnerSuccess,
+  partnerError,
   handlePartnerSubmit,
 }: EditorialHomePageProps): React.JSX.Element {
+  const [uploadingPic, setUploadingPic] = useState<boolean>(false);
+
+  const handlePicUpload = async (e: React.ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
+
+    setUploadingPic(true);
+    try {
+      const { file, dataUrl } = await compressImage(rawFile);
+      if (dataUrl) {
+        setPartnerForm((prev) => ({ ...prev, imageUrl: dataUrl }));
+      }
+      const res = await uploadImage(file);
+      if (res?.url) {
+        setPartnerForm((prev) => ({ ...prev, imageUrl: res.url }));
+      }
+    } catch {
+    } finally {
+      setUploadingPic(false);
+    }
+  };
+
+  const isSessionMode = partnerForm.inquiryType === 'SESSION';
   return (
     <div className="bg-[#F5F0E8] text-[#1A1510] min-h-screen pb-20 selection:bg-[#C5A55A]/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
@@ -327,17 +353,44 @@ export function EditorialHomePage({
         <EditorialDivider label="§ V — Zallar uchun hamkorlik" />
 
         <section id="venue-partner" className="pb-16">
+          <div className="flex justify-center mb-8">
+            <div className="inline-flex bg-[#EDE6D5] p-1 border border-[#2D2926] shadow-[2px_2px_0px_#2D2926]">
+              <button
+                type="button"
+                onClick={() => setPartnerForm((prev) => ({ ...prev, inquiryType: 'VENUE' }))}
+                className={`px-4 py-2 font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                  !isSessionMode
+                    ? 'bg-[#1A1510] text-[#F5F0E8]'
+                    : 'text-[#1A1510] hover:bg-black/5'
+                }`}
+              >
+                {t('partnerModeVenue')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setPartnerForm((prev) => ({ ...prev, inquiryType: 'SESSION' }))}
+                className={`px-4 py-2 font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                  isSessionMode
+                    ? 'bg-[#1A1510] text-[#F5F0E8]'
+                    : 'text-[#1A1510] hover:bg-black/5'
+                }`}
+              >
+                {t('partnerModeSession')}
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             <div className="lg:col-span-5 space-y-4">
               <h2 className="text-3xl font-extrabold text-[#1A1510]" style={{ fontFamily: 'Georgia, serif' }}>
-                {t('venuePartnerTitle')}
+                {isSessionMode ? t('sessionPartnerTitle') : t('venuePartnerTitle')}
               </h2>
               <p className="text-sm text-[#4A3F30] leading-relaxed italic" style={{ fontFamily: 'Georgia, serif' }}>
-                {t('venuePartnerSubtitle')}
+                {isSessionMode ? t('sessionPartnerSubtitle') : t('venuePartnerSubtitle')}
               </p>
               <div className="p-6 bg-[#EDE6D5] border border-[rgba(45,41,38,0.25)] space-y-3 font-sans text-xs text-[#2D2926]">
                 <div className="font-bold uppercase tracking-wider text-[#8B7355] text-[10px]">
-                  Hamkorlik afzalliklari
+                  {isSessionMode ? 'Sessiya ochish afzalliklari' : 'Hamkorlik afzalliklari'}
                 </div>
                 <div className="space-y-2">
                   <div>— Boʻsh vaqt slotlarini faol oʻyinchilar bilan toʻldirish</div>
@@ -392,14 +445,14 @@ export function EditorialHomePage({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block font-sans text-[10px] font-bold uppercase tracking-wider text-[#8B7355] mb-1">
-                        {t('partnerVenueNameLabel')}
+                        {isSessionMode ? 'Sessiya / Joy nomi' : t('partnerVenueNameLabel')}
                       </label>
                       <input
                         type="text"
                         required
                         value={partnerForm.venueName}
                         onChange={(e) => setPartnerForm({ ...partnerForm, venueName: e.target.value })}
-                        placeholder="Masalan, Arena Club"
+                        placeholder={isSessionMode ? 'Masalan, Friday Ping Pong League' : 'Masalan, Arena Club'}
                         className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[rgba(45,41,38,0.3)] font-sans text-sm outline-none focus:border-[#1A1510]"
                       />
                     </div>
@@ -435,12 +488,91 @@ export function EditorialHomePage({
                     />
                   </div>
 
+                  {isSessionMode && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block font-sans text-[10px] font-bold uppercase tracking-wider text-[#8B7355] mb-1">
+                          Oʻyin sanasi va vaqti
+                        </label>
+                        <input
+                          type="datetime-local"
+                          value={partnerForm.scheduledAt}
+                          onChange={(e) => setPartnerForm({ ...partnerForm, scheduledAt: e.target.value })}
+                          className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[rgba(45,41,38,0.3)] font-sans text-sm outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-sans text-[10px] font-bold uppercase tracking-wider text-[#8B7355] mb-1">
+                          Kutilayotgan narx / joy (UZS)
+                        </label>
+                        <input
+                          type="number"
+                          step="1000"
+                          value={partnerForm.pricePerSlot}
+                          onChange={(e) =>
+                            setPartnerForm({
+                              ...partnerForm,
+                              pricePerSlot: parseInt(e.target.value, 10) || 0,
+                            })
+                          }
+                          placeholder="28000"
+                          className="w-full px-3.5 py-2.5 bg-[#F5F0E8] border border-[rgba(45,41,38,0.3)] font-sans text-sm outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block font-sans text-[10px] font-bold uppercase tracking-wider text-[#8B7355] mb-1">
+                      {t('uploadSessionPic')} (Rasm qoʻshish)
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="partner-pic-upload-editorial"
+                        className="hidden"
+                        onChange={handlePicUpload}
+                        disabled={uploadingPic}
+                      />
+                      <label
+                        htmlFor="partner-pic-upload-editorial"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 border border-[#2D2926] bg-[#F5F0E8] hover:bg-white font-sans text-xs font-bold tracking-wider uppercase cursor-pointer transition-colors"
+                      >
+                        <ImageIcon className="w-4 h-4 text-[#8B7355]" />
+                        <span>{uploadingPic ? 'Yuklanmoqda...' : 'Rasm tanlash (Fayl)'}</span>
+                      </label>
+                    </div>
+                    {partnerForm.imageUrl && (
+                      <div className="mt-3 relative w-32 h-20 border border-[#2D2926] overflow-hidden">
+                        <img src={partnerForm.imageUrl} alt="preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => setPartnerForm({ ...partnerForm, imageUrl: '' })}
+                          className="absolute top-1 right-1 bg-[#1A1510] text-[#F5F0E8] text-[10px] w-5 h-5 flex items-center justify-center font-bold hover:bg-[#C5221F]"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {partnerError && (
+                    <div className="p-3 bg-[#FCE8E6] border border-[#C5221F] text-[#C5221F] text-xs font-sans font-bold">
+                      {partnerError}
+                    </div>
+                  )}
+
                   <button
                     type="submit"
                     disabled={partnerSubmitting}
                     className="w-full py-3.5 bg-[#1A1510] text-[#F5F0E8] font-sans text-xs font-bold tracking-widest uppercase hover:bg-[#332B24] disabled:opacity-50 transition-all cursor-pointer"
                   >
-                    {partnerSubmitting ? t('partnerSubmittingBtn') : t('venuePartnerBtn')}
+                    {partnerSubmitting
+                      ? t('partnerSubmittingBtn')
+                      : isSessionMode
+                        ? t('sessionPartnerBtn')
+                        : t('venuePartnerBtn')}
                   </button>
                 </form>
               )}

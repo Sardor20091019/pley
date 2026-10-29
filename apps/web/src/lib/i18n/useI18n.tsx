@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Language, translations, TranslationKey } from './translations';
-import { getCookie, setCookie } from '../cookies';
+import { getCookie, setCookie, canStorePreferences } from '../cookies';
 
 export interface I18nContextValue {
   language: Language;
@@ -19,6 +19,12 @@ export function I18nProvider({ children }: { children: React.ReactNode }): React
 
   useEffect(() => {
     try {
+      if (!canStorePreferences()) {
+        setLanguageState('uz');
+        document.documentElement.setAttribute('lang', 'uz');
+        return;
+      }
+
       const saved = (getCookie('pley_lang') || localStorage.getItem('pley_lang')) as Language;
       if (saved && (saved === 'uz' || saved === 'ru' || saved === 'en')) {
         setLanguageState(saved);
@@ -32,11 +38,13 @@ export function I18nProvider({ children }: { children: React.ReactNode }): React
     setIsTransitioning(true);
     setTimeout(() => {
       setLanguageState(lang);
-      try {
-        setCookie('pley_lang', lang, 365);
-        localStorage.setItem('pley_lang', lang);
-        document.documentElement.setAttribute('lang', lang);
-      } catch {}
+      if (canStorePreferences()) {
+        try {
+          setCookie('pley_lang', lang, 365);
+          localStorage.setItem('pley_lang', lang);
+        } catch {}
+      }
+      document.documentElement.setAttribute('lang', lang);
       setTimeout(() => {
         setIsTransitioning(false);
       }, 150);

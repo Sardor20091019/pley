@@ -55,6 +55,22 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     return this.dbInstance;
   }
 
+  private async safeAddColumn(
+    table: string,
+    column: string,
+    typeAndConstraint: string,
+  ): Promise<void> {
+    const db = this.getDb();
+    const isPostgres = this.poolInstance !== null;
+    try {
+      if (isPostgres) {
+        await sql.raw(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${column} ${typeAndConstraint}`).execute(db);
+      } else {
+        await sql.raw(`ALTER TABLE ${table} ADD COLUMN ${column} ${typeAndConstraint}`).execute(db);
+      }
+    } catch {}
+  }
+
   private async initSchema(): Promise<void> {
     const db = this.getDb();
 
@@ -135,6 +151,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         booking_deadline TEXT NOT NULL,
         cancellation_deadline_hours INTEGER NOT NULL,
         status TEXT NOT NULL,
+        image_url TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         FOREIGN KEY (venue_id) REFERENCES venues(id),
@@ -213,9 +230,27 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         district TEXT NOT NULL,
         sport_types TEXT NOT NULL,
         message TEXT,
+        inquiry_type TEXT NOT NULL DEFAULT 'VENUE',
+        image_url TEXT,
+        scheduled_at TEXT,
+        price_per_slot INTEGER,
+        status TEXT NOT NULL DEFAULT 'PENDING',
         created_at TEXT NOT NULL
       )
     `.execute(db);
+
+    await this.safeAddColumn('sessions', 'image_url', 'TEXT');
+    await this.safeAddColumn('partnership_inquiries', 'inquiry_type', "TEXT DEFAULT 'VENUE'");
+    await this.safeAddColumn('partnership_inquiries', 'image_url', 'TEXT');
+    await this.safeAddColumn('partnership_inquiries', 'scheduled_at', 'TEXT');
+    await this.safeAddColumn('partnership_inquiries', 'price_per_slot', 'INTEGER');
+    await this.safeAddColumn('partnership_inquiries', 'status', "TEXT DEFAULT 'PENDING'");
+
+    try {
+      if (this.poolInstance !== null) {
+        await sql`ALTER TABLE sessions ALTER COLUMN organizer_id DROP NOT NULL`.execute(db);
+      }
+    } catch {}
 
     try {
       await db
@@ -344,8 +379,9 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         .execute();
     }
 
+    const isTest = process.env.NODE_ENV === 'test' || Boolean(process.env.SQLITE_PATH);
     const existingVenues = await db.selectFrom('venues').select('id').execute();
-    if (existingVenues.length === 0) {
+    if (existingVenues.length === 0 && isTest) {
       await db
         .insertInto('venues')
         .values([
@@ -398,8 +434,45 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         .execute();
     }
 
+    const demoVenueId = 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380b11';
+    const hasDemoVenue = await db
+      .selectFrom('venues')
+      .select('id')
+      .where('id', '=', demoVenueId)
+      .executeTakeFirst();
+
     const existingSessions = await db.selectFrom('sessions').select('id').execute();
-    if (existingSessions.length === 0) {
+    if (hasDemoVenue && existingSessions.length === 0 && isTest) {
+      const systemOrganizerId = '00000000-0000-0000-0000-000000000001';
+      const existingOrganizer = await db
+        .selectFrom('users')
+        .select('id')
+        .where('id', '=', systemOrganizerId)
+        .executeTakeFirst();
+
+      if (!existingOrganizer) {
+        await db
+          .insertInto('users')
+          .values({
+            id: systemOrganizerId,
+            google_id: 'system_organizer',
+            email: 'admin@pley.uz',
+            first_name: 'Pley',
+            last_name: 'Admin',
+            avatar_url: null,
+            age_bracket: '25-34',
+            skill_level: 'ADVANCED',
+            preferred_sports: JSON.stringify(['table-tennis', 'basketball']),
+            preferred_neighborhoods: JSON.stringify(['Yunusobod', 'Chilonzor']),
+            profile_visibility: 'PUBLIC',
+            role: 'ADMIN',
+            status: 'ACTIVE',
+            created_at: now,
+            updated_at: now,
+          })
+          .execute();
+      }
+
       const futureDate1 = new Date(Date.now() + 24 * 3600 * 1000);
       futureDate1.setHours(17, 0, 0, 0);
 
@@ -416,7 +489,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
             id: '17eebc99-9c0b-4ef8-bb6d-6bb9bd380c11',
             venue_id: 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380b11',
             sport_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-            organizer_id: null,
+            organizer_id: systemOrganizerId,
             title: 'Saturday Table Tennis Social',
             scheduled_at: futureDate1.toISOString(),
             duration_minutes: 90,
@@ -439,7 +512,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
             id: '28eebc99-9c0b-4ef8-bb6d-6bb9bd380c22',
             venue_id: 'f5eebc99-9c0b-4ef8-bb6d-6bb9bd380b22',
             sport_id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-            organizer_id: null,
+            organizer_id: systemOrganizerId,
             title: 'Sunday Sunset 3x3 Hoops',
             scheduled_at: futureDate2.toISOString(),
             duration_minutes: 120,
@@ -462,7 +535,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
             id: '39eebc99-9c0b-4ef8-bb6d-6bb9bd380c33',
             venue_id: '06eebc99-9c0b-4ef8-bb6d-6bb9bd380b33',
             sport_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-            organizer_id: null,
+            organizer_id: systemOrganizerId,
             title: 'Weekday Morning Reflex Rally',
             scheduled_at: futureDate3.toISOString(),
             duration_minutes: 60,

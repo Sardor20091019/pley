@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TurnstileWidget } from './TurnstileWidget';
 import { Mascot } from '../mascot/Mascot';
 import { fetchGoogleAuthUrl } from '../../lib/api';
+import { setCookie, deleteCookie } from '../../lib/cookies';
 import { useAppTheme } from '../../lib/theme/ThemeContext';
 import { useI18n } from '../../lib/i18n/useI18n';
 import { X, ShieldCheck, ShieldAlert } from 'lucide-react';
@@ -43,7 +44,20 @@ export function LoginModal({
 
   const handleTurnstileExpire = useCallback(() => {
     setTurnstileToken(null);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('pley_turnstile_token');
+      deleteCookie('pley_turnstile_token');
+    }
   }, []);
+
+  const handleTurnstileError = useCallback(() => {
+    setTurnstileToken(null);
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('pley_turnstile_token');
+      deleteCookie('pley_turnstile_token');
+    }
+    setError(t('loginTurnstileError'));
+  }, [t]);
 
   const handleGoogleLogin = async (): Promise<void> => {
     if (!turnstileToken) {
@@ -56,7 +70,9 @@ export function LoginModal({
     try {
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('pley_turnstile_token', turnstileToken);
+        setCookie('pley_turnstile_token', turnstileToken, 5 / (24 * 60));
         sessionStorage.setItem('pley_post_login_redirect', redirectPath);
+        setCookie('pley_post_login_redirect', redirectPath, 5 / (24 * 60));
         const redirectUri = `${window.location.origin}/auth/callback`;
         const url = await fetchGoogleAuthUrl(redirectUri);
         window.location.href = url;
@@ -151,6 +167,7 @@ export function LoginModal({
               <TurnstileWidget
                 onVerify={handleTurnstileVerify}
                 onExpire={handleTurnstileExpire}
+                onError={handleTurnstileError}
                 className="my-1 scale-95 origin-center"
               />
             </div>

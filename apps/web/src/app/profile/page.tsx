@@ -255,7 +255,7 @@ export default function ProfilePage(): React.JSX.Element {
                   {t('profileEditTitle')}
                 </h3>
                 <p className="text-xs font-serif italic text-[#8B7355]">
-                  Ism va toifangiz oʻyinlar hisobotida boshqa atletlarga koʻrinadi.
+                  Ism va toifangiz oyinlar hisobotida boshqa foydalanuvchilarga ko'rinadi.
                 </p>
               </div>
 

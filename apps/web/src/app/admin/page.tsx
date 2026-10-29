@@ -7,11 +7,18 @@ import {
   fetchAdminMetrics,
   fetchAdminBookings,
   fetchAdminAuditLogs,
+  fetchAdminPartnershipInquiries,
   fetchVenues,
   fetchSports,
+  fetchSessions,
   createAdminSession,
   createAdminVenue,
+  cancelAdminSession,
+  uploadImage,
+  updateAdminInquiryStatus,
+  deleteAdminInquiry,
 } from '../../lib/api';
+import { compressImage } from '../../lib/image';
 import { AdminMetrics } from '../../lib/types';
 import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
@@ -30,6 +37,13 @@ import {
   FileSpreadsheet,
   Building,
   MapPin,
+  Handshake,
+  Phone,
+  Image as ImageIcon,
+  Trash2,
+  ExternalLink,
+  Check,
+  X,
 } from 'lucide-react';
 
 export default function AdminPage(): React.JSX.Element {
@@ -43,9 +57,14 @@ export default function AdminPage(): React.JSX.Element {
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [venues, setVenues] = useState<any[]>([]);
   const [sports, setSports] = useState<any[]>([]);
+  const [inquiries, setInquiries] = useState<any[]>([]);
+  const [convertingInquiryId, setConvertingInquiryId] = useState<string | null>(null);
+  const [inquiryStatusFilter, setInquiryStatusFilter] = useState<'ALL' | 'PENDING' | 'ACCEPTED' | 'REJECTED'>('ALL');
+  const [sessionsList, setSessionsList] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
   const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
+  const [uploadingSessionPic, setUploadingSessionPic] = useState<boolean>(false);
   const [createSuccess, setCreateSuccess] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
 
@@ -82,23 +101,28 @@ export default function AdminPage(): React.JSX.Element {
     rulesNotes: 'Rotating round robin games',
     bookingDeadline: '',
     cancellationDeadlineHours: 4,
+    imageUrl: '',
   });
 
   const loadData = async (): Promise<void> => {
     try {
       setLoading(true);
-      const [m, b, a, vList, sList] = await Promise.all([
+      const [m, b, a, vList, sList, inqList, sessList] = await Promise.all([
         fetchAdminMetrics(),
         fetchAdminBookings(),
         fetchAdminAuditLogs(),
         fetchVenues(),
         fetchSports(),
+        fetchAdminPartnershipInquiries(),
+        fetchSessions(),
       ]);
       setMetrics(m);
       setBookings(b);
       setAuditLogs(a);
       setVenues(vList);
       setSports(sList);
+      setInquiries(inqList || []);
+      setSessionsList(sessList || []);
       if (vList && vList.length > 0) {
         setSessionForm((prev) => ({
           ...prev,
@@ -147,6 +171,11 @@ export default function AdminPage(): React.JSX.Element {
         isPartner: true,
       });
 
+      if (convertingInquiryId) {
+        await updateAdminInquiryStatus(convertingInquiryId, 'ACCEPTED');
+        setConvertingInquiryId(null);
+      }
+
       setVenueSuccess('Sport majmuasi muvaffaqiyatli saqlandi!');
       setShowCreateVenueModal(false);
       setVenueForm({
@@ -167,6 +196,102 @@ export default function AdminPage(): React.JSX.Element {
       setVenueError(err.message || 'Majmuani saqlashda xatolik yuz berdi');
     } finally {
       setVenueSubmitting(false);
+    }
+  };
+
+  const handleConvertInquiryToVenue = (inq: any): void => {
+    setConvertingInquiryId(inq.id);
+    setVenueForm({
+      name: inq.venue_name || '',
+      district: inq.district || 'Chilonzor',
+      address: inq.venue_name ? `${inq.district}, ${inq.venue_name}` : '',
+      description: inq.message || `${inq.contact_name} tomonidan qoldirilgan ariza`,
+      supportedSports: [inq.sport_types || 'table-tennis'],
+      hourlyRate: 150000,
+      contactPhone: inq.phone || '+998 71 200 00 00',
+      amenities: 'Dush, Kiyinish xonasi, Bepul suv',
+    });
+    setShowCreateVenueModal(true);
+  };
+
+  const handleUploadSessionPic = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): Promise<void> => {
+    const rawFile = e.target.files?.[0];
+    if (!rawFile) return;
+
+    setUploadingSessionPic(true);
+    setCreateError(null);
+    try {
+      const { file, dataUrl } = await compressImage(rawFile);
+      if (dataUrl) {
+        setSessionForm((prev) => ({ ...prev, imageUrl: dataUrl }));
+      }
+      const res = await uploadImage(file);
+      if (res?.url) {
+        setSessionForm((prev) => ({ ...prev, imageUrl: res.url }));
+      }
+    } catch {
+    } finally {
+      setUploadingSessionPic(false);
+    }
+  };
+
+  const handleConvertInquiryToSession = (inq: any): void => {
+    setConvertingInquiryId(inq.id);
+    const matchingSport = sports.find(
+      (s: any) =>
+        s.slug === inq.sport_types ||
+        s.name?.toLowerCase().includes(inq.sport_types?.toLowerCase()),
+    );
+    setSessionForm((prev) => ({
+      ...prev,
+      title: inq.venue_name ? `${inq.venue_name} - Maxsus oʻyin` : 'Pley oʻyin',
+      sportId: matchingSport?.id || prev.sportId,
+      scheduledAt: inq.scheduled_at
+        ? new Date(inq.scheduled_at).toISOString().slice(0, 16)
+        : new Date(Date.now() + 86400000).toISOString().slice(0, 16),
+      pricePerSlot: inq.price_per_slot ? Number(inq.price_per_slot) : 28000,
+      imageUrl: inq.image_url || '',
+    }));
+    setShowCreateModal(true);
+  };
+
+  const handleAcceptInquiry = async (id: string): Promise<void> => {
+    try {
+      await updateAdminInquiryStatus(id, 'ACCEPTED');
+      await loadData();
+    } catch (err: any) {
+      alert(err.message || 'Xatolik yuz berdi');
+    }
+  };
+
+  const handleRejectInquiry = async (id: string): Promise<void> => {
+    try {
+      await updateAdminInquiryStatus(id, 'REJECTED');
+      await loadData();
+    } catch (err: any) {
+      alert(err.message || 'Xatolik yuz berdi');
+    }
+  };
+
+  const handleDeleteInquiry = async (id: string): Promise<void> => {
+    if (!confirm('Ushbu arizani roʻyxatdan butunlay oʻchirishni xohlaysizmi?')) return;
+    try {
+      await deleteAdminInquiry(id);
+      await loadData();
+    } catch (err: any) {
+      alert(err.message || 'Xatolik yuz berdi');
+    }
+  };
+
+  const handleCancelSession = async (sessionId: string): Promise<void> => {
+    if (!confirm('Ushbu sessiyani bekor qilishni tasdiqlaysizmi?')) return;
+    try {
+      await cancelAdminSession(sessionId);
+      await loadData();
+    } catch (err: any) {
+      alert(err.message || 'Xatolik yuz berdi');
     }
   };
 
@@ -197,6 +322,11 @@ export default function AdminPage(): React.JSX.Element {
         bookingDeadline: deadlineIso,
       });
 
+      if (convertingInquiryId) {
+        await updateAdminInquiryStatus(convertingInquiryId, 'ACCEPTED');
+        setConvertingInquiryId(null);
+      }
+
       setCreateSuccess('Sessiya muvaffaqiyatli yaratildi va eʼlon qilindi!');
       setShowCreateModal(false);
       await loadData();
@@ -226,7 +356,7 @@ export default function AdminPage(): React.JSX.Element {
             </h2>
             <p className="text-xs font-serif italic text-[#8B7355]">
               {user
-                ? `Siz '${user.role}' toifasidagi hisob bilan kirdingiz. Ushbu reyestr faqat role = 'ADMIN' atletlar uchun ochiq.`
+                ? `Siz '${user.role}' toifasidagi hisob bilan kirdingiz. Ushbu list faqat role = 'ADMIN'  uchun ochiq.`
                 : 'Ushbu sahifaga kirish uchun administrator Google hisobi bilan avtorizatsiyadan oʻting.'}
             </p>
             {!user && (
@@ -271,6 +401,22 @@ export default function AdminPage(): React.JSX.Element {
       </div>
     );
   }
+
+  const pendingInquiriesCount = inquiries.filter(
+    (inq) => !inq.status || inq.status === 'PENDING',
+  ).length;
+  const acceptedInquiriesCount = inquiries.filter(
+    (inq) => inq.status === 'ACCEPTED',
+  ).length;
+  const rejectedInquiriesCount = inquiries.filter(
+    (inq) => inq.status === 'REJECTED',
+  ).length;
+
+  const filteredInquiries = inquiries.filter((inq) => {
+    const st = inq.status || 'PENDING';
+    if (inquiryStatusFilter === 'ALL') return true;
+    return st === inquiryStatusFilter;
+  });
 
   if (isEditorial) {
     return (
@@ -329,7 +475,7 @@ export default function AdminPage(): React.JSX.Element {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-[#EDE6D5] border border-[#2D2926] p-5 space-y-1 shadow-[2px_2px_0px_#8B7355]">
               <div className="text-[10px] font-sans font-bold text-[#8B7355] uppercase tracking-widest">
-                JAMI ATLETLAR
+                JAMI ZALLAR
               </div>
               <div
                 className="text-2xl sm:text-3xl font-bold text-[#1A1510]"
@@ -638,6 +784,47 @@ export default function AdminPage(): React.JSX.Element {
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-xs font-sans font-bold uppercase tracking-widest text-[#1A1510] mb-1">
+                    Sessiya rasmi / Banner (Pics)
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="admin-session-pic-editorial"
+                      className="hidden"
+                      onChange={handleUploadSessionPic}
+                      disabled={uploadingSessionPic}
+                    />
+                    <label
+                      htmlFor="admin-session-pic-editorial"
+                      className="inline-flex items-center gap-2 px-4 py-2 border border-[#2D2926] bg-[#F5F0E8] text-xs font-sans font-bold tracking-widest uppercase hover:bg-white cursor-pointer transition-colors"
+                    >
+                      <ImageIcon className="w-4 h-4 text-[#8B7355]" />
+                      <span>{uploadingSessionPic ? 'Yuklanmoqda...' : 'Rasm yuklash (Fayl)'}</span>
+                    </label>
+                  </div>
+                  {sessionForm.imageUrl && (
+                    <div className="mt-2 relative w-28 h-16 rounded border border-[#2D2926] overflow-hidden">
+                      <img
+                        src={sessionForm.imageUrl}
+                        alt="preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setSessionForm({ ...sessionForm, imageUrl: '' })
+                        }
+                        className="absolute top-0 right-0 bg-[#1A1510] text-[#F5F0E8] text-[9px] px-1 font-bold"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="pt-2 flex justify-end gap-3 border-t border-[#2D2926]/20">
                   <button
                     type="button"
@@ -905,6 +1092,346 @@ export default function AdminPage(): React.JSX.Element {
               </table>
             </div>
           </div>
+        </div>
+
+        <div className="bg-[#EDE6D5] border border-[#2D2926] p-5 sm:p-6 shadow-[2px_2px_0px_#8B7355] space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2D2926]/20 pb-3">
+            <div className="flex items-center gap-2">
+              <Handshake className="w-5 h-5 text-[#8B7355]" />
+              <h3
+                className="text-xl font-bold text-[#1A1510]"
+                style={{ fontFamily: 'Georgia, serif' }}
+              >
+                Hamkorlik arizalari (Zal egalari)
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-sans font-bold text-[#8B7355] uppercase tracking-wider">
+                {pendingInquiriesCount} ta kutilmoqda ({inquiries.length} jami)
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 border-b border-[#2D2926]/10 pb-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setInquiryStatusFilter('ALL')}
+              className={`px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                inquiryStatusFilter === 'ALL'
+                  ? 'bg-[#1A1510] text-[#F5F0E8]'
+                  : 'text-[#8B7355] hover:text-[#1A1510]'
+              }`}
+            >
+              Barchasi ({inquiries.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setInquiryStatusFilter('PENDING')}
+              className={`px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                inquiryStatusFilter === 'PENDING'
+                  ? 'bg-[#1A1510] text-[#F5F0E8]'
+                  : 'text-[#8B7355] hover:text-[#1A1510]'
+              }`}
+            >
+              Kutilmoqda ({pendingInquiriesCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setInquiryStatusFilter('ACCEPTED')}
+              className={`px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                inquiryStatusFilter === 'ACCEPTED'
+                  ? 'bg-[#1A1510] text-[#F5F0E8]'
+                  : 'text-[#8B7355] hover:text-[#1A1510]'
+              }`}
+            >
+              Qabul qilingan ({acceptedInquiriesCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setInquiryStatusFilter('REJECTED')}
+              className={`px-3 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors cursor-pointer ${
+                inquiryStatusFilter === 'REJECTED'
+                  ? 'bg-[#1A1510] text-[#F5F0E8]'
+                  : 'text-[#8B7355] hover:text-[#1A1510]'
+              }`}
+            >
+              Rad etilgan ({rejectedInquiriesCount})
+            </button>
+          </div>
+
+          {filteredInquiries.length === 0 ? (
+            <p className="text-xs font-sans text-[#8B7355] py-4 text-center italic">
+              {inquiryStatusFilter === 'ALL'
+                ? 'Hozircha yangi hamkorlik arizalari yoʻq.'
+                : 'Ushbu toifadagi arizalar topilmadi.'}
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs font-sans">
+                <thead>
+                  <tr className="border-b border-[#2D2926]/20 text-[#8B7355] uppercase tracking-wider text-[10px]">
+                    <th className="py-2">Turi</th>
+                    <th className="py-2">Holat</th>
+                    <th className="py-2">Vaqt</th>
+                    <th className="py-2">Masʼul shaxs</th>
+                    <th className="py-2">Zal / Oʻyin nomi</th>
+                    <th className="py-2">Tuman & Sport</th>
+                    <th className="py-2">Rasm</th>
+                    <th className="py-2">Izoh</th>
+                    <th className="py-2 text-right">Amal</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#2D2926]/10">
+                  {filteredInquiries.map((inq) => {
+                    const st = inq.status || 'PENDING';
+                    return (
+                      <tr key={inq.id}>
+                        <td className="py-2.5">
+                          <span
+                            className={`px-2 py-0.5 border text-[9px] font-bold uppercase tracking-wider ${
+                              inq.inquiry_type === 'SESSION'
+                                ? 'bg-[#1A1510] text-[#F5F0E8] border-[#2D2926]'
+                                : 'bg-[#F5F0E8] text-[#8B7355] border-[#2D2926]/40'
+                            }`}
+                          >
+                            {inq.inquiry_type === 'SESSION' ? 'Sessiya' : 'Majmua'}
+                          </span>
+                        </td>
+                        <td className="py-2.5">
+                          {st === 'ACCEPTED' ? (
+                            <span className="px-2 py-0.5 border text-[9px] font-bold uppercase tracking-wider bg-[#E6F4EA] text-[#137333] border-[#137333]/30">
+                              Qabul qilingan
+                            </span>
+                          ) : st === 'REJECTED' ? (
+                            <span className="px-2.5 py-0.5 border text-[9px] font-bold uppercase tracking-wider bg-[#FCE8E6] text-[#C5221F] border-[#C5221F]/30">
+                              Rad etilgan
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 border text-[9px] font-bold uppercase tracking-wider bg-[#FEF7E0] text-[#B06000] border-[#B06000]/30">
+                              Kutilmoqda
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2.5 text-[#8B7355] text-[10px] whitespace-nowrap">
+                          {new Date(inq.created_at).toLocaleDateString()}{' '}
+                          {new Date(inq.created_at).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </td>
+                        <td className="py-2.5">
+                          <div className="font-bold text-[#1A1510]">{inq.contact_name}</div>
+                          <a
+                            href={`tel:${inq.phone}`}
+                            className="text-[11px] text-[#8B7355] hover:underline flex items-center gap-1"
+                          >
+                            <Phone className="w-3 h-3" />
+                            <span>{inq.phone}</span>
+                          </a>
+                        </td>
+                        <td className="py-2.5 font-bold text-[#1A1510]">
+                          {inq.venue_name}
+                        </td>
+                        <td className="py-2.5 text-[#1A1510]">
+                          <div>{inq.district}</div>
+                          <div className="text-[10px] text-[#8B7355] uppercase font-bold">
+                            {inq.sport_types}
+                          </div>
+                        </td>
+                        <td className="py-2.5">
+                          {inq.image_url ? (
+                            <div className="w-10 h-8 rounded border border-[#2D2926] overflow-hidden">
+                              <img
+                                src={inq.image_url}
+                                alt="pic"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-[#8B7355]">—</span>
+                          )}
+                        </td>
+                        <td className="py-2.5 text-[#555555] max-w-xs truncate text-[11px]">
+                          {inq.message || '—'}
+                        </td>
+                        <td className="py-2.5 text-right whitespace-nowrap">
+                          {st === 'ACCEPTED' ? (
+                            <div className="flex items-center justify-end gap-1.5">
+                              <span className="text-[10px] text-[#137333] font-bold flex items-center gap-1 mr-1">
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>Bajarildi</span>
+                              </span>
+                              <button
+                                type="button"
+                                title="Oʻchirish"
+                                onClick={() => handleDeleteInquiry(inq.id)}
+                                className="p-1.5 border border-[#2D2926]/20 text-[#8B7355] hover:text-[#C5221F] hover:border-[#C5221F] transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ) : st === 'REJECTED' ? (
+                            <div className="flex items-center justify-end gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => handleAcceptInquiry(inq.id)}
+                                className="px-2.5 py-1 border border-[#2D2926]/40 text-[10px] font-bold uppercase text-[#1A1510] hover:bg-[#1A1510] hover:text-[#F5F0E8] cursor-pointer"
+                              >
+                                Qayta qabul qilish
+                              </button>
+                              <button
+                                type="button"
+                                title="Oʻchirish"
+                                onClick={() => handleDeleteInquiry(inq.id)}
+                                className="p-1.5 border border-[#2D2926]/20 text-[#8B7355] hover:text-[#C5221F] hover:border-[#C5221F] transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                              {inq.inquiry_type === 'SESSION' ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleConvertInquiryToSession(inq)}
+                                  className="px-2.5 py-1.5 bg-[#1A1510] text-[#F5F0E8] text-[10px] font-bold uppercase tracking-wider hover:bg-[#332B24] cursor-pointer"
+                                >
+                                  + Sessiyaga aylantirish
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleConvertInquiryToVenue(inq)}
+                                  className="px-2.5 py-1.5 bg-[#1A1510] text-[#F5F0E8] text-[10px] font-bold uppercase tracking-wider hover:bg-[#332B24] cursor-pointer"
+                                >
+                                  + Majmuaga qoʻshish
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                title="Toʻgʻridan-toʻgʻri qabul qilish"
+                                onClick={() => handleAcceptInquiry(inq.id)}
+                                className="p-1.5 border border-[#137333]/40 text-[#137333] hover:bg-[#E6F4EA] transition-colors cursor-pointer"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                title="Rad etish"
+                                onClick={() => handleRejectInquiry(inq.id)}
+                                className="p-1.5 border border-[#C5221F]/40 text-[#C5221F] hover:bg-[#FCE8E6] transition-colors cursor-pointer"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                title="Oʻchirish"
+                                onClick={() => handleDeleteInquiry(inq.id)}
+                                className="p-1.5 border border-[#2D2926]/20 text-[#8B7355] hover:text-[#C5221F] hover:border-[#C5221F] transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-[#EDE6D5] border border-[#2D2926] p-5 sm:p-6 shadow-[2px_2px_0px_#8B7355] space-y-4">
+          <div className="flex items-center justify-between border-b border-[#2D2926]/20 pb-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-[#8B7355]" />
+              <h3
+                className="text-xl font-bold text-[#1A1510]"
+                style={{ fontFamily: 'Georgia, serif' }}
+              >
+                Faol Sessiyalar Reyestri
+              </h3>
+            </div>
+            <span className="text-xs font-sans font-bold text-[#8B7355] uppercase tracking-wider">
+              {sessionsList.length} ta sessiya
+            </span>
+          </div>
+
+          {sessionsList.length === 0 ? (
+            <p className="text-xs font-sans text-[#8B7355] py-4 text-center italic">
+              Bazada faol sessiyalar mavjud emas.
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs font-sans">
+                <thead>
+                  <tr className="border-b border-[#2D2926]/20 text-[#8B7355] uppercase tracking-wider text-[10px]">
+                    <th className="py-2">Rasm</th>
+                    <th className="py-2">Sessiya nomi</th>
+                    <th className="py-2">Sport & Majmua</th>
+                    <th className="py-2">Sana va vaqt</th>
+                    <th className="py-2">Bandlik</th>
+                    <th className="py-2">Narx</th>
+                    <th className="py-2 text-right">Amallar</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#2D2926]/10">
+                  {sessionsList.map((s) => (
+                    <tr key={s.id}>
+                      <td className="py-2.5">
+                        <div className="w-12 h-9 rounded overflow-hidden border border-[#2D2926] bg-[#D8CFBC]">
+                          {s.imageUrl ? (
+                            <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[10px] text-[#8B7355]">
+                              Pley
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-2.5 font-bold text-[#1A1510]">
+                        <div>{s.title}</div>
+                        <div className="text-[10px] text-[#8B7355] uppercase font-bold">{s.skillLevel} · {s.sessionVibe}</div>
+                      </td>
+                      <td className="py-2.5">
+                        <div className="font-semibold text-[#1A1510]">{s.venue?.name}</div>
+                        <div className="text-[10px] text-[#8B7355]">{s.sport?.name} · {s.venue?.district}</div>
+                      </td>
+                      <td className="py-2.5 text-[#1A1510] whitespace-nowrap text-[11px]">
+                        {new Date(s.scheduledAt).toLocaleDateString()} {new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </td>
+                      <td className="py-2.5">
+                        <span className="font-bold text-[#1A1510]">{s.bookedSlots}</span> / {s.maxSlots}
+                      </td>
+                      <td className="py-2.5 font-bold text-[#1A1510] whitespace-nowrap">
+                        {s.totalPrice?.toLocaleString()} UZS
+                      </td>
+                      <td className="py-2.5 text-right whitespace-nowrap space-x-2">
+                        <a
+                          href={`/sessions/${s.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#EDE6D5] border border-[#2D2926] text-[10px] font-bold uppercase tracking-wider text-[#1A1510] hover:bg-white"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          <span>Ochish</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleCancelSession(s.id)}
+                          className="px-2.5 py-1 bg-[#F2DDD9] border border-[#8B2E2E] text-[#8B2E2E] text-[10px] font-bold uppercase tracking-wider hover:bg-[#E8C5C0] cursor-pointer"
+                        >
+                          Bekor qilish
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -1262,6 +1789,47 @@ export default function AdminPage(): React.JSX.Element {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-xs font-black uppercase text-[#242424] mb-1">
+                  Sessiya rasmi / Banner (Pics)
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="admin-session-pic-cartoon"
+                    className="hidden"
+                    onChange={handleUploadSessionPic}
+                    disabled={uploadingSessionPic}
+                  />
+                  <label
+                    htmlFor="admin-session-pic-cartoon"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-[#242424] bg-[#FFF9EF] hover:bg-[#EADEFF] font-black text-xs uppercase cursor-pointer transition-colors"
+                  >
+                    <ImageIcon className="w-4 h-4 text-[#7655F7]" />
+                    <span>{uploadingSessionPic ? 'Yuklanmoqda...' : 'Rasm yuklash (Fayl)'}</span>
+                  </label>
+                </div>
+                {sessionForm.imageUrl && (
+                  <div className="mt-2 relative w-28 h-16 rounded-xl border-2 border-[#242424] overflow-hidden">
+                    <img
+                      src={sessionForm.imageUrl}
+                      alt="preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSessionForm({ ...sessionForm, imageUrl: '' })
+                      }
+                      className="absolute top-1 right-1 bg-[#242424] text-white w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-black"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="pt-2 flex justify-end gap-3">
                 <Button
                   type="button"
@@ -1534,6 +2102,338 @@ export default function AdminPage(): React.JSX.Element {
           </div>
         </Card>
       </div>
+
+      <Card variant="white" className="space-y-4 p-5 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#EEEEEE] pb-3">
+          <div className="flex items-center gap-2">
+            <Handshake className="w-5 h-5 text-[#7655F7]" />
+            <h3 className="text-xl font-black text-[#242424]">
+              Hamkorlik arizalari (Zal egalari)
+            </h3>
+          </div>
+          <span className="text-xs font-black text-[#7655F7] px-2.5 py-1 rounded-full bg-[#EADEFF] border border-[#242424]">
+            {pendingInquiriesCount} ta kutilmoqda ({inquiries.length} jami)
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setInquiryStatusFilter('ALL')}
+            className={`px-3 py-1 rounded-full text-xs font-black border border-[#242424] transition-all cursor-pointer ${
+              inquiryStatusFilter === 'ALL'
+                ? 'bg-[#242424] text-white'
+                : 'bg-white text-[#242424] hover:bg-[#F2F2F2]'
+            }`}
+          >
+            Barchasi ({inquiries.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setInquiryStatusFilter('PENDING')}
+            className={`px-3 py-1 rounded-full text-xs font-black border border-[#242424] transition-all cursor-pointer ${
+              inquiryStatusFilter === 'PENDING'
+                ? 'bg-[#7655F7] text-white shadow-[2px_2px_0px_#242424]'
+                : 'bg-white text-[#242424] hover:bg-[#F2F2F2]'
+            }`}
+          >
+            Kutilmoqda ({pendingInquiriesCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => setInquiryStatusFilter('ACCEPTED')}
+            className={`px-3 py-1 rounded-full text-xs font-black border border-[#242424] transition-all cursor-pointer ${
+              inquiryStatusFilter === 'ACCEPTED'
+                ? 'bg-[#D7FF64] text-[#242424] shadow-[2px_2px_0px_#242424]'
+                : 'bg-white text-[#242424] hover:bg-[#F2F2F2]'
+            }`}
+          >
+            Qabul qilingan ({acceptedInquiriesCount})
+          </button>
+          <button
+            type="button"
+            onClick={() => setInquiryStatusFilter('REJECTED')}
+            className={`px-3 py-1 rounded-full text-xs font-black border border-[#242424] transition-all cursor-pointer ${
+              inquiryStatusFilter === 'REJECTED'
+                ? 'bg-[#FFD1D1] text-[#D9383A] shadow-[2px_2px_0px_#242424]'
+                : 'bg-white text-[#242424] hover:bg-[#F2F2F2]'
+            }`}
+          >
+            Rad etilgan ({rejectedInquiriesCount})
+          </button>
+        </div>
+
+        {filteredInquiries.length === 0 ? (
+          <p className="text-xs font-bold text-[#888888] py-4 text-center">
+            {inquiryStatusFilter === 'ALL'
+              ? 'Hozircha yangi hamkorlik arizalari mavjud emas.'
+              : 'Ushbu toifadagi arizalar topilmadi.'}
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs font-bold">
+              <thead>
+                <tr className="border-b border-[#EEEEEE] text-[#888888]">
+                  <th className="py-2">Turi</th>
+                  <th className="py-2">Holat</th>
+                  <th className="py-2">Vaqt</th>
+                  <th className="py-2">Masʼul shaxs</th>
+                  <th className="py-2">Zal / Oʻyin nomi</th>
+                  <th className="py-2">Tuman & Sport</th>
+                  <th className="py-2">Rasm</th>
+                  <th className="py-2">Izoh</th>
+                  <th className="py-2 text-right">Amal</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#F2F2F2]">
+                {filteredInquiries.map((inq) => {
+                  const st = inq.status || 'PENDING';
+                  return (
+                    <tr key={inq.id}>
+                      <td className="py-2.5">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-black border ${
+                            inq.inquiry_type === 'SESSION'
+                              ? 'bg-[#D7FF64] border-[#242424] text-[#242424]'
+                              : 'bg-[#FFF9EF] border-[#242424] text-[#7655F7]'
+                          }`}
+                        >
+                          {inq.inquiry_type === 'SESSION' ? 'Sessiya' : 'Majmua'}
+                        </span>
+                      </td>
+                      <td className="py-2.5">
+                        {st === 'ACCEPTED' ? (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black border border-[#242424] bg-[#D7FF64] text-[#242424]">
+                            Qabul qilingan
+                          </span>
+                        ) : st === 'REJECTED' ? (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black border border-[#242424] bg-[#FFD1D1] text-[#D9383A]">
+                            Rad etilgan
+                          </span>
+                        ) : (
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black border border-[#242424] bg-[#FFF275] text-[#242424]">
+                            Kutilmoqda
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2.5 text-[#888888] text-[10px] whitespace-nowrap">
+                        {new Date(inq.created_at).toLocaleDateString()}{' '}
+                        {new Date(inq.created_at).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </td>
+                      <td className="py-2.5">
+                        <div className="font-extrabold text-[#242424]">{inq.contact_name}</div>
+                        <a
+                          href={`tel:${inq.phone}`}
+                          className="text-[11px] text-[#7655F7] hover:underline flex items-center gap-1"
+                        >
+                          <Phone className="w-3 h-3" />
+                          <span>{inq.phone}</span>
+                        </a>
+                      </td>
+                      <td className="py-2.5 font-black text-[#242424]">
+                        {inq.venue_name}
+                      </td>
+                      <td className="py-2.5 text-[#242424]">
+                        <div>{inq.district}</div>
+                        <div className="text-[10px] text-[#888888] font-extrabold uppercase">
+                          {inq.sport_types}
+                        </div>
+                      </td>
+                      <td className="py-2.5">
+                        {inq.image_url ? (
+                          <div className="w-10 h-8 rounded-lg overflow-hidden border border-[#242424]">
+                            <img
+                              src={inq.image_url}
+                              alt="pic"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <span className="text-[10px] text-[#888888]">—</span>
+                        )}
+                      </td>
+                      <td className="py-2.5 text-[#555555] max-w-xs truncate text-[11px]">
+                        {inq.message || '—'}
+                      </td>
+                      <td className="py-2.5 text-right whitespace-nowrap">
+                        {st === 'ACCEPTED' ? (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <span className="text-[11px] text-[#242424] font-black flex items-center gap-1 bg-[#D7FF64] px-2.5 py-1 rounded-xl border border-[#242424] mr-1">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Qoʻshildi</span>
+                            </span>
+                            <button
+                              type="button"
+                              title="Oʻchirish"
+                              onClick={() => handleDeleteInquiry(inq.id)}
+                              className="p-1.5 rounded-xl border border-[#242424] bg-white text-[#D9383A] hover:bg-[#FFD1D1] transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : st === 'REJECTED' ? (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              variant="white"
+                              size="sm"
+                              onClick={() => handleAcceptInquiry(inq.id)}
+                            >
+                              Qayta qabul qilish
+                            </Button>
+                            <button
+                              type="button"
+                              title="Oʻchirish"
+                              onClick={() => handleDeleteInquiry(inq.id)}
+                              className="p-1.5 rounded-xl border border-[#242424] bg-white text-[#D9383A] hover:bg-[#FFD1D1] transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                            {inq.inquiry_type === 'SESSION' ? (
+                              <Button
+                                variant="lime"
+                                size="sm"
+                                onClick={() => handleConvertInquiryToSession(inq)}
+                              >
+                                + Sessiyaga aylantirish
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="purple"
+                                size="sm"
+                                onClick={() => handleConvertInquiryToVenue(inq)}
+                              >
+                                + Majmuaga qoʻshish
+                              </Button>
+                            )}
+                            <button
+                              type="button"
+                              title="Toʻgʻridan-toʻgʻri qabul qilish"
+                              onClick={() => handleAcceptInquiry(inq.id)}
+                              className="p-1.5 rounded-xl border border-[#242424] bg-[#D7FF64] text-[#242424] hover:brightness-95 transition-colors cursor-pointer"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              title="Rad etish"
+                              onClick={() => handleRejectInquiry(inq.id)}
+                              className="p-1.5 rounded-xl border border-[#242424] bg-[#FFD1D1] text-[#D9383A] hover:brightness-95 transition-colors cursor-pointer"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              title="Oʻchirish"
+                              onClick={() => handleDeleteInquiry(inq.id)}
+                              className="p-1.5 rounded-xl border border-[#242424] bg-white text-[#D9383A] hover:bg-[#FFD1D1] transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      <Card variant="white" className="space-y-4 p-5 sm:p-6">
+        <div className="flex items-center justify-between border-b border-[#EEEEEE] pb-3">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-[#7655F7]" />
+            <h3 className="text-xl font-black text-[#242424]">
+              Faol Sessiyalar Reyestri
+            </h3>
+          </div>
+          <span className="text-xs font-black text-[#242424] px-2.5 py-1 rounded-full bg-[#D7FF64] border border-[#242424]">
+            {sessionsList.length} ta sessiya
+          </span>
+        </div>
+
+        {sessionsList.length === 0 ? (
+          <p className="text-xs font-bold text-[#888888] py-4 text-center">
+            Bazada faol sessiyalar mavjud emas.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs font-bold">
+              <thead>
+                <tr className="border-b border-[#EEEEEE] text-[#888888]">
+                  <th className="py-2">Rasm</th>
+                  <th className="py-2">Sessiya nomi</th>
+                  <th className="py-2">Sport & Majmua</th>
+                  <th className="py-2">Sana va vaqt</th>
+                  <th className="py-2">Bandlik</th>
+                  <th className="py-2">Narx</th>
+                  <th className="py-2 text-right">Amallar</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#F2F2F2]">
+                {sessionsList.map((s) => (
+                  <tr key={s.id}>
+                    <td className="py-2.5">
+                      <div className="w-12 h-9 rounded-lg overflow-hidden border-2 border-[#242424] bg-[#FFEED5]">
+                        {s.imageUrl ? (
+                          <img src={s.imageUrl} alt={s.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[10px] text-[#7655F7] font-black">
+                            Pley
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-2.5">
+                      <div className="font-extrabold text-[#242424]">{s.title}</div>
+                      <div className="text-[10px] text-[#7655F7] font-black uppercase">{s.skillLevel} · {s.sessionVibe}</div>
+                    </td>
+                    <td className="py-2.5">
+                      <div className="text-[#242424]">{s.venue?.name}</div>
+                      <div className="text-[10px] text-[#888888]">{s.sport?.name} · {s.venue?.district}</div>
+                    </td>
+                    <td className="py-2.5 text-[#242424] whitespace-nowrap text-[11px]">
+                      {new Date(s.scheduledAt).toLocaleDateString()} {new Date(s.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                    <td className="py-2.5">
+                      <span className="font-black text-[#242424]">{s.bookedSlots}</span> / {s.maxSlots}
+                    </td>
+                    <td className="py-2.5 font-black text-[#242424] whitespace-nowrap">
+                      {s.totalPrice?.toLocaleString()} UZS
+                    </td>
+                    <td className="py-2.5 text-right whitespace-nowrap space-x-2">
+                      <a
+                        href={`/sessions/${s.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border-2 border-[#242424] bg-white text-[10px] font-black uppercase text-[#242424] hover:bg-[#FFF9EF]"
+                      >
+                        <ExternalLink className="w-3 h-3 text-[#7655F7]" />
+                        <span>Ochish</span>
+                      </a>
+                      <Button
+                        variant="coral"
+                        size="sm"
+                        onClick={() => handleCancelSession(s.id)}
+                      >
+                        Bekor qilish
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

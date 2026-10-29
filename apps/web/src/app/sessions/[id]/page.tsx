@@ -162,6 +162,22 @@ export default function SessionDetailPage(): React.JSX.Element {
     ? format(dateObj, 'EEEE, d MMMM · HH:mm')
     : session.scheduledAt;
 
+  const defaultSportPhotos: Record<string, string> = {
+    'table-tennis':
+      'https://images.unsplash.com/photo-1534158914592-062992fbe900?auto=format&fit=crop&w=1200&q=80',
+    'basketball-3x3':
+      'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1200&q=80',
+    badminton:
+      'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=1200&q=80',
+    volleyball:
+      'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1200&q=80',
+  };
+
+  const displayImage =
+    session.imageUrl ||
+    defaultSportPhotos[session.sport.slug] ||
+    defaultSportPhotos['table-tennis'];
+
   const isUserBooked = !!session.currentUserBookingStatus;
   const isFull = session.remainingSlots <= 0;
 
@@ -180,6 +196,31 @@ export default function SessionDetailPage(): React.JSX.Element {
           <span className="text-[11px] font-sans font-bold uppercase tracking-widest text-[#8B7355]">
             {t('sessionDossier')} {session.id.slice(0, 8).toUpperCase()}
           </span>
+        </div>
+
+        <div className="relative w-full h-56 sm:h-72 overflow-hidden border-2 border-[#2D2926] bg-[#EDE6D5] shadow-[3px_3px_0px_#2D2926]">
+          <img
+            src={displayImage}
+            alt={session.title}
+            className="w-full h-full object-cover grayscale contrast-125"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1A1510]/80 via-[#1A1510]/20 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+            <div className="space-y-1">
+              <span className="text-[10px] font-sans font-extrabold uppercase tracking-widest px-2.5 py-1 bg-[#F5F0E8] text-[#1A1510]">
+                {session.sport.name}
+              </span>
+              <h2
+                className="text-xl sm:text-3xl font-bold text-[#F5F0E8] drop-shadow"
+                style={{ fontFamily: 'Georgia, serif' }}
+              >
+                {session.title}
+              </h2>
+            </div>
+            <div className="text-right text-xs font-sans text-[#F5F0E8]/90 font-bold uppercase tracking-wider hidden sm:block">
+              {session.venue.name} · {session.venue.district}
+            </div>
+          </div>
         </div>
 
         {successMessage && (
@@ -461,6 +502,28 @@ export default function SessionDetailPage(): React.JSX.Element {
           <div className="text-xs sm:text-sm font-bold">{errorMessage}</div>
         </div>
       )}
+
+      <div className="relative w-full h-56 sm:h-72 overflow-hidden rounded-3xl border-3 border-[#242424] shadow-[6px_6px_0px_#242424] bg-[#FFEED5]">
+        <img
+          src={displayImage}
+          alt={session.title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#242424]/80 via-transparent to-transparent" />
+        <div className="absolute bottom-4 left-4 sm:left-6 right-4 sm:right-6 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <Badge variant="purple" size="md">
+              {session.sport.name}
+            </Badge>
+            <div className="text-lg sm:text-2xl font-black text-white mt-1 drop-shadow-md">
+              {session.venue.name}
+            </div>
+          </div>
+          <div className="text-xs sm:text-sm font-black text-white bg-[#242424]/80 px-3 py-1 rounded-full border border-white/20">
+            {session.venue.district}
+          </div>
+        </div>
+      </div>
 
       <Card variant="white" className="space-y-6 p-6 sm:p-8">
         <div className="flex flex-wrap items-center justify-between gap-3">

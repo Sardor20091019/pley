@@ -31,9 +31,7 @@ export class AuthService {
     dto: GoogleCallbackDto,
     remoteIp?: string,
   ): Promise<AuthSessionResponse> {
-    if (dto.turnstileToken) {
-      await this.turnstileService.verifyToken(dto.turnstileToken, remoteIp);
-    }
+    await this.turnstileService.verifyToken(dto.turnstileToken, remoteIp);
 
     const googleUser = await this.googleAuthService.exchangeCode(
       dto.code,
@@ -47,9 +45,7 @@ export class AuthService {
     dto: GoogleCredentialDto,
     remoteIp?: string,
   ): Promise<AuthSessionResponse> {
-    if (dto.turnstileToken) {
-      await this.turnstileService.verifyToken(dto.turnstileToken, remoteIp);
-    }
+    await this.turnstileService.verifyToken(dto.turnstileToken, remoteIp);
 
     const googleUser = await this.googleAuthService.verifyCredential(
       dto.credential,

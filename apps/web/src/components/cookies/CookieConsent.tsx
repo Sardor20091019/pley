@@ -12,8 +12,8 @@ import {
 } from '../../lib/cookies';
 
 export function CookieConsent(): React.JSX.Element {
-  const { t } = useI18n();
-  const { theme } = useAppTheme();
+  const { t, setLanguage } = useI18n();
+  const { theme, setTheme } = useAppTheme();
   const isCartoon = theme === 'cartoon';
 
   const [hasConsent, setHasConsent] = useState<boolean>(true);
@@ -24,7 +24,6 @@ export function CookieConsent(): React.JSX.Element {
   const [preferences, setPreferences] = useState<CookieConsentPreferences>({
     necessary: true,
     preferences: true,
-    analytics: true,
     updatedAt: new Date().toISOString(),
   });
 
@@ -44,7 +43,6 @@ export function CookieConsent(): React.JSX.Element {
     const updated = saveCookieConsent({
       necessary: true,
       preferences: true,
-      analytics: true,
     });
     setPreferences(updated);
     setHasConsent(true);
@@ -59,21 +57,26 @@ export function CookieConsent(): React.JSX.Element {
     setHasConsent(true);
     setShowBanner(false);
     setIsModalOpen(false);
+    if (!updated.preferences) {
+      setTheme('cartoon');
+      setLanguage('uz');
+    }
     showFeedback();
-  }, [preferences]);
+  }, [preferences, setTheme, setLanguage]);
 
   const handleRejectOptional = useCallback((): void => {
     const updated = saveCookieConsent({
       necessary: true,
       preferences: false,
-      analytics: false,
     });
     setPreferences(updated);
     setHasConsent(true);
     setShowBanner(false);
     setIsModalOpen(false);
+    setTheme('cartoon');
+    setLanguage('uz');
     showFeedback();
-  }, []);
+  }, [setTheme, setLanguage]);
 
   const showFeedback = (): void => {
     setSavedNotice(true);
@@ -324,45 +327,6 @@ export function CookieConsent(): React.JSX.Element {
                   </div>
                   <p className="text-xs text-[#666666] leading-relaxed">
                     {t('cookieCategoryPreferencesDesc')}
-                  </p>
-                </div>
-
-                <div
-                  className={`p-4 transition-all ${
-                    isCartoon
-                      ? 'bg-white rounded-2xl border-2 border-[#242424]'
-                      : 'bg-[#EDE6D5] border border-[#2D2926]/20'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm font-black text-[#242424]">
-                      {t('cookieCategoryAnalytics')}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setPreferences({
-                          ...preferences,
-                          analytics: !preferences.analytics,
-                        })
-                      }
-                      className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ${
-                        preferences.analytics
-                          ? isCartoon
-                            ? 'bg-[#7655F7] border border-[#242424]'
-                            : 'bg-[#1A1510]'
-                          : 'bg-[#CCCCCC]'
-                      }`}
-                    >
-                      <div
-                        className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ${
-                          preferences.analytics ? 'translate-x-5' : 'translate-x-0'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  <p className="text-xs text-[#666666] leading-relaxed">
-                    {t('cookieCategoryAnalyticsDesc')}
                   </p>
                 </div>
               </div>

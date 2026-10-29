@@ -1,14 +1,12 @@
 export interface CookieConsentPreferences {
   necessary: boolean;
   preferences: boolean;
-  analytics: boolean;
   updatedAt: string;
-}
+} 
 
 export const DEFAULT_COOKIE_CONSENT: CookieConsentPreferences = {
   necessary: true,
   preferences: true,
-  analytics: true,
   updatedAt: new Date().toISOString(),
 };
 
@@ -48,12 +46,19 @@ export function getCookieConsent(): CookieConsentPreferences | null {
     return {
       necessary: true,
       preferences: parsed.preferences ?? true,
-      analytics: parsed.analytics ?? true,
       updatedAt: parsed.updatedAt || new Date().toISOString(),
     };
   } catch {
     return null;
   }
+}
+
+export function canStorePreferences(): boolean {
+  const consent = getCookieConsent();
+  if (!consent) {
+    return true;
+  }
+  return consent.preferences;
 }
 
 export function saveCookieConsent(
@@ -62,10 +67,20 @@ export function saveCookieConsent(
   const complete: CookieConsentPreferences = {
     necessary: true,
     preferences: prefs.preferences ?? true,
-    analytics: prefs.analytics ?? true,
     updatedAt: new Date().toISOString(),
   };
   setCookie('pley_cookie_consent', JSON.stringify(complete), 365);
+
+  if (!complete.preferences) {
+    deleteCookie('pley_theme_mode');
+    deleteCookie('pley_lang');
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('pley_theme_mode');
+        localStorage.removeItem('pley_lang');
+      } catch {}
+    }
+  }
+
   return complete;
 }
-

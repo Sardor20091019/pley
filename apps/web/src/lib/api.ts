@@ -155,15 +155,55 @@ export async function submitPartnershipInquiry(data: {
   district: string;
   sportTypes: string;
   message?: string;
+  inquiryType?: 'VENUE' | 'SESSION';
+  imageUrl?: string;
+  scheduledAt?: string;
+  pricePerSlot?: number;
+  turnstileToken?: string;
 }): Promise<any> {
+  const payload: Record<string, any> = {
+    contactName: data.contactName.trim(),
+    phone: data.phone.trim(),
+    venueName: data.venueName.trim(),
+    district: data.district.trim(),
+    sportTypes: data.sportTypes.trim(),
+  };
+
+  if (data.message && data.message.trim()) {
+    payload.message = data.message.trim();
+  }
+
+  if (data.inquiryType === 'SESSION') {
+    payload.inquiryType = 'SESSION';
+    if (data.imageUrl && data.imageUrl.trim()) {
+      payload.imageUrl = data.imageUrl.trim();
+    }
+    if (data.scheduledAt && data.scheduledAt.trim()) {
+      payload.scheduledAt = data.scheduledAt.trim();
+    }
+    if (typeof data.pricePerSlot === 'number' && !isNaN(data.pricePerSlot) && data.pricePerSlot > 0) {
+      payload.pricePerSlot = data.pricePerSlot;
+    }
+  } else if (data.imageUrl && data.imageUrl.trim()) {
+    payload.imageUrl = data.imageUrl.trim();
+  }
+
+  if (data.turnstileToken) {
+    payload.turnstileToken = data.turnstileToken;
+  }
+
   const res = await fetch(`${API_BASE_URL}/partnership/inquiry`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
 
   if (!res.ok) {
-    throw new Error('Failed to submit partnership inquiry');
+    const errorData = await res.json().catch(() => ({}));
+    const errorMessage = Array.isArray(errorData.message)
+      ? errorData.message.join(', ')
+      : errorData.message || 'Failed to submit partnership inquiry';
+    throw new Error(errorMessage);
   }
 
   return res.json();
@@ -234,6 +274,51 @@ export async function fetchSports(): Promise<any[]> {
   return res.json();
 }
 
+export async function fetchAdminPartnershipInquiries(): Promise<any[]> {
+  const res = await fetch(`${API_BASE_URL}/partnership/inquiries`, {
+    headers: getAuthHeaders(),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  return res.json();
+}
+
+export async function updateAdminInquiryStatus(
+  id: string,
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED',
+): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/partnership/inquiries/${id}/status`, {
+    method: 'PATCH',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ status }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to update inquiry status');
+  }
+
+  return res.json();
+}
+
+export async function deleteAdminInquiry(id: string): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/partnership/inquiries/${id}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to delete inquiry');
+  }
+
+  return res.json();
+}
+
 export async function fetchGoogleAuthUrl(redirectUri: string): Promise<string> {
   const params = new URLSearchParams({ redirectUri });
   const res = await fetch(`${API_BASE_URL}/auth/google/url?${params.toString()}`);
@@ -247,8 +332,12 @@ export async function fetchGoogleAuthUrl(redirectUri: string): Promise<string> {
 export async function loginWithGoogleCode(
   code: string,
   redirectUri: string,
-  turnstileToken?: string,
+  turnstileToken: string,
 ): Promise<{ token: string; user: UserProfile }> {
+  if (!turnstileToken) {
+    throw new Error('Cloudflare Turnstile tekshiruvi talab qilinadi');
+  }
+
   const res = await fetch(`${API_BASE_URL}/auth/google/callback`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -271,8 +360,12 @@ export async function loginWithGoogleCode(
 
 export async function loginWithGoogleCredential(
   credential: string,
-  turnstileToken?: string,
+  turnstileToken: string,
 ): Promise<{ token: string; user: UserProfile }> {
+  if (!turnstileToken) {
+    throw new Error('Cloudflare Turnstile tekshiruvi talab qilinadi');
+  }
+
   const res = await fetch(`${API_BASE_URL}/auth/google/credential`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -319,6 +412,32 @@ export async function uploadAvatar(file: File): Promise<{ url: string }> {
   return res.json();
 }
 
+export async function uploadImage(file: File): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const headers: Record<string, string> = {};
+  if (typeof window !== 'undefined') {
+    const token = getCookie('pley_token') || localStorage.getItem('pley_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  const res = await fetch(`${API_BASE_URL}/upload/image`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Image upload failed');
+  }
+
+  return res.json();
+}
+
 export async function createAdminSession(data: any): Promise<any> {
   const res = await fetch(`${API_BASE_URL}/sessions`, {
     method: 'POST',
@@ -329,6 +448,20 @@ export async function createAdminSession(data: any): Promise<any> {
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.message || 'Failed to create session');
+  }
+
+  return res.json();
+}
+
+export async function cancelAdminSession(sessionId: string): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/sessions/${sessionId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to cancel session');
   }
 
   return res.json();

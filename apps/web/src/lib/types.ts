@@ -46,6 +46,7 @@ export interface SessionItem {
   sessionVibe: SessionVibe;
   status: SessionStatus;
   equipmentProvided: boolean;
+  imageUrl?: string | null;
   venue: {
     id: string;
     name: string;

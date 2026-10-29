@@ -24,6 +24,17 @@ export const viewport: Viewport = {
 const themeInitScript = `
 (function() {
   try {
+    var c = document.cookie.match(/(^|;\\s*)pley_cookie_consent=([^;]*)/);
+    if (c) {
+      try {
+        var p = JSON.parse(decodeURIComponent(c[2]));
+        if (p && p.preferences === false) {
+          document.documentElement.setAttribute('data-theme', 'cartoon');
+          return;
+        }
+      } catch(e) {}
+    }
+
     var m = document.cookie.match(/(^|;\\s*)pley_theme_mode=([^;]*)/);
     var t = m ? decodeURIComponent(m[2]) : null;
     if (!t) {
