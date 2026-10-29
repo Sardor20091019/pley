@@ -17,7 +17,7 @@ export class UploadService {
   }
 
   private initUtApi(): void {
-    let raw = process.env.UPLOADTHING_SECRET || process.env.UPLOADTHING_TOKEN || '';
+    let raw = process.env.UPLOADTHING_SECRET || '';
     if (raw.includes('UPLOADTHING_TOKEN=')) {
       raw = raw.replace('UPLOADTHING_TOKEN=', '').replace(/^['"]|['"]$/g, '');
     }

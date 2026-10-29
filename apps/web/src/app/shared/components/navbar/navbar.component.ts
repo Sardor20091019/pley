@@ -30,23 +30,37 @@ import { Language } from '../../../core/models/translations';
           <nav class="hidden md:flex items-center gap-1">
             <a
               routerLink="/discover"
-              routerLinkActive="text-[#1A1510] border-b-2 border-[#1A1510]"
+              routerLinkActive
+              #rlaDiscoverEd="routerLinkActive"
               [routerLinkActiveOptions]="{ exact: true }"
-              class="px-4 py-2 font-sans font-bold text-xs tracking-widest uppercase transition-all text-[#8B7355] hover:text-[#1A1510]"
+              class="px-4 py-2 font-sans font-bold text-xs tracking-widest uppercase transition-all"
+              [ngClass]="rlaDiscoverEd.isActive
+                ? 'text-[#1A1510] border-b-2 border-[#1A1510]'
+                : 'text-[#8B7355] hover:text-[#1A1510]'"
             >
               {{ i18nService.t('navDiscover') }}
             </a>
             <a
               routerLink="/my-games"
-              routerLinkActive="text-[#1A1510] border-b-2 border-[#1A1510]"
-              class="px-4 py-2 font-sans font-bold text-xs tracking-widest uppercase transition-all text-[#8B7355] hover:text-[#1A1510]"
+              routerLinkActive
+              #rlaMyGamesEd="routerLinkActive"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="px-4 py-2 font-sans font-bold text-xs tracking-widest uppercase transition-all"
+              [ngClass]="rlaMyGamesEd.isActive
+                ? 'text-[#1A1510] border-b-2 border-[#1A1510]'
+                : 'text-[#8B7355] hover:text-[#1A1510]'"
             >
               {{ i18nService.t('navMyGames') }}
             </a>
             <a
               routerLink="/profile"
-              routerLinkActive="text-[#1A1510] border-b-2 border-[#1A1510]"
-              class="px-4 py-2 font-sans font-bold text-xs tracking-widest uppercase transition-all text-[#8B7355] hover:text-[#1A1510]"
+              routerLinkActive
+              #rlaProfileEd="routerLinkActive"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="px-4 py-2 font-sans font-bold text-xs tracking-widest uppercase transition-all"
+              [ngClass]="rlaProfileEd.isActive
+                ? 'text-[#1A1510] border-b-2 border-[#1A1510]'
+                : 'text-[#8B7355] hover:text-[#1A1510]'"
             >
               {{ i18nService.t('navProfile') }}
             </a>
@@ -54,8 +68,12 @@ import { Language } from '../../../core/models/translations';
             @if (authService.isAdmin()) {
               <a
                 routerLink="/admin"
-                routerLinkActive="bg-[#1A1510] text-[#F5F0E8]"
-                class="px-3 py-1 font-sans font-extrabold text-xs flex items-center gap-1.5 border border-[#1A1510] tracking-wider uppercase bg-[#EDE6D5] text-[#1A1510]"
+                routerLinkActive
+                #rlaAdminEd="routerLinkActive"
+                class="px-3 py-1 font-sans font-extrabold text-xs flex items-center gap-1.5 border border-[#1A1510] tracking-wider uppercase transition-all"
+                [ngClass]="rlaAdminEd.isActive
+                  ? 'bg-[#1A1510] text-[#F5F0E8]'
+                  : 'bg-[#EDE6D5] text-[#1A1510]'"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -71,7 +89,7 @@ import { Language } from '../../../core/models/translations';
             <div class="relative">
               <button
                 (click)="toggleLangMenu()"
-                class="flex items-center gap-1 px-2.5 py-1.5 bg-[#EDE6D5] border border-[#2D2926] text-xs font-bold text-[#1A1510] font-sans uppercase tracking-wider"
+                class="flex items-center gap-1 px-2.5 py-1.5 bg-[#EDE6D5] border border-[#2D2926] text-xs font-bold text-[#1A1510] font-sans uppercase tracking-wider cursor-pointer"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
@@ -87,7 +105,7 @@ import { Language } from '../../../core/models/translations';
                   @for (lang of availableLanguages; track lang) {
                     <button
                       (click)="changeLanguage(lang)"
-                      class="w-full text-left px-3 py-1.5 text-xs font-bold font-sans"
+                      class="w-full text-left px-3 py-1.5 text-xs font-bold font-sans cursor-pointer"
                       [class.bg-[#EDE6D5]]="i18nService.language() === lang"
                       [class.text-[#1A1510]]="i18nService.language() === lang"
                       [class.text-[#8B7355]]="i18nService.language() !== lang"
@@ -103,7 +121,7 @@ import { Language } from '../../../core/models/translations';
               @if (authService.user(); as user) {
                 <button
                   (click)="toggleAccountMenu()"
-                  class="flex items-center gap-2 px-3 py-1.5 bg-[#EDE6D5] border border-[#2D2926] text-xs font-bold text-[#1A1510] font-sans tracking-wide"
+                  class="flex items-center gap-2 px-3 py-1.5 bg-[#EDE6D5] border border-[#2D2926] text-xs font-bold text-[#1A1510] font-sans tracking-wide cursor-pointer"
                 >
                   @if (user.avatar_url) {
                     <img [src]="user.avatar_url" [alt]="user.first_name" class="w-5 h-5 rounded-full object-cover border border-[#2D2926]" />
@@ -153,7 +171,7 @@ import { Language } from '../../../core/models/translations';
                     </div>
 
                     <div class="pt-2 border-t border-[rgba(45,41,38,0.15)]">
-                      <button (click)="handleLogout()" class="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-bold font-sans text-[#B85450] hover:bg-[#EDE6D5]">
+                      <button (click)="handleLogout()" class="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-bold font-sans text-[#B85450] hover:bg-[#EDE6D5] cursor-pointer">
                         <span>{{ i18nService.t('navLogout') }}</span>
                       </button>
                     </div>
@@ -185,23 +203,37 @@ import { Language } from '../../../core/models/translations';
           <nav class="hidden md:flex items-center gap-2">
             <a
               routerLink="/discover"
-              routerLinkActive="bg-[#7655F7] text-white border-[#242424] shadow-[2px_2px_0px_#242424]"
+              routerLinkActive
+              #rlaDiscover="routerLinkActive"
               [routerLinkActiveOptions]="{ exact: true }"
-              class="px-4 py-2 rounded-full font-bold text-sm border-2 transition-all bg-white text-[#242424] border-transparent hover:border-[#242424]"
+              class="px-4 py-2 rounded-full font-bold text-sm border-2 transition-all cursor-pointer"
+              [ngClass]="rlaDiscover.isActive
+                ? 'bg-[#7655F7] text-white border-[#242424] shadow-[2px_2px_0px_#242424]'
+                : 'bg-white text-[#242424] border-transparent hover:border-[#242424]'"
             >
               {{ i18nService.t('navDiscover') }}
             </a>
             <a
               routerLink="/my-games"
-              routerLinkActive="bg-[#7655F7] text-white border-[#242424] shadow-[2px_2px_0px_#242424]"
-              class="px-4 py-2 rounded-full font-bold text-sm border-2 transition-all bg-white text-[#242424] border-transparent hover:border-[#242424]"
+              routerLinkActive
+              #rlaMyGames="routerLinkActive"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="px-4 py-2 rounded-full font-bold text-sm border-2 transition-all cursor-pointer"
+              [ngClass]="rlaMyGames.isActive
+                ? 'bg-[#7655F7] text-white border-[#242424] shadow-[2px_2px_0px_#242424]'
+                : 'bg-white text-[#242424] border-transparent hover:border-[#242424]'"
             >
               {{ i18nService.t('navMyGames') }}
             </a>
             <a
               routerLink="/profile"
-              routerLinkActive="bg-[#7655F7] text-white border-[#242424] shadow-[2px_2px_0px_#242424]"
-              class="px-4 py-2 rounded-full font-bold text-sm border-2 transition-all bg-white text-[#242424] border-transparent hover:border-[#242424]"
+              routerLinkActive
+              #rlaProfile="routerLinkActive"
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="px-4 py-2 rounded-full font-bold text-sm border-2 transition-all cursor-pointer"
+              [ngClass]="rlaProfile.isActive
+                ? 'bg-[#7655F7] text-white border-[#242424] shadow-[2px_2px_0px_#242424]'
+                : 'bg-white text-[#242424] border-transparent hover:border-[#242424]'"
             >
               {{ i18nService.t('navProfile') }}
             </a>
@@ -209,8 +241,12 @@ import { Language } from '../../../core/models/translations';
             @if (authService.isAdmin()) {
               <a
                 routerLink="/admin"
-                routerLinkActive="bg-[#FF795D] text-white shadow-[2px_2px_0px_#242424]"
-                class="px-3.5 py-1.5 rounded-full font-extrabold text-xs flex items-center gap-1.5 border-2 border-[#242424] bg-[#D7FF64] text-[#242424]"
+                routerLinkActive
+                #rlaAdmin="routerLinkActive"
+                class="px-3.5 py-1.5 rounded-full font-extrabold text-xs flex items-center gap-1.5 border-2 border-[#242424] transition-all cursor-pointer"
+                [ngClass]="rlaAdmin.isActive
+                  ? 'bg-[#FF795D] text-white shadow-[2px_2px_0px_#242424]'
+                  : 'bg-[#D7FF64] text-[#242424]'"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -226,7 +262,7 @@ import { Language } from '../../../core/models/translations';
             <div class="relative">
               <button
                 (click)="toggleLangMenu()"
-                class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white border-2 border-[#242424] text-xs font-black shadow-[2px_2px_0px_#242424]"
+                class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white border-2 border-[#242424] text-xs font-black shadow-[2px_2px_0px_#242424] cursor-pointer"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
@@ -242,7 +278,7 @@ import { Language } from '../../../core/models/translations';
                   @for (lang of availableLanguages; track lang) {
                     <button
                       (click)="changeLanguage(lang)"
-                      class="w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold"
+                      class="w-full text-left px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer"
                       [class.bg-[#D7FF64]]="i18nService.language() === lang"
                       [class.text-[#242424]]="i18nService.language() === lang"
                       [class.hover:bg-[#FFF9EF]]="i18nService.language() !== lang"
@@ -258,7 +294,7 @@ import { Language } from '../../../core/models/translations';
               @if (authService.user(); as user) {
                 <button
                   (click)="toggleAccountMenu()"
-                  class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#D7FF64] border-2 border-[#242424] shadow-[2px_2px_0px_#242424] text-xs font-extrabold hover:bg-[#cbf556]"
+                  class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#D7FF64] border-2 border-[#242424] shadow-[2px_2px_0px_#242424] text-xs font-extrabold hover:bg-[#cbf556] cursor-pointer"
                 >
                   @if (user.avatar_url) {
                     <img [src]="user.avatar_url" [alt]="user.first_name" class="w-5 h-5 rounded-full object-cover border border-[#242424]" />
@@ -313,7 +349,7 @@ import { Language } from '../../../core/models/translations';
                     </div>
 
                     <div class="pt-2 border-t border-[#EEEEEE]">
-                      <button (click)="handleLogout()" class="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold text-[#FF795D] hover:bg-[#FFF9EF] transition-colors">
+                      <button (click)="handleLogout()" class="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold text-[#FF795D] hover:bg-[#FFF9EF] transition-colors cursor-pointer">
                         <span>{{ i18nService.t('navLogout') }}</span>
                       </button>
                     </div>
