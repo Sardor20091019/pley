@@ -54,11 +54,13 @@ export class UploadService {
         });
 
         const uploadRes = await this.utapi.uploadFiles(fileObj);
-        if (uploadRes.error || !uploadRes.data?.url) {
+        const fileData = uploadRes.data as (typeof uploadRes.data & { ufsUrl?: string }) | undefined;
+        const resolvedUrl = fileData?.ufsUrl || fileData?.url;
+        if (uploadRes.error || !resolvedUrl) {
           throw new Error(uploadRes.error?.message || 'UploadThing upload failed');
         }
 
-        uploadedUrl = uploadRes.data.url;
+        uploadedUrl = resolvedUrl;
       } catch (err: any) {
         this.logger.error(`UploadThing error: ${err.message}`);
         uploadedUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
@@ -115,11 +117,13 @@ export class UploadService {
         });
 
         const uploadRes = await this.utapi.uploadFiles(fileObj);
-        if (uploadRes.error || !uploadRes.data?.url) {
+        const fileData = uploadRes.data as (typeof uploadRes.data & { ufsUrl?: string }) | undefined;
+        const resolvedUrl = fileData?.ufsUrl || fileData?.url;
+        if (uploadRes.error || !resolvedUrl) {
           throw new Error(uploadRes.error?.message || 'UploadThing upload failed');
         }
 
-        uploadedUrl = uploadRes.data.url;
+        uploadedUrl = resolvedUrl;
       } catch (err: any) {
         this.logger.error(`UploadThing error: ${err.message}`);
         uploadedUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;

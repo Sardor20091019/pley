@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { PartnershipService } from './partnership.service';
 import { CreatePartnershipInquiryDto } from './dto/partnership.dto';
-import { Public, AuthGuard } from '../auth/auth.guard';
+import { AuthGuard, RequestWithUser } from '../auth/auth.guard';
 import { RolesGuard, Roles } from '../auth/roles.guard';
 import { PartnershipInquiriesTable } from '../database/database.types';
 
@@ -19,13 +19,13 @@ import { PartnershipInquiriesTable } from '../database/database.types';
 export class PartnershipController {
   constructor(private readonly partnershipService: PartnershipService) {}
 
-  @Public()
+  @UseGuards(AuthGuard)
   @Post('inquiry')
   public async submitInquiry(
     @Body() dto: CreatePartnershipInquiryDto,
-    @Req() req: any,
+    @Req() req: RequestWithUser,
   ): Promise<PartnershipInquiriesTable> {
-    const remoteIp = req.ip || req.headers['x-forwarded-for'];
+    const remoteIp = (req as any).ip || (req as any).headers?.['x-forwarded-for'];
     return this.partnershipService.submitInquiry(dto, remoteIp);
   }
 

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { I18nService } from '../../core/services/i18n.service';
 import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
 import { compressImage } from '../../core/services/image';
 import { SessionItem, PartnerFormData } from '../../core/models/types';
 
@@ -573,17 +574,27 @@ import { SessionItem, PartnerFormData } from '../../core/models/types';
                     </div>
                   }
 
-                  <button
-                    type="submit"
-                    [disabled]="partnerSubmitting()"
-                    class="w-full py-3.5 bg-[#1A1510] text-[#F5F0E8] font-sans text-xs font-bold tracking-widest uppercase hover:bg-[#332B24] disabled:opacity-50 transition-all cursor-pointer"
-                  >
-                    {{ partnerSubmitting()
-                      ? i18nService.t('partnerSubmittingBtn')
-                      : formData().inquiryType === 'SESSION'
-                        ? i18nService.t('sessionPartnerBtn')
-                        : i18nService.t('venuePartnerBtn') }}
-                  </button>
+                  @if (!authService.isAuthenticated()) {
+                    <button
+                      type="button"
+                      (click)="authService.openAuthModal('/')"
+                      class="w-full py-3.5 bg-[#1A1510] text-[#F5F0E8] font-sans text-xs font-bold tracking-widest uppercase hover:bg-[#332B24] transition-all cursor-pointer"
+                    >
+                      🔒 {{ i18nService.t('partnerLoginBtn') }}
+                    </button>
+                  } @else {
+                    <button
+                      type="submit"
+                      [disabled]="partnerSubmitting()"
+                      class="w-full py-3.5 bg-[#1A1510] text-[#F5F0E8] font-sans text-xs font-bold tracking-widest uppercase hover:bg-[#332B24] disabled:opacity-50 transition-all cursor-pointer"
+                    >
+                      {{ partnerSubmitting()
+                        ? i18nService.t('partnerSubmittingBtn')
+                        : formData().inquiryType === 'SESSION'
+                          ? i18nService.t('sessionPartnerBtn')
+                          : i18nService.t('venuePartnerBtn') }}
+                    </button>
+                  }
                 </form>
               }
             </div>
@@ -596,6 +607,7 @@ import { SessionItem, PartnerFormData } from '../../core/models/types';
 })
 export class EditorialHomeComponent {
   readonly i18nService: I18nService = inject(I18nService);
+  readonly authService: AuthService = inject(AuthService);
   private readonly apiService: ApiService = inject(ApiService);
 
   readonly upcomingSessions = input<SessionItem[]>([]);

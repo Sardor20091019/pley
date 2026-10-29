@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { I18nService } from '../../core/services/i18n.service';
 import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
 import { compressImage } from '../../core/services/image';
 import { SessionCardComponent } from '../../shared/components/session-card/session-card.component';
 import { SportsHeroIllustrationComponent } from '../../shared/components/sports-hero-illustration/sports-hero-illustration.component';
@@ -507,18 +508,28 @@ import { SessionItem, PartnerFormData } from '../../core/models/types';
                 </div>
               }
 
-              <button
-                type="submit"
-                [disabled]="partnerSubmitting()"
-                [class]="'w-full py-3.5 px-6 rounded-2xl font-black text-base border-2 border-[#242424] shadow-[3px_3px_0px_#242424] transition-all cursor-pointer ' +
-                  (formData().inquiryType === 'SESSION' ? 'bg-[#D7FF64] text-[#242424] hover:bg-[#cbf556]' : 'bg-[#7655F7] text-white hover:bg-[#6846e3]')"
-              >
-                {{ partnerSubmitting()
-                  ? i18nService.t('partnerSubmittingBtn')
-                  : formData().inquiryType === 'SESSION'
-                    ? i18nService.t('sessionPartnerBtn')
-                    : i18nService.t('partnerSubmitBtn') }}
-              </button>
+              @if (!authService.isAuthenticated()) {
+                <button
+                  type="button"
+                  (click)="authService.openAuthModal('/')"
+                  class="w-full py-3.5 px-6 rounded-2xl font-black text-base border-2 border-[#242424] shadow-[3px_3px_0px_#242424] transition-all cursor-pointer bg-[#D7FF64] text-[#242424] hover:bg-[#cbf556] active:translate-x-0.5 active:translate-y-0.5"
+                >
+                  🔒 {{ i18nService.t('partnerLoginBtn') }}
+                </button>
+              } @else {
+                <button
+                  type="submit"
+                  [disabled]="partnerSubmitting()"
+                  [class]="'w-full py-3.5 px-6 rounded-2xl font-black text-base border-2 border-[#242424] shadow-[3px_3px_0px_#242424] transition-all cursor-pointer ' +
+                    (formData().inquiryType === 'SESSION' ? 'bg-[#D7FF64] text-[#242424] hover:bg-[#cbf556]' : 'bg-[#7655F7] text-white hover:bg-[#6846e3]')"
+                >
+                  {{ partnerSubmitting()
+                    ? i18nService.t('partnerSubmittingBtn')
+                    : formData().inquiryType === 'SESSION'
+                      ? i18nService.t('sessionPartnerBtn')
+                      : i18nService.t('partnerSubmitBtn') }}
+                </button>
+              }
             </form>
           }
         </div>
@@ -529,6 +540,7 @@ import { SessionItem, PartnerFormData } from '../../core/models/types';
 })
 export class CartoonHomeComponent {
   readonly i18nService: I18nService = inject(I18nService);
+  readonly authService: AuthService = inject(AuthService);
   private readonly apiService: ApiService = inject(ApiService);
 
   readonly upcomingSessions = input<SessionItem[]>([]);

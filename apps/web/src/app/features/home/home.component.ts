@@ -2,6 +2,8 @@ import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../core/services/theme.service';
 import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
+import { I18nService } from '../../core/services/i18n.service';
 import { CartoonHomeComponent } from './cartoon-home.component';
 import { EditorialHomeComponent } from './editorial-home.component';
 import { SessionItem, PartnerFormData } from '../../core/models/types';
@@ -37,6 +39,8 @@ import { SessionItem, PartnerFormData } from '../../core/models/types';
 })
 export class HomeComponent implements OnInit {
   readonly themeService: ThemeService = inject(ThemeService);
+  readonly authService: AuthService = inject(AuthService);
+  readonly i18nService: I18nService = inject(I18nService);
   private readonly apiService: ApiService = inject(ApiService);
 
   readonly upcomingSessions = signal<SessionItem[]>([]);
@@ -57,16 +61,30 @@ export class HomeComponent implements OnInit {
   readonly partnerSuccess = signal<boolean>(false);
   readonly partnerError = signal<string | null>(null);
 
-  async ngOnInit(): Promise<void> {
+  public async ngOnInit(): Promise<void> {
     try {
       const sessions = await this.apiService.fetchSessions();
       this.upcomingSessions.set(sessions.slice(0, 3));
     } catch {
       this.upcomingSessions.set([]);
     }
+
+    const currentUser = this.authService.user();
+    if (currentUser) {
+      this.partnerForm.update((prev: PartnerFormData): PartnerFormData => ({
+        ...prev,
+        contactName: prev.contactName || `${currentUser.first_name} ${currentUser.last_name || ''}`.trim(),
+      }));
+    }
   }
 
-  async handlePartnerSubmit(): Promise<void> {
+  public async handlePartnerSubmit(): Promise<void> {
+    if (!this.authService.isAuthenticated()) {
+      this.partnerError.set(this.i18nService.t('partnerLoginRequired'));
+      this.authService.openAuthModal('/');
+      return;
+    }
+
     this.partnerSubmitting.set(true);
     this.partnerError.set(null);
 

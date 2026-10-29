@@ -16,8 +16,8 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="flex justify-center items-center min-h-[65px] my-3">
-      <div #container></div>
+    <div class="flex justify-center items-center w-full min-h-[65px] my-1 overflow-hidden">
+      <div #container class="w-[300px] min-h-[65px] flex items-center justify-center"></div>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
