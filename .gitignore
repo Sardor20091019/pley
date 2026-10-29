@@ -8,6 +8,8 @@ dist
 .next
 out
 build
+browser
+apps/web/browser
 
 # Environment variables
 .env
