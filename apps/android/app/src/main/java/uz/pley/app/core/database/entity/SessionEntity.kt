@@ -26,9 +26,10 @@ data class SessionEntity(
     @ColumnInfo(name = "venue_name") val venueName: String,
     @ColumnInfo(name = "venue_district") val venueDistrict: String,
     @ColumnInfo(name = "venue_address") val venueAddress: String,
+    @ColumnInfo(name = "venue_latitude") val venueLatitude: Double? = null,
+    @ColumnInfo(name = "venue_longitude") val venueLongitude: Double? = null,
     @ColumnInfo(name = "sport_id") val sportId: String,
     @ColumnInfo(name = "sport_name") val sportName: String,
     @ColumnInfo(name = "sport_slug") val sportSlug: String,
     @ColumnInfo(name = "sport_icon") val sportIcon: String
 )
-

@@ -13,6 +13,9 @@ interface BookingDao {
     @Query("SELECT * FROM user_bookings ORDER BY scheduled_at DESC")
     fun getAllBookings(): Flow<List<BookingEntity>>
 
+    @Query("SELECT * FROM user_bookings ORDER BY scheduled_at DESC")
+    suspend fun getBookingsList(): List<BookingEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBookings(bookings: List<BookingEntity>)
 

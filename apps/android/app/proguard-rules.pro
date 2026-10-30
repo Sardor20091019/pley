@@ -1,8 +1,3 @@
--optimizationpasses 5
--allowaccessmodification
--repackageclasses ''
--overloadaggressively
-
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
 
 -assumenosideeffects class android.util.Log {
@@ -25,9 +20,22 @@
     <methods>;
 }
 
--keepclassmembers class * {
-    @androidx.room.* <methods>;
+-keep class * extends androidx.room.RoomDatabase {
+    <fields>;
+    <methods>;
 }
+
+-keep class uz.pley.app.core.database.** { *; }
+
+-keep @androidx.room.Entity class * { *; }
+
+-keep @androidx.room.Dao interface * { *; }
+
+-keep class uz.pley.app.presentation.navigation.** { *; }
+
+-keep class com.google.android.gms.maps.** { *; }
+-keep interface com.google.android.gms.maps.** { *; }
+-keep class com.google.maps.android.** { *; }
 
 -keepclassmembers class * {
     @dagger.hilt.* <methods>;
@@ -47,3 +55,4 @@
 -dontwarn kotlinx.serialization.**
 -dontwarn androidx.security.crypto.**
 -dontwarn com.google.android.gms.**
+-dontwarn androidx.room.paging.**

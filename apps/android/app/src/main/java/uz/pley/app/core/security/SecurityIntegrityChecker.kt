@@ -22,41 +22,47 @@ class SecurityIntegrityChecker @Inject constructor(
 ) {
 
     fun evaluateDeviceIntegrity(): SecurityIntegrityStatus {
-        val detections = mutableListOf<String>()
+        return runCatching {
+            val detections = mutableListOf<String>()
 
-        if (isDebuggerAttached()) {
-            detections.add("DEBUGGER_ATTACHED")
-        }
+            if (isDebuggerAttached()) {
+                detections.add("DEBUGGER_ATTACHED")
+            }
 
-        if (hasTestKeys()) {
-            detections.add("TEST_KEYS_BUILD")
-        }
+            if (hasTestKeys()) {
+                detections.add("TEST_KEYS_BUILD")
+            }
 
-        if (hasSuBinary()) {
-            detections.add("SU_BINARY_PRESENT")
-        }
+            if (hasSuBinary()) {
+                detections.add("SU_BINARY_PRESENT")
+            }
 
-        if (hasRootPackages()) {
-            detections.add("ROOT_MANAGEMENT_APP")
-        }
+            if (hasRootPackages()) {
+                detections.add("ROOT_MANAGEMENT_APP")
+            }
 
-        if (hasTamperingHooks()) {
-            detections.add("DYNAMIC_HOOKING_FRAMEWORK")
-        }
+            if (hasTamperingHooks()) {
+                detections.add("DYNAMIC_HOOKING_FRAMEWORK")
+            }
 
-        return SecurityIntegrityStatus(
-            isCompromised = detections.isNotEmpty(),
-            detections = detections
-        )
+            SecurityIntegrityStatus(
+                isCompromised = detections.isNotEmpty(),
+                detections = detections
+            )
+        }.getOrDefault(SecurityIntegrityStatus(isCompromised = false, detections = emptyList()))
     }
 
     private fun isDebuggerAttached(): Boolean {
-        return Debug.isDebuggerConnected() || Debug.waitingForDebugger()
+        return runCatching {
+            Debug.isDebuggerConnected() || Debug.waitingForDebugger()
+        }.getOrDefault(false)
     }
 
     private fun hasTestKeys(): Boolean {
-        val buildTags = Build.TAGS
-        return buildTags != null && buildTags.contains("test-keys")
+        return runCatching {
+            val buildTags = Build.TAGS
+            buildTags != null && buildTags.contains("test-keys")
+        }.getOrDefault(false)
     }
 
     private fun hasSuBinary(): Boolean {
@@ -72,7 +78,9 @@ class SecurityIntegrityChecker @Inject constructor(
             "/data/local/su",
             "/su/bin/su"
         )
-        return paths.any { File(it).exists() }
+        return paths.any { path ->
+            runCatching { File(path).exists() }.getOrDefault(false)
+        }
     }
 
     private fun hasRootPackages(): Boolean {
@@ -96,7 +104,7 @@ class SecurityIntegrityChecker @Inject constructor(
                     pm.getPackageInfo(pkg, 0)
                 }
                 true
-            } catch (_: PackageManager.NameNotFoundException) {
+            } catch (_: Exception) {
                 false
             }
         }
@@ -123,4 +131,3 @@ class SecurityIntegrityChecker @Inject constructor(
         }
     }
 }
-

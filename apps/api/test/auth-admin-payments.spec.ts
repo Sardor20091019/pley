@@ -8,6 +8,7 @@ import { PaymentsService } from '../src/payments/payments.service';
 import { ClickProvider } from '../src/payments/providers/click.provider';
 import { PaymeProvider } from '../src/payments/providers/payme.provider';
 import { SimulatedProvider } from '../src/payments/providers/simulated.provider';
+import { insertTestFixtures } from './test-fixtures';
 
 describe('Auth, Admin & Payments Suite', () => {
   let dbService: DatabaseService;
@@ -21,6 +22,7 @@ describe('Auth, Admin & Payments Suite', () => {
     process.env.SQLITE_PATH = ':memory:';
     dbService = new DatabaseService();
     await dbService.onModuleInit();
+    await insertTestFixtures(dbService.getDb());
 
     googleAuthService = new GoogleAuthService();
     turnstileService = new TurnstileService();

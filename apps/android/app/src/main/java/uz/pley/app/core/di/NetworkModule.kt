@@ -13,6 +13,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import uz.pley.app.BuildConfig
 import uz.pley.app.core.network.AuthInterceptor
+import uz.pley.app.core.network.FaultIsolationInterceptor
 import uz.pley.app.core.network.PleyApiService
 import uz.pley.app.core.network.TokenAuthenticator
 import java.util.concurrent.TimeUnit
@@ -60,10 +61,12 @@ object NetworkModule {
     @Singleton
     @Named("unauthenticated")
     fun provideUnauthenticatedOkHttpClient(
+        faultIsolationInterceptor: FaultIsolationInterceptor,
         loggingInterceptor: HttpLoggingInterceptor,
         certificatePinner: CertificatePinner
     ): OkHttpClient {
         val builder = OkHttpClient.Builder()
+            .addInterceptor(faultIsolationInterceptor)
             .addInterceptor(loggingInterceptor)
             .connectTimeout(15, TimeUnit.SECONDS)
             .readTimeout(15, TimeUnit.SECONDS)
@@ -79,12 +82,14 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(
+        faultIsolationInterceptor: FaultIsolationInterceptor,
         authInterceptor: AuthInterceptor,
         tokenAuthenticator: TokenAuthenticator,
         loggingInterceptor: HttpLoggingInterceptor,
         certificatePinner: CertificatePinner
     ): OkHttpClient {
         val builder = OkHttpClient.Builder()
+            .addInterceptor(faultIsolationInterceptor)
             .addInterceptor(authInterceptor)
             .authenticator(tokenAuthenticator)
             .addInterceptor(loggingInterceptor)

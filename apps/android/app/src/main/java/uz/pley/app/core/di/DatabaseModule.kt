@@ -28,6 +28,7 @@ object DatabaseModule {
             "pley_master_db"
         )
             .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigrationOnDowngrade()
             .build()
     }
 

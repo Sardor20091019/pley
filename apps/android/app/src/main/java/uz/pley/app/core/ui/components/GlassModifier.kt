@@ -1,83 +1,106 @@
 package uz.pley.app.core.ui.components
 
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.BlurredEdgeTreatment
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.asComposeRenderEffect
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import uz.pley.app.core.ui.theme.DarkCard
 
 fun Modifier.glassCard(
-    shape: Shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
-    blurRadius: Dp = 20.dp,
-    backgroundAlpha: Float = 0.12f,
-    borderAlpha: Float = 0.28f
+    shape: Shape = RoundedCornerShape(24.dp),
+    backgroundColor: Color = Color(0xFF141724),
+    borderAlpha: Float = 0.22f,
+    strokeWidth: Dp = 1.dp
 ): Modifier = composed {
-    val blurMod = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        Modifier.graphicsLayer {
-            renderEffect = android.graphics.RenderEffect
-                .createBlurEffect(
-                    blurRadius.value * density * 0.4f,
-                    blurRadius.value * density * 0.4f,
-                    android.graphics.Shader.TileMode.CLAMP
-                )
-                .asComposeRenderEffect()
-        }
-    } else {
-        Modifier.blur(radius = blurRadius * 0.35f, edgeTreatment = BlurredEdgeTreatment.Unbounded)
-    }
-
     this
         .clip(shape)
-        .then(blurMod)
         .background(
-            brush = Brush.linearGradient(
+            brush = Brush.verticalGradient(
                 colors = listOf(
-                    Color.White.copy(alpha = backgroundAlpha + 0.04f),
-                    Color.White.copy(alpha = backgroundAlpha)
+                    backgroundColor,
+                    Color(0xFF0C0E15)
                 )
             )
         )
         .border(
-            width = 1.dp,
-            brush = Brush.linearGradient(
+            width = strokeWidth,
+            brush = Brush.verticalGradient(
                 colors = listOf(
                     Color.White.copy(alpha = borderAlpha),
-                    Color.White.copy(alpha = borderAlpha * 0.5f),
-                    Color.Transparent,
-                    Color.White.copy(alpha = borderAlpha * 0.12f)
-                ),
-                start = Offset(0f, 0f),
-                end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                    Color.White.copy(alpha = borderAlpha * 0.35f),
+                    Color.Transparent
+                )
+            ),
+            shape = shape
+        )
+}
+
+fun Modifier.carbonCard(
+    shape: Shape = RoundedCornerShape(20.dp),
+    containerColor: Color = DarkCard,
+    borderAlpha: Float = 0.20f,
+    backgroundAlpha: Float = 1.0f,
+    borderColor: Color? = null
+): Modifier = composed {
+    val bgColors = if (backgroundAlpha < 1.0f) {
+        listOf(
+            containerColor.copy(alpha = backgroundAlpha),
+            Color(0xFF090B10).copy(alpha = backgroundAlpha)
+        )
+    } else {
+        listOf(
+            containerColor,
+            Color(0xFF090B10)
+        )
+    }
+    val borderColors = if (borderColor != null) {
+        listOf(
+            borderColor,
+            borderColor.copy(alpha = borderColor.alpha * 0.3f),
+            Color.Transparent
+        )
+    } else {
+        listOf(
+            Color.White.copy(alpha = borderAlpha),
+            Color.White.copy(alpha = borderAlpha * 0.25f),
+            Color.Transparent
+        )
+    }
+    this
+        .clip(shape)
+        .background(
+            brush = Brush.verticalGradient(
+                colors = bgColors
+            )
+        )
+        .border(
+            width = 1.dp,
+            brush = Brush.verticalGradient(
+                colors = borderColors
             ),
             shape = shape
         )
 }
 
 fun Modifier.glassCardSubtle(
-    shape: Shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+    shape: Shape = RoundedCornerShape(16.dp)
 ): Modifier = glassCard(
     shape = shape,
-    blurRadius = 12.dp,
-    backgroundAlpha = 0.08f,
-    borderAlpha = 0.18f
+    backgroundColor = Color(0xFF11141E),
+    borderAlpha = 0.16f
 )
 
 fun Modifier.glassCardProminent(
-    shape: Shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp)
+    shape: Shape = RoundedCornerShape(24.dp)
 ): Modifier = glassCard(
     shape = shape,
-    blurRadius = 28.dp,
-    backgroundAlpha = 0.18f,
-    borderAlpha = 0.36f
+    backgroundColor = Color(0xFF191D2C),
+    borderAlpha = 0.35f
 )

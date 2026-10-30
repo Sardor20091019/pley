@@ -1,6 +1,8 @@
 package uz.pley.app.presentation.discover
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,19 +13,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,24 +37,35 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.pley.app.core.ui.components.SessionCardSkeleton
-import uz.pley.app.core.ui.theme.NeonCyan
+import uz.pley.app.core.ui.components.carbonCard
+import uz.pley.app.core.ui.components.glassCard
+import uz.pley.app.core.ui.components.kineticTouchEffect
+import uz.pley.app.core.ui.components.resolveSportTheme
+import uz.pley.app.core.ui.theme.DarkCard
+import uz.pley.app.core.ui.theme.DarkSurfaceElevated
+import uz.pley.app.core.ui.theme.ElectricLime
+import uz.pley.app.core.ui.theme.PlatinumSilver
+import uz.pley.app.core.ui.theme.PureWhite
+import uz.pley.app.core.ui.theme.SlateMuted
+import uz.pley.app.core.ui.theme.StatusAmber
 import uz.pley.app.presentation.home.HomeSessionCard
-
-private val BrandPrimary = NeonCyan
 
 private val TashkentDistricts = listOf(
     "Mirabad",
@@ -66,6 +80,7 @@ private val TashkentDistricts = listOf(
 @Composable
 fun DiscoverScreen(
     onSessionClick: (String) -> Unit,
+    onNavigateToMap: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: DiscoverViewModel = hiltViewModel()
 ) {
@@ -75,15 +90,54 @@ fun DiscoverScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Discover Games", fontWeight = FontWeight.Bold) },
+                title = {
+                    Column {
+                        Text(
+                            text = "Discover Games",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Black,
+                            color = PureWhite
+                        )
+                        Text(
+                            text = "Tashkent Recreational Catalog",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = SlateMuted
+                        )
+                    }
+                },
+                actions = {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(Color(0x26D4FF00))
+                            .border(BorderStroke(1.dp, Color(0x66D4FF00)), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IconButton(
+                            onClick = onNavigateToMap,
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Map,
+                                contentDescription = "Discovery Map Radar",
+                                tint = ElectricLime,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color.Transparent
                 )
             )
         },
+        containerColor = Color.Transparent,
         modifier = modifier
     ) { innerPadding ->
         Surface(
+            color = Color.Transparent,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -91,16 +145,16 @@ fun DiscoverScreen(
             when (val state = uiState) {
                 is DiscoverUiState.Loading -> {
                     LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(14.dp),
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         item {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(56.dp)
-                                    .padding(vertical = 4.dp)
+                                    .height(52.dp)
+                                    .carbonCard(shape = RoundedCornerShape(16.dp))
                             )
                         }
                         items(5) {
@@ -117,17 +171,55 @@ fun DiscoverScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(
-                            text = state.message,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { viewModel.refresh() },
-                            modifier = Modifier.minimumInteractiveComponentSize()
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .glassCard(shape = RoundedCornerShape(26.dp))
+                                .padding(28.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text("Retry")
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(StatusAmber)
+                                    )
+                                    Text(
+                                        text = "RADAR DISCOVERY PAUSED",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = StatusAmber
+                                    )
+                                }
+
+                                Text(
+                                    text = state.message,
+                                    color = PureWhite,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(14.dp))
+                                        .background(ElectricLime)
+                                        .kineticTouchEffect(onClick = { viewModel.refresh() })
+                                        .padding(horizontal = 24.dp, vertical = 12.dp)
+                                ) {
+                                    Text(
+                                        text = "Tap to Retry",
+                                        color = Color(0xFF0F1117),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Black
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -141,8 +233,8 @@ fun DiscoverScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         LazyColumn(
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(18.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
                             item(contentType = "search_field") {
@@ -150,33 +242,48 @@ fun DiscoverScreen(
                                     value = state.filterState.searchQuery,
                                     onValueChange = { viewModel.onSearchQueryChanged(it) },
                                     modifier = Modifier.fillMaxWidth(),
-                                    placeholder = { Text("Search by sport, venue, or title...") },
+                                    placeholder = {
+                                        Text(
+                                            "Search by sport, venue, district...",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = SlateMuted
+                                        )
+                                    },
                                     leadingIcon = {
                                         Icon(
                                             imageVector = Icons.Default.Search,
-                                            contentDescription = null
+                                            contentDescription = null,
+                                            tint = ElectricLime,
+                                            modifier = Modifier.size(18.dp)
                                         )
                                     },
                                     trailingIcon = {
                                         if (state.filterState.searchQuery.isNotEmpty()) {
                                             IconButton(
                                                 onClick = { viewModel.onSearchQueryChanged("") },
-                                                modifier = Modifier.minimumInteractiveComponentSize()
+                                                modifier = Modifier.size(24.dp)
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Default.Clear,
-                                                    contentDescription = "Clear search"
+                                                    contentDescription = "Clear search",
+                                                    tint = SlateMuted,
+                                                    modifier = Modifier.size(16.dp)
                                                 )
                                             }
                                         }
                                     },
-                                    shape = RoundedCornerShape(12.dp),
+                                    shape = RoundedCornerShape(16.dp),
                                     singleLine = true,
                                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                                     keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
                                     colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = BrandPrimary,
-                                        cursorColor = BrandPrimary
+                                        focusedContainerColor = DarkCard,
+                                        unfocusedContainerColor = DarkCard,
+                                        focusedBorderColor = ElectricLime,
+                                        unfocusedBorderColor = Color(0x22FFFFFF),
+                                        cursorColor = ElectricLime,
+                                        focusedTextColor = PureWhite,
+                                        unfocusedTextColor = PureWhite
                                     )
                                 )
                             }
@@ -184,28 +291,58 @@ fun DiscoverScreen(
                             item(contentType = "sport_chips") {
                                 Column {
                                     Text(
-                                        text = "Filter by Sport",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        text = "SPORTS",
+                                        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
+                                        color = SlateMuted
                                     )
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                         items(
                                             items = state.sports,
                                             key = { it.id },
                                             contentType = { "sport_filter_chip" }
                                         ) { sport ->
                                             val isSelected = state.filterState.selectedSport.equals(sport.slug, ignoreCase = true)
-                                            FilterChip(
-                                                selected = isSelected,
-                                                onClick = { viewModel.onSportSelected(sport.slug) },
-                                                label = { Text("${sport.icon} ${sport.name}") },
-                                                modifier = Modifier.minimumInteractiveComponentSize(),
-                                                colors = FilterChipDefaults.filterChipColors(
-                                                    selectedContainerColor = BrandPrimary,
-                                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                            val theme = resolveSportTheme(sport.slug)
+                                            Box(
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(14.dp))
+                                                    .background(
+                                                        if (isSelected) {
+                                                            Brush.horizontalGradient(
+                                                                colors = listOf(
+                                                                    theme.primaryColor,
+                                                                    theme.primaryColor.copy(alpha = 0.85f)
+                                                                )
+                                                            )
+                                                        } else {
+                                                            Brush.verticalGradient(
+                                                                colors = listOf(
+                                                                    theme.containerColor.copy(alpha = 0.25f),
+                                                                    DarkCard
+                                                                )
+                                                            )
+                                                        }
+                                                    )
+                                                    .border(
+                                                        BorderStroke(
+                                                            1.dp,
+                                                            if (isSelected) theme.primaryColor else theme.borderColor.copy(alpha = 0.4f)
+                                                        ),
+                                                        RoundedCornerShape(14.dp)
+                                                    )
+                                                    .kineticTouchEffect(pressedScale = 0.94f) {
+                                                        viewModel.onSportSelected(sport.slug)
+                                                    }
+                                                    .padding(horizontal = 14.dp, vertical = 9.dp)
+                                            ) {
+                                                Text(
+                                                    text = "${sport.icon} ${sport.name}",
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    color = if (isSelected) Color.Black else PureWhite,
+                                                    fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold
                                                 )
-                                            )
+                                            }
                                         }
                                     }
                                 }
@@ -214,27 +351,42 @@ fun DiscoverScreen(
                             item(contentType = "district_chips") {
                                 Column {
                                     Text(
-                                        text = "District",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        text = "DISTRICT",
+                                        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
+                                        color = SlateMuted
                                     )
-                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Spacer(modifier = Modifier.height(8.dp))
                                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                         items(
                                             items = TashkentDistricts,
                                             contentType = { "district_filter_chip" }
                                         ) { district ->
                                             val isSelected = state.filterState.selectedDistrict == district
-                                            FilterChip(
-                                                selected = isSelected,
-                                                onClick = { viewModel.onDistrictSelected(district) },
-                                                label = { Text(district) },
-                                                modifier = Modifier.minimumInteractiveComponentSize(),
-                                                colors = FilterChipDefaults.filterChipColors(
-                                                    selectedContainerColor = BrandPrimary,
-                                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                                            Box(
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(12.dp))
+                                                    .background(
+                                                        if (isSelected) ElectricLime else DarkSurfaceElevated
+                                                    )
+                                                    .border(
+                                                        BorderStroke(
+                                                            1.dp,
+                                                            if (isSelected) ElectricLime else Color(0x22FFFFFF)
+                                                        ),
+                                                        RoundedCornerShape(12.dp)
+                                                    )
+                                                    .kineticTouchEffect(pressedScale = 0.94f) {
+                                                        viewModel.onDistrictSelected(district)
+                                                    }
+                                                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                                            ) {
+                                                Text(
+                                                    text = district,
+                                                    style = MaterialTheme.typography.labelMedium,
+                                                    color = if (isSelected) Color.Black else PlatinumSilver,
+                                                    fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium
                                                 )
-                                            )
+                                            }
                                         }
                                     }
                                 }
@@ -246,11 +398,20 @@ fun DiscoverScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text(
-                                        text = "${state.sessions.size} sessions found",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(6.dp)
+                                                .clip(CircleShape)
+                                                .background(ElectricLime)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "${state.sessions.size} open fixtures found",
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = PlatinumSilver
+                                        )
+                                    }
                                 }
                             }
 
@@ -259,13 +420,14 @@ fun DiscoverScreen(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(top = 40.dp),
+                                            .carbonCard(shape = RoundedCornerShape(20.dp))
+                                            .padding(40.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
                                             text = "No matches match your current filters.",
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = SlateMuted
                                         )
                                     }
                                 }
@@ -280,6 +442,10 @@ fun DiscoverScreen(
                                         onClick = { onSessionClick(session.id) }
                                     )
                                 }
+                            }
+
+                            item {
+                                Spacer(modifier = Modifier.height(72.dp))
                             }
                         }
                     }

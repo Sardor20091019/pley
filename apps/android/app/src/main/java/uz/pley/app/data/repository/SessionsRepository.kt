@@ -49,7 +49,7 @@ class SessionsRepositoryImpl @Inject constructor(
         skillLevel: String?,
         sessionVibe: String?
     ): Result<List<SessionItemDto>> {
-        return runCatching {
+        return try {
             val response = apiService.listSessions(
                 sport = sport,
                 district = district,
@@ -60,14 +60,55 @@ class SessionsRepositoryImpl @Inject constructor(
             val items = response.body().orEmpty()
             sessionDao.clearSessions()
             sessionDao.insertSessions(items.map { it.toEntity() })
-            items
+            Result.success(items)
+        } catch (e: Exception) {
+            val cached = sessionDao.getSessionsList().map { it.toDto() }
+            if (cached.isNotEmpty()) {
+                val filtered = cached.filter { item ->
+                    (sport == null || item.sport.slug.equals(sport, ignoreCase = true) || item.sport.name.equals(sport, ignoreCase = true)) &&
+                    (district == null || item.venue.district.equals(district, ignoreCase = true)) &&
+                    (search == null || item.title.contains(search, ignoreCase = true) || item.venue.name.contains(search, ignoreCase = true))
+                }
+                Result.success(filtered)
+            } else {
+                Result.failure(e)
+            }
         }
     }
 
     override suspend fun getSessionDetail(id: String): Result<SessionDetailDto> {
-        return runCatching {
+        return try {
             val response = apiService.getSessionById(id)
-            response.body() ?: throw IllegalStateException("Session not found")
+            val body = response.body() ?: throw IllegalStateException("Session not found")
+            Result.success(body)
+        } catch (e: Exception) {
+            val cached = sessionDao.getSessionByIdOnce(id)
+            if (cached != null) {
+                val dto = cached.toDto()
+                Result.success(
+                    SessionDetailDto(
+                        id = dto.id,
+                        title = dto.title,
+                        scheduledAt = dto.scheduledAt,
+                        durationMinutes = dto.durationMinutes,
+                        maxSlots = dto.maxSlots,
+                        bookedSlots = dto.bookedSlots,
+                        remainingSlots = dto.remainingSlots,
+                        pricePerSlot = dto.pricePerSlot,
+                        serviceFee = dto.serviceFee,
+                        totalPrice = dto.totalPrice,
+                        skillLevel = dto.skillLevel,
+                        sessionVibe = dto.sessionVibe,
+                        status = dto.status,
+                        equipmentProvided = dto.equipmentProvided,
+                        imageUrl = dto.imageUrl,
+                        venue = dto.venue,
+                        sport = dto.sport
+                    )
+                )
+            } else {
+                Result.failure(e)
+            }
         }
     }
 
@@ -108,6 +149,8 @@ class SessionsRepositoryImpl @Inject constructor(
             venueName = venue.name,
             venueDistrict = venue.district,
             venueAddress = venue.address,
+            venueLatitude = venue.latitude,
+            venueLongitude = venue.longitude,
             sportId = sport.id,
             sportName = sport.name,
             sportSlug = sport.slug,
@@ -136,7 +179,9 @@ class SessionsRepositoryImpl @Inject constructor(
                 id = venueId,
                 name = venueName,
                 district = venueDistrict,
-                address = venueAddress
+                address = venueAddress,
+                latitude = venueLatitude,
+                longitude = venueLongitude
             ),
             sport = SportDto(
                 id = sportId,
@@ -147,4 +192,3 @@ class SessionsRepositoryImpl @Inject constructor(
         )
     }
 }
-

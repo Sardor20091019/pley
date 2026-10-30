@@ -5,6 +5,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -44,11 +48,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import kotlinx.coroutines.launch
 import uz.pley.app.BuildConfig
-import uz.pley.app.core.ui.theme.NeonCyan
-
-private val BrandPrimary = NeonCyan
+import uz.pley.app.core.ui.components.carbonCard
+import uz.pley.app.core.ui.theme.DarkCardHighlight
+import uz.pley.app.core.ui.theme.DarkSurfaceElevated
+import uz.pley.app.core.ui.theme.ElectricLime
+import uz.pley.app.core.ui.theme.PlatinumSilver
+import uz.pley.app.core.ui.theme.PureWhite
+import uz.pley.app.core.ui.theme.SlateMuted
+import uz.pley.app.core.ui.theme.StatusRed
 
 @Composable
 fun AuthDialog(
@@ -105,57 +113,63 @@ fun AuthDialog(
     }
 
     Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
-            modifier = Modifier.fillMaxWidth()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .carbonCard(shape = RoundedCornerShape(28.dp), containerColor = DarkCardHighlight)
+                .padding(28.dp)
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
-                        .padding(4.dp),
+                        .size(54.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(DarkSurfaceElevated)
+                        .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(16.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    GoogleLogo(modifier = Modifier.size(36.dp))
+                    GoogleLogo(modifier = Modifier.size(32.dp))
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = "Sign In with Google",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold,
+                    color = PureWhite,
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Connect your Google account to book matches, reserve spots, and join community sports in Tashkent.",
+                    text = "Connect your account to reserve individual spots, track upcoming bookings, and join casual sports across Tashkent.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = PlatinumSilver,
                     textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 if (uiState is AuthUiState.Error) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.errorContainer,
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(StatusRed.copy(alpha = 0.15f))
+                            .border(1.dp, StatusRed.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                            .padding(12.dp)
                     ) {
                         Text(
                             text = (uiState as AuthUiState.Error).message,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            color = StatusRed,
                             style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(12.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                     Spacer(modifier = Modifier.height(16.dp))
@@ -171,7 +185,7 @@ fun AuthDialog(
                         .minimumInteractiveComponentSize(),
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
+                        containerColor = PureWhite,
                         contentColor = Color(0xFF1F1F1F)
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp),
@@ -202,7 +216,7 @@ fun AuthDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
                 TextButton(
                     onClick = onDismiss,
@@ -210,7 +224,7 @@ fun AuthDialog(
                         .fillMaxWidth()
                         .minimumInteractiveComponentSize()
                 ) {
-                    Text("Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Cancel", color = SlateMuted)
                 }
             }
         }
@@ -221,42 +235,55 @@ fun AuthDialog(
 fun GoogleLogo(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
         val stroke = size.width * 0.18f
-        val cx = size.width / 2f
-        val cy = size.height / 2f
+        val radius = (size.width - stroke) / 2
+        val center = Offset(size.width / 2, size.height / 2)
 
         drawArc(
             color = Color(0xFFEA4335),
-            startAngle = 180f,
-            sweepAngle = 110f,
+            startAngle = -45f,
+            sweepAngle = -90f,
             useCenter = false,
+            topLeft = Offset(center.x - radius, center.y - radius),
+            size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
             style = Stroke(width = stroke)
         )
+
         drawArc(
             color = Color(0xFF4285F4),
-            startAngle = 290f,
-            sweepAngle = 110f,
+            startAngle = -45f,
+            sweepAngle = 90f,
             useCenter = false,
+            topLeft = Offset(center.x - radius, center.y - radius),
+            size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
             style = Stroke(width = stroke)
         )
-        drawArc(
-            color = Color(0xFF34A853),
-            startAngle = 40f,
-            sweepAngle = 100f,
-            useCenter = false,
-            style = Stroke(width = stroke)
-        )
+
         drawArc(
             color = Color(0xFFFBBC05),
-            startAngle = 140f,
-            sweepAngle = 40f,
+            startAngle = 135f,
+            sweepAngle = 90f,
             useCenter = false,
+            topLeft = Offset(center.x - radius, center.y - radius),
+            size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
             style = Stroke(width = stroke)
         )
-        drawLine(
+
+        drawArc(
+            color = Color(0xFF34A853),
+            startAngle = 45f,
+            sweepAngle = 90f,
+            useCenter = false,
+            topLeft = Offset(center.x - radius, center.y - radius),
+            size = androidx.compose.ui.geometry.Size(radius * 2, radius * 2),
+            style = Stroke(width = stroke)
+        )
+
+        val barHeight = stroke
+        val barWidth = size.width * 0.45f
+        drawRect(
             color = Color(0xFF4285F4),
-            start = Offset(cx, cy),
-            end = Offset(size.width - stroke / 2f, cy),
-            strokeWidth = stroke
+            topLeft = Offset(center.x, center.y - barHeight / 2),
+            size = androidx.compose.ui.geometry.Size(barWidth, barHeight)
         )
     }
 }

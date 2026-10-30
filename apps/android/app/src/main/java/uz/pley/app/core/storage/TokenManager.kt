@@ -21,13 +21,22 @@ class TokenManager @Inject constructor(
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()
 
-    private val securePreferences: SharedPreferences = EncryptedSharedPreferences.create(
-        context,
-        "pley_secure_auth_vault",
-        masterKey,
-        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-    )
+    private val securePreferences: SharedPreferences = try {
+        createSecurePreferences(context, masterKey)
+    } catch (_: Exception) {
+        context.deleteSharedPreferences("pley_secure_auth_vault")
+        createSecurePreferences(context, masterKey)
+    }
+
+    private fun createSecurePreferences(context: Context, masterKey: MasterKey): SharedPreferences {
+        return EncryptedSharedPreferences.create(
+            context,
+            "pley_secure_auth_vault",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
 
     private val _tokenStateFlow = MutableStateFlow<String?>(getAccessToken())
     val tokenFlow: Flow<String?> = _tokenStateFlow.asStateFlow()

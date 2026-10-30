@@ -12,6 +12,9 @@ sealed interface NavDestination {
     data object Discover : NavDestination
 
     @Serializable
+    data object EventMap : NavDestination
+
+    @Serializable
     data class SessionDetail(val sessionId: String) : NavDestination
 
     @Serializable

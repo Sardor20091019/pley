@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { DatabaseService } from '../src/database/database.service';
 import { BookingsService } from '../src/bookings/bookings.service';
 import { SessionsService } from '../src/sessions/sessions.service';
+import { insertTestFixtures } from './test-fixtures';
 
 describe('BookingsService', () => {
   let dbService: DatabaseService;
@@ -12,6 +13,7 @@ describe('BookingsService', () => {
     process.env.SQLITE_PATH = ':memory:';
     dbService = new DatabaseService();
     await dbService.onModuleInit();
+    await insertTestFixtures(dbService.getDb());
     bookingsService = new BookingsService(dbService);
     sessionsService = new SessionsService(dbService);
 

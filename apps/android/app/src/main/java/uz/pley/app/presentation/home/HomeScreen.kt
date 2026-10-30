@@ -3,6 +3,7 @@ package uz.pley.app.presentation.home
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,9 +31,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,7 +44,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.ripple
@@ -52,7 +53,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -63,39 +63,35 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.pley.app.core.network.model.SessionItemDto
 import uz.pley.app.core.network.model.SportDto
+import uz.pley.app.core.ui.components.LivePulseRadarBadge
+import uz.pley.app.core.ui.components.MatchVisualTag
 import uz.pley.app.core.ui.components.PleyImage
+import uz.pley.app.core.ui.components.SessionCapacityMeter
 import uz.pley.app.core.ui.components.SessionCardSkeleton
+import uz.pley.app.core.ui.components.SportNeonBadge
+import uz.pley.app.core.ui.components.carbonCard
 import uz.pley.app.core.ui.components.glassCard
-import uz.pley.app.core.ui.components.glassCardProminent
-import uz.pley.app.core.ui.components.glassCardSubtle
-import uz.pley.app.core.ui.components.springPress
-import uz.pley.app.core.ui.theme.BurnishedOchre
-import uz.pley.app.core.ui.theme.DimWhite
-import uz.pley.app.core.ui.theme.GlassDeepIndigo
-import uz.pley.app.core.ui.theme.NeonCyan
-import uz.pley.app.core.ui.theme.NeonIndigo
-import uz.pley.app.core.ui.theme.RawTerracotta
-import uz.pley.app.core.ui.theme.SoftWhite
-import uz.pley.app.core.ui.theme.StatusGreen
-import uz.pley.app.core.ui.theme.StatusRed
-import uz.pley.app.core.ui.theme.WarmWhite
+import uz.pley.app.core.ui.components.kineticTouchEffect
+import uz.pley.app.core.ui.components.resolveSportTheme
+import uz.pley.app.core.ui.theme.DarkCard
+import uz.pley.app.core.ui.theme.DarkSurface
+import uz.pley.app.core.ui.theme.DarkSurfaceElevated
+import uz.pley.app.core.ui.theme.ElectricLime
+import uz.pley.app.core.ui.theme.PlatinumSilver
+import uz.pley.app.core.ui.theme.PureWhite
+import uz.pley.app.core.ui.theme.SlateMuted
+import uz.pley.app.core.ui.theme.StatusAmber
 
-private val GlassHeroShape = RoundedCornerShape(
-    topStart = 28.dp,
-    topEnd = 10.dp,
-    bottomEnd = 28.dp,
-    bottomStart = 10.dp
-)
-
-private val GlassCardShape = RoundedCornerShape(20.dp)
-
-private val SportPillShape = RoundedCornerShape(12.dp)
+private val CarbonHeroShape = RoundedCornerShape(26.dp)
+private val CarbonCardShape = RoundedCornerShape(24.dp)
+private val SportPillShape = RoundedCornerShape(16.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToDiscover: () -> Unit,
     onSessionClick: (String) -> Unit,
+    onNavigateToMap: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -108,22 +104,20 @@ fun HomeScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(10.dp))
+                                .size(38.dp)
+                                .clip(RoundedCornerShape(12.dp))
                                 .background(
-                                    Brush.linearGradient(
-                                        colors = listOf(NeonCyan, NeonIndigo),
-                                        start = Offset(0f, 0f),
-                                        end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(ElectricLime, Color(0xFF00E676))
                                     )
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = "P",
-                                color = GlassDeepIndigo,
+                                color = Color.Black,
                                 fontWeight = FontWeight.Black,
-                                fontSize = 20.sp
+                                fontSize = 22.sp
                             )
                         }
                         Spacer(modifier = Modifier.width(12.dp))
@@ -132,27 +126,60 @@ fun HomeScreen(
                                 text = "PLEY",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Black,
-                                color = WarmWhite
+                                color = PureWhite,
+                                letterSpacing = 1.sp
                             )
                             Text(
                                 text = "TASHKENT RECREATIONAL",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = DimWhite
+                                color = SlateMuted
                             )
                         }
                     }
                 },
                 actions = {
-                    IconButton(
-                        onClick = { viewModel.loadData() },
-                        modifier = Modifier.minimumInteractiveComponentSize()
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(Color(0x26D4FF00))
+                            .border(BorderStroke(1.dp, Color(0x66D4FF00)), CircleShape),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh",
-                            tint = SoftWhite
-                        )
+                        IconButton(
+                            onClick = onNavigateToMap,
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Map,
+                                contentDescription = "Discovery Map Radar",
+                                tint = ElectricLime,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(DarkCard)
+                            .border(BorderStroke(1.dp, Color(0x22FFFFFF)), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IconButton(
+                            onClick = { viewModel.loadData() },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Refresh",
+                                tint = PlatinumSilver,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
@@ -171,7 +198,7 @@ fun HomeScreen(
             when (val state = uiState) {
                 is HomeUiState.Loading -> {
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
@@ -179,8 +206,8 @@ fun HomeScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(200.dp)
-                                    .glassCardProminent(shape = GlassHeroShape)
+                                    .height(190.dp)
+                                    .carbonCard(shape = CarbonHeroShape)
                             )
                         }
                         items(4) {
@@ -193,33 +220,57 @@ fun HomeScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(28.dp),
+                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
                         Box(
                             modifier = Modifier
-                                .glassCard(shape = RoundedCornerShape(16.dp))
+                                .fillMaxWidth()
+                                .glassCard(shape = RoundedCornerShape(26.dp))
                                 .padding(28.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(StatusAmber)
+                                    )
+                                    Text(
+                                        text = "SYNC PAUSED • OFFLINE RESILIENT",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = StatusAmber
+                                    )
+                                }
+
                                 Text(
                                     text = state.message,
-                                    color = RawTerracotta,
-                                    style = MaterialTheme.typography.bodyLarge
+                                    color = PureWhite,
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
-                                Spacer(modifier = Modifier.height(20.dp))
-                                Button(
-                                    onClick = { viewModel.loadData() },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = NeonCyan,
-                                        contentColor = GlassDeepIndigo
-                                    ),
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.minimumInteractiveComponentSize()
+
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(14.dp))
+                                        .background(ElectricLime)
+                                        .kineticTouchEffect(onClick = { viewModel.loadData() })
+                                        .padding(horizontal = 24.dp, vertical = 12.dp)
                                 ) {
-                                    Text("Retry Connection", fontWeight = FontWeight.Bold)
+                                    Text(
+                                        text = "Tap to Reconnect",
+                                        color = Color(0xFF0F1117),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Black
+                                    )
                                 }
                             }
                         }
@@ -235,17 +286,17 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         LazyColumn(
-                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(20.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            item(contentType = "glass_hero") {
-                                GlassHeroSection(onFindMatchClick = onNavigateToDiscover)
+                            item(contentType = "hero_banner") {
+                                HeroSection(onFindMatchClick = onNavigateToDiscover)
                             }
 
                             if (state.sports.isNotEmpty()) {
-                                item(contentType = "glass_sports") {
-                                    GlassSportsRow(sports = state.sports)
+                                item(contentType = "sports_row") {
+                                    SportsRow(sports = state.sports)
                                 }
                             }
 
@@ -258,19 +309,25 @@ fun HomeScreen(
                                     Column {
                                         Text(
                                             text = "CURATED FIXTURES",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = NeonCyan.copy(alpha = 0.8f)
+                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                letterSpacing = 1.2.sp
+                                            ),
+                                            color = ElectricLime
                                         )
+                                        Spacer(modifier = Modifier.height(2.dp))
                                         Text(
                                             text = "Open Pickups",
                                             style = MaterialTheme.typography.displaySmall,
-                                            color = WarmWhite
+                                            color = PureWhite
                                         )
                                     }
                                     Text(
                                         text = "EXPLORE ALL →",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = NeonCyan,
+                                        style = MaterialTheme.typography.labelMedium.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 0.5.sp
+                                        ),
+                                        color = ElectricLime,
                                         modifier = Modifier
                                             .clickable(
                                                 interactionSource = remember { MutableInteractionSource() },
@@ -287,14 +344,14 @@ fun HomeScreen(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .glassCardSubtle(shape = GlassCardShape)
-                                            .padding(32.dp),
+                                            .carbonCard(shape = CarbonCardShape)
+                                            .padding(36.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
                                             text = "No open matches on the roster today.",
                                             style = MaterialTheme.typography.bodyMedium,
-                                            color = SoftWhite
+                                            color = SlateMuted
                                         )
                                     }
                                 }
@@ -302,13 +359,17 @@ fun HomeScreen(
                                 items(
                                     items = state.featuredSessions,
                                     key = { it.id },
-                                    contentType = { "glass_session_card" }
+                                    contentType = { "session_card" }
                                 ) { session ->
                                     EditorialSessionCard(
                                         session = session,
                                         onClick = { onSessionClick(session.id) }
                                     )
                                 }
+                            }
+
+                            item {
+                                Spacer(modifier = Modifier.height(72.dp))
                             }
                         }
                     }
@@ -319,7 +380,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun GlassHeroSection(
+fun HeroSection(
     onFindMatchClick: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { 2 })
@@ -329,29 +390,35 @@ fun GlassHeroSection(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(GlassHeroShape)
+                .clip(CarbonHeroShape)
         ) { page ->
             if (page == 0) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .glassCardProminent(shape = RoundedCornerShape(0.dp))
-                        .padding(28.dp)
+                        .glassCard(shape = CarbonHeroShape, borderAlpha = 0.32f)
+                        .padding(22.dp)
                 ) {
                     Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            LivePulseRadarBadge(label = "TASHKENT RADAR • LIVE")
                             Box(
                                 modifier = Modifier
-                                    .size(7.dp)
-                                    .clip(CircleShape)
-                                    .background(NeonCyan)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "COMMUNITY RECREATION • TASHKENT",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = NeonCyan
-                            )
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(DarkSurfaceElevated)
+                                    .border(BorderStroke(0.5.dp, Color(0x33FFFFFF)), RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = "38+ MATCHES",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = ElectricLime
+                                )
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(14.dp))
@@ -359,45 +426,54 @@ fun GlassHeroSection(
                         Text(
                             text = "Play Without\nthe Friction.",
                             style = MaterialTheme.typography.displayLarge,
-                            color = WarmWhite
+                            color = PureWhite
                         )
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "Reserve individual spots in vetted casual matches. No squad coordination needed.",
+                            text = "Reserve individual spots in vetted casual matches across Tashkent. No squad coordination needed.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = SoftWhite
+                            color = PlatinumSilver
                         )
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(18.dp))
 
-                        Box(
-                            modifier = Modifier
-                                .springPress { onFindMatchClick() }
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(
-                                    Brush.linearGradient(
-                                        colors = listOf(NeonCyan, NeonIndigo.copy(alpha = 0.9f)),
-                                        start = Offset(0f, 0f),
-                                        end = Offset(Float.POSITIVE_INFINITY, 0f)
-                                    )
-                                )
-                                .padding(horizontal = 20.dp, vertical = 13.dp)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = "DISCOVER GAMES",
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = GlassDeepIndigo
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                    contentDescription = null,
-                                    tint = GlassDeepIndigo,
-                                    modifier = Modifier.size(15.dp)
-                                )
+                            Box(
+                                modifier = Modifier
+                                    .kineticTouchEffect(onClick = onFindMatchClick)
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .background(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(ElectricLime, Color(0xFF00E676))
+                                        )
+                                    )
+                                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "DISCOVER GAMES",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Black,
+                                        color = Color.Black
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = null,
+                                        tint = Color.Black,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                MatchVisualTag(text = "6 Districts", icon = Icons.Default.LocationOn)
                             }
                         }
                     }
@@ -406,74 +482,73 @@ fun GlassHeroSection(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .glassCardProminent(shape = RoundedCornerShape(0.dp))
-                        .padding(28.dp)
+                        .glassCard(shape = CarbonHeroShape, borderAlpha = 0.32f)
+                        .padding(22.dp)
                 ) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier = Modifier
-                                    .size(7.dp)
+                                    .size(8.dp)
                                     .clip(CircleShape)
-                                    .background(BurnishedOchre)
+                                    .background(StatusAmber)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "CALIBRATED COMPETITION",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = BurnishedOchre
+                                text = "SKILL TIERS • BALANCED COMPETITION",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = StatusAmber
                             )
                         }
 
                         Spacer(modifier = Modifier.height(14.dp))
 
                         Text(
-                            text = "Matched by\nSkill Tiers.",
+                            text = "Matched by\nSkill Level.",
                             style = MaterialTheme.typography.displayLarge,
-                            color = WarmWhite
+                            color = PureWhite
                         )
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "From relaxed weekend social rallies to competitive tier tournaments.",
+                            text = "From relaxed weekend social rallies to competitive community tournaments with verified rosters.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = SoftWhite
+                            color = PlatinumSilver
                         )
 
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(18.dp))
 
                         Box(
                             modifier = Modifier
-                                .springPress { onFindMatchClick() }
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(
-                                    Brush.linearGradient(
-                                        colors = listOf(
-                                            Color.White.copy(alpha = 0.22f),
-                                            Color.White.copy(alpha = 0.12f)
-                                        )
-                                    )
-                                )
-                                .border(
-                                    1.dp,
-                                    Color.White.copy(alpha = 0.35f),
-                                    RoundedCornerShape(12.dp)
-                                )
-                                .padding(horizontal = 20.dp, vertical = 13.dp)
+                                .kineticTouchEffect(onClick = onFindMatchClick)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(DarkSurfaceElevated)
+                                .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(14.dp))
+                                .padding(horizontal = 20.dp, vertical = 12.dp)
                         ) {
-                            Text(
-                                text = "VIEW SKILL BRACKETS",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = WarmWhite
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "VIEW SKILL BRACKETS",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = PureWhite
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                    contentDescription = null,
+                                    tint = PureWhite,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                            }
                         }
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -482,21 +557,19 @@ fun GlassHeroSection(
             repeat(2) { index ->
                 val isSelected = pagerState.currentPage == index
                 val width by animateDpAsState(
-                    targetValue = if (isSelected) 22.dp else 5.dp,
+                    targetValue = if (isSelected) 24.dp else 6.dp,
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioLowBouncy,
                         stiffness = Spring.StiffnessLow
                     ),
-                    label = "pager_dot_width"
+                    label = "pager_indicator"
                 )
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 3.dp)
                         .size(width = width, height = 4.dp)
                         .clip(RoundedCornerShape(2.dp))
-                        .background(
-                            if (isSelected) NeonCyan else Color.White.copy(alpha = 0.25f)
-                        )
+                        .background(if (isSelected) ElectricLime else Color(0x33FFFFFF))
                 )
             }
         }
@@ -504,14 +577,14 @@ fun GlassHeroSection(
 }
 
 @Composable
-fun GlassSportsRow(
+fun SportsRow(
     sports: List<SportDto>
 ) {
     Column {
         Text(
             text = "DISCIPLINES",
-            style = MaterialTheme.typography.labelSmall,
-            color = DimWhite
+            style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
+            color = SlateMuted
         )
         Spacer(modifier = Modifier.height(10.dp))
         LazyRow(
@@ -522,19 +595,32 @@ fun GlassSportsRow(
                 key = { it.id },
                 contentType = { "sport_pill" }
             ) { sport ->
+                val theme = resolveSportTheme(sport.slug)
                 Box(
                     modifier = Modifier
-                        .springPress {}
-                        .glassCardSubtle(shape = SportPillShape)
-                        .padding(horizontal = 14.dp, vertical = 10.dp)
+                        .kineticTouchEffect(pressedScale = 0.94f)
+                        .clip(SportPillShape)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    theme.containerColor.copy(alpha = 0.28f),
+                                    DarkCard
+                                )
+                            )
+                        )
+                        .border(
+                            BorderStroke(1.dp, theme.borderColor.copy(alpha = 0.5f)),
+                            SportPillShape
+                        )
+                        .padding(horizontal = 16.dp, vertical = 10.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = sport.icon, fontSize = 16.sp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = sport.name.uppercase(),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = WarmWhite
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                            color = PureWhite
                         )
                     }
                 }
@@ -548,11 +634,14 @@ fun EditorialSessionCard(
     session: SessionItemDto,
     onClick: () -> Unit
 ) {
+    val theme = resolveSportTheme(session.sport.slug)
+    val bookedSlots = (session.maxSlots - session.remainingSlots).coerceAtLeast(0)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .springPress(pressedScale = 0.97f, onClick = onClick)
-            .glassCard(shape = GlassCardShape)
+            .glassCard(shape = CarbonCardShape, borderAlpha = 0.25f)
+            .kineticTouchEffect(pressedScale = 0.96f, onClick = onClick)
             .padding(20.dp)
     ) {
         Column {
@@ -563,8 +652,8 @@ fun EditorialSessionCard(
                     contentDescription = session.title,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(150.dp)
-                        .clip(RoundedCornerShape(14.dp))
+                        .height(160.dp)
+                        .clip(RoundedCornerShape(16.dp))
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -575,104 +664,92 @@ fun EditorialSessionCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = session.sport.icon, fontSize = 17.sp)
-                    Spacer(modifier = Modifier.width(7.dp))
-                    Text(
-                        text = session.sport.name.uppercase(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = BurnishedOchre
+                    SportNeonBadge(
+                        icon = session.sport.icon,
+                        theme = theme,
+                        size = 36.dp
                     )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = session.sport.name.uppercase(),
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 1.sp
+                            ),
+                            color = theme.primaryColor
+                        )
+                        Text(
+                            text = theme.disciplineTag,
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            color = SlateMuted
+                        )
+                    }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(
-                            if (session.remainingSlots > 2)
-                                StatusGreen.copy(alpha = 0.18f)
-                            else
-                                StatusRed.copy(alpha = 0.18f)
-                        )
-                        .border(
-                            0.5.dp,
-                            if (session.remainingSlots > 2)
-                                StatusGreen.copy(alpha = 0.5f)
-                            else
-                                StatusRed.copy(alpha = 0.5f),
-                            RoundedCornerShape(6.dp)
-                        )
-                        .padding(horizontal = 9.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        text = "${session.remainingSlots} SLOTS LEFT",
-                        color = if (session.remainingSlots > 2) StatusGreen else StatusRed,
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                MatchVisualTag(
+                    text = session.skillLevel.name.replace("_", " "),
+                    icon = Icons.Default.Star,
+                    tint = PlatinumSilver
+                )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = session.title,
                 style = MaterialTheme.typography.headlineLarge,
-                color = WarmWhite,
+                color = PureWhite,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.CalendarMonth,
-                    contentDescription = null,
-                    tint = DimWhite,
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                MatchVisualTag(
                     text = session.scheduledAt.take(16).replace("T", " • "),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = SoftWhite
+                    icon = Icons.Default.CalendarMonth
                 )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(text = "·", style = MaterialTheme.typography.bodySmall, color = DimWhite)
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = "${session.durationMinutes} MIN",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = DimWhite
+                MatchVisualTag(
+                    text = "${session.durationMinutes}m",
+                    icon = Icons.Default.Schedule
+                )
+                MatchVisualTag(
+                    text = session.venue.district.uppercase(),
+                    icon = Icons.Default.LocationOn,
+                    tint = theme.primaryColor
                 )
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = null,
-                    tint = DimWhite,
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "${session.venue.district.uppercase()} — ${session.venue.name}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = DimWhite,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            Text(
+                text = session.venue.name,
+                style = MaterialTheme.typography.bodySmall,
+                color = SlateMuted,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            SessionCapacityMeter(
+                bookedSlots = bookedSlots,
+                maxSlots = session.maxSlots,
+                accentColor = theme.primaryColor
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(0.5.dp)
-                    .background(Color.White.copy(alpha = 0.12f))
+                    .height(1.dp)
+                    .background(Color(0x1AFFFFFF))
             )
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -686,32 +763,32 @@ fun EditorialSessionCard(
                     Text(
                         text = "${session.pricePerSlot.toInt()}",
                         style = MaterialTheme.typography.displayMedium,
-                        color = WarmWhite
+                        fontWeight = FontWeight.Black,
+                        color = PureWhite
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(5.dp))
                     Text(
-                        text = "UZS",
+                        text = "UZS / spot",
                         style = MaterialTheme.typography.labelSmall,
-                        color = SoftWhite,
+                        color = PlatinumSilver,
                         modifier = Modifier.padding(bottom = 3.dp)
                     )
                 }
 
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(7.dp))
-                        .background(Color.White.copy(alpha = 0.10f))
-                        .border(
-                            0.5.dp,
-                            Color.White.copy(alpha = 0.22f),
-                            RoundedCornerShape(7.dp)
-                        )
-                        .padding(horizontal = 11.dp, vertical = 5.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(theme.containerColor)
+                        .border(BorderStroke(1.dp, theme.borderColor), RoundedCornerShape(12.dp))
+                        .padding(horizontal = 14.dp, vertical = 8.dp)
                 ) {
                     Text(
-                        text = session.skillLevel.name.replace("_", " "),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = SoftWhite
+                        text = "VIEW FIXTURE →",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 0.5.sp
+                        ),
+                        color = theme.primaryColor
                     )
                 }
             }
@@ -732,10 +809,10 @@ fun HomeSessionCard(
 
 @Composable
 fun ArchitecturalSportsRow(sports: List<SportDto>) {
-    GlassSportsRow(sports = sports)
+    SportsRow(sports = sports)
 }
 
 @Composable
 fun EditorialHeroSection(onFindMatchClick: () -> Unit) {
-    GlassHeroSection(onFindMatchClick = onFindMatchClick)
+    HeroSection(onFindMatchClick = onFindMatchClick)
 }

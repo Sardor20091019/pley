@@ -1,6 +1,8 @@
 package uz.pley.app.presentation.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,15 +28,13 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -65,10 +65,17 @@ import uz.pley.app.core.network.model.AchievementDto
 import uz.pley.app.core.network.model.SkillLevel
 import uz.pley.app.core.network.model.UserDto
 import uz.pley.app.core.ui.components.PleyImage
+import uz.pley.app.core.ui.components.carbonCard
+import uz.pley.app.core.ui.components.glassCard
+import uz.pley.app.core.ui.components.kineticTouchEffect
 import uz.pley.app.core.ui.components.shimmerEffect
-import uz.pley.app.core.ui.theme.NeonCyan
-
-private val BrandPrimary = NeonCyan
+import uz.pley.app.core.ui.theme.DarkCard
+import uz.pley.app.core.ui.theme.DarkSurfaceElevated
+import uz.pley.app.core.ui.theme.ElectricLime
+import uz.pley.app.core.ui.theme.PlatinumSilver
+import uz.pley.app.core.ui.theme.PureWhite
+import uz.pley.app.core.ui.theme.SlateMuted
+import uz.pley.app.core.ui.theme.StatusRed
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,15 +90,31 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Player Profile", fontWeight = FontWeight.Bold) },
+                title = {
+                    Column {
+                        Text(
+                            text = "Player Profile",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Black,
+                            color = PureWhite
+                        )
+                        Text(
+                            text = "Member Account & Preferences",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = SlateMuted
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color.Transparent
                 )
             )
         },
+        containerColor = Color.Transparent,
         modifier = modifier
     ) { innerPadding ->
         Surface(
+            color = Color.Transparent,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
@@ -101,21 +124,21 @@ fun ProfileScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp),
+                            .padding(20.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(96.dp)
-                                .clip(RoundedCornerShape(16.dp))
+                                .clip(RoundedCornerShape(20.dp))
                                 .shimmerEffect()
                         )
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(160.dp)
-                                .clip(RoundedCornerShape(16.dp))
+                                .clip(RoundedCornerShape(20.dp))
                                 .shimmerEffect()
                         )
                     }
@@ -125,31 +148,42 @@ fun ProfileScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(32.dp),
+                            .padding(28.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(
-                            text = "Connect Your Account",
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Sign in to manage your sports preferences, view skill ratings, and unlock achievement badges.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(20.dp))
-                        Button(
-                            onClick = onNavigateToAuth,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = BrandPrimary,
-                                contentColor = Color.Black
-                            ),
-                            modifier = Modifier.minimumInteractiveComponentSize()
+                        Box(
+                            modifier = Modifier
+                                .glassCard(shape = RoundedCornerShape(24.dp))
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text("Sign In Now", fontWeight = FontWeight.Bold)
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "Connect Your Account",
+                                    style = MaterialTheme.typography.headlineLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = PureWhite
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Text(
+                                    text = "Sign in to manage your sports preferences, view skill ratings, and unlock community achievement badges.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = PlatinumSilver
+                                )
+                                Spacer(modifier = Modifier.height(24.dp))
+                                Button(
+                                    onClick = onNavigateToAuth,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = ElectricLime,
+                                        contentColor = Color.Black
+                                    ),
+                                    shape = RoundedCornerShape(12.dp),
+                                    modifier = Modifier.minimumInteractiveComponentSize()
+                                ) {
+                                    Text("Sign In with Google", fontWeight = FontWeight.Bold)
+                                }
+                            }
                         }
                     }
                 }
@@ -157,35 +191,33 @@ fun ProfileScreen(
                 is ProfileUiState.Authenticated -> {
                     val user = state.user
                     LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
+                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         item(contentType = "user_header") {
-                            Card(
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                                modifier = Modifier.fillMaxWidth()
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .glassCard(shape = RoundedCornerShape(22.dp))
+                                    .padding(20.dp)
                             ) {
-                                Row(
-                                    modifier = Modifier.padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
                                     if (!user.avatarUrl.isNullOrBlank()) {
                                         PleyImage(
                                             imageUrl = user.avatarUrl,
                                             fallbackText = user.firstName.take(1).uppercase(),
                                             contentDescription = user.firstName,
                                             modifier = Modifier
-                                                .size(64.dp)
+                                                .size(60.dp)
                                                 .clip(CircleShape)
                                         )
                                     } else {
                                         Box(
                                             modifier = Modifier
-                                                .size(64.dp)
+                                                .size(60.dp)
                                                 .clip(CircleShape)
-                                                .background(BrandPrimary),
+                                                .background(ElectricLime),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Text(
@@ -203,24 +235,31 @@ fun ProfileScreen(
                                         Text(
                                             text = "${user.firstName} ${user.lastName.orEmpty()}".trim(),
                                             style = MaterialTheme.typography.titleLarge,
-                                            fontWeight = FontWeight.Bold
+                                            fontWeight = FontWeight.Bold,
+                                            color = PureWhite
                                         )
+                                        Spacer(modifier = Modifier.height(2.dp))
                                         Text(
                                             text = user.email,
                                             style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = SlateMuted
                                         )
-                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Spacer(modifier = Modifier.height(6.dp))
                                         Box(
                                             modifier = Modifier
-                                                .clip(RoundedCornerShape(4.dp))
-                                                .background(BrandPrimary.copy(alpha = 0.2f))
-                                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(ElectricLime.copy(alpha = 0.16f))
+                                                .border(
+                                                    0.5.dp,
+                                                    ElectricLime.copy(alpha = 0.45f),
+                                                    RoundedCornerShape(6.dp)
+                                                )
+                                                .padding(horizontal = 8.dp, vertical = 3.dp)
                                         ) {
                                             Text(
                                                 text = user.role.name,
                                                 style = MaterialTheme.typography.labelSmall,
-                                                color = BrandPrimary,
+                                                color = ElectricLime,
                                                 fontWeight = FontWeight.Bold
                                             )
                                         }
@@ -230,15 +269,13 @@ fun ProfileScreen(
                         }
 
                         item(contentType = "preferences_card") {
-                            Card(
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                                modifier = Modifier.fillMaxWidth()
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .glassCard(shape = RoundedCornerShape(22.dp))
+                                    .padding(20.dp)
                             ) {
-                                Column(
-                                    modifier = Modifier.padding(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
+                                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -246,24 +283,33 @@ fun ProfileScreen(
                                     ) {
                                         Text(
                                             text = "Preferences",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold
+                                            style = MaterialTheme.typography.titleLarge,
+                                            fontWeight = FontWeight.Bold,
+                                            color = PureWhite
                                         )
                                         IconButton(
                                             onClick = { isEditingProfile = true },
-                                            modifier = Modifier.minimumInteractiveComponentSize()
+                                            modifier = Modifier.size(32.dp)
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Edit,
                                                 contentDescription = "Edit Preferences",
-                                                tint = BrandPrimary
+                                                tint = ElectricLime,
+                                                modifier = Modifier.size(18.dp)
                                             )
                                         }
                                     }
 
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(0.5.dp)
+                                            .background(Color(0x1AFFFFFF))
+                                    )
+
                                     PreferenceRow(label = "Skill Level", value = user.skillLevel.name.replace("_", " "))
                                     PreferenceRow(label = "Preferred Sports", value = user.preferredSports)
-                                    PreferenceRow(label = "Neighborhood", value = user.preferredNeighborhoods)
+                                    PreferenceRow(label = "District", value = user.preferredNeighborhoods)
                                     PreferenceRow(label = "Age Bracket", value = user.ageBracket)
                                 }
                             }
@@ -273,9 +319,9 @@ fun ProfileScreen(
                             item(contentType = "achievements_row") {
                                 Column {
                                     Text(
-                                        text = "Achievements",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold
+                                        text = "ACHIEVEMENTS",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = SlateMuted
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
                                     LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -297,18 +343,29 @@ fun ProfileScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .minimumInteractiveComponentSize(),
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(14.dp),
+                                border = BorderStroke(1.dp, StatusRed.copy(alpha = 0.5f)),
                                 colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.error
+                                    contentColor = StatusRed
                                 )
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                                    contentDescription = null
+                                    contentDescription = null,
+                                    tint = StatusRed,
+                                    modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Log Out")
+                                Text(
+                                    text = "Log Out",
+                                    color = StatusRed,
+                                    style = MaterialTheme.typography.labelMedium
+                                )
                             }
+                        }
+
+                        item {
+                            Spacer(modifier = Modifier.height(72.dp))
                         }
                     }
 
@@ -332,44 +389,46 @@ fun ProfileScreen(
 fun PreferenceRow(label: String, value: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = SlateMuted
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = PureWhite
         )
     }
 }
 
 @Composable
 fun AchievementCard(achievement: AchievementDto) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        modifier = Modifier.width(140.dp)
+    Box(
+        modifier = Modifier
+            .width(140.dp)
+            .glassCard(shape = RoundedCornerShape(16.dp))
+            .kineticTouchEffect(pressedScale = 0.94f)
+            .padding(14.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text = achievement.badge, fontSize = 28.sp)
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = achievement.title,
                 style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = PureWhite
             )
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = achievement.description,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = SlateMuted
             )
         }
     }
@@ -387,13 +446,20 @@ fun EditProfileDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit Player Profile") },
+        title = {
+            Text(
+                text = "Edit Player Profile",
+                fontWeight = FontWeight.Bold,
+                color = PureWhite
+            )
+        },
+        containerColor = DarkCard,
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 OutlinedTextField(
                     value = firstName,
                     onValueChange = { firstName = it },
-                    label = { Text("First Name") },
+                    label = { Text("First Name", color = SlateMuted) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words,
@@ -402,16 +468,30 @@ fun EditProfileDialog(
                     keyboardActions = KeyboardActions(
                         onNext = { focusManager.moveFocus(FocusDirection.Down) }
                     ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = ElectricLime,
+                        unfocusedBorderColor = Color(0x22FFFFFF),
+                        cursorColor = ElectricLime,
+                        focusedTextColor = PureWhite,
+                        unfocusedTextColor = PureWhite
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = preferredSports,
                     onValueChange = { preferredSports = it },
-                    label = { Text("Preferred Sports (e.g. football, padel)") },
+                    label = { Text("Preferred Sports (e.g. football, padel)", color = SlateMuted) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
                         onDone = { focusManager.clearFocus() }
+                    ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = ElectricLime,
+                        unfocusedBorderColor = Color(0x22FFFFFF),
+                        cursorColor = ElectricLime,
+                        focusedTextColor = PureWhite,
+                        unfocusedTextColor = PureWhite
                     ),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -420,11 +500,12 @@ fun EditProfileDialog(
         confirmButton = {
             Button(
                 onClick = { onSave(firstName.trim(), user.skillLevel, preferredSports.trim()) },
-                colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary, contentColor = Color.Black),
+                colors = ButtonDefaults.buttonColors(containerColor = ElectricLime, contentColor = Color.Black),
+                shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.minimumInteractiveComponentSize(),
                 enabled = firstName.isNotBlank()
             ) {
-                Text("Save Changes")
+                Text("Save Changes", fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
@@ -432,7 +513,7 @@ fun EditProfileDialog(
                 onClick = onDismiss,
                 modifier = Modifier.minimumInteractiveComponentSize()
             ) {
-                Text("Cancel")
+                Text("Cancel", color = SlateMuted)
             }
         }
     )

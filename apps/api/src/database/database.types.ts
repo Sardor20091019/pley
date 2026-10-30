@@ -152,7 +152,13 @@ export interface PartnershipInquiriesTable {
   created_at: string;
 }
 
+export interface MigrationsTable {
+  name: string;
+  executed_at: string;
+}
+
 export interface DatabaseSchema {
+  _migrations: MigrationsTable;
   users: UsersTable;
   sports: SportsTable;
   venues: VenuesTable;

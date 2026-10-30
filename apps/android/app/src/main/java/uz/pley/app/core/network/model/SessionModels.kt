@@ -10,7 +10,9 @@ data class VenueNestedDto(
     @SerialName("id") val id: String,
     @SerialName("name") val name: String,
     @SerialName("district") val district: String,
-    @SerialName("address") val address: String
+    @SerialName("address") val address: String,
+    @SerialName("latitude") val latitude: Double? = null,
+    @SerialName("longitude") val longitude: Double? = null
 )
 
 @Immutable
@@ -53,7 +55,10 @@ data class SessionItemDto(
     @SerialName("imageUrl") val imageUrl: String? = null,
     @SerialName("venue") val venue: VenueNestedDto,
     @SerialName("sport") val sport: SportDto
-)
+) {
+    val isFull: Boolean
+        get() = remainingSlots <= 0
+}
 
 @Immutable
 @Serializable
@@ -84,4 +89,7 @@ data class SessionDetailDto(
     @SerialName("participants") val participants: List<ParticipantDto> = emptyList(),
     @SerialName("currentUserBookingStatus") val currentUserBookingStatus: String? = null,
     @SerialName("currentUserBookingId") val currentUserBookingId: String? = null
-)
+) {
+    val isFull: Boolean
+        get() = remainingSlots <= 0
+}

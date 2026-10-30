@@ -99,6 +99,8 @@ dependencies {
 
     implementation(libs.play.services.auth)
     implementation(libs.androidx.browser)
+    implementation(libs.maps.compose)
+    implementation(libs.play.services.maps)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

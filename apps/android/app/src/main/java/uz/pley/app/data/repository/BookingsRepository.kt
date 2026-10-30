@@ -29,12 +29,19 @@ class BookingsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun refreshMyBookings(): Result<List<UserBookingDto>> {
-        return runCatching {
+        return try {
             val response = apiService.getMyBookings()
             val bookings = response.body().orEmpty()
             bookingDao.clearBookings()
             bookingDao.insertBookings(bookings.map { it.toEntity() })
-            bookings
+            Result.success(bookings)
+        } catch (e: Exception) {
+            val cached = bookingDao.getBookingsList().map { it.toDto() }
+            if (cached.isNotEmpty()) {
+                Result.success(cached)
+            } else {
+                Result.failure(e)
+            }
         }
     }
 

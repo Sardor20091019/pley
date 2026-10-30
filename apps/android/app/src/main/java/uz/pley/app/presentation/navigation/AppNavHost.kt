@@ -31,6 +31,7 @@ import uz.pley.app.core.ui.components.NetworkStatusBar
 import uz.pley.app.presentation.auth.AuthDialog
 import uz.pley.app.presentation.discover.DiscoverScreen
 import uz.pley.app.presentation.home.HomeScreen
+import uz.pley.app.presentation.map.EventMapScreen
 import uz.pley.app.presentation.mygames.MyGamesScreen
 import uz.pley.app.presentation.profile.ProfileScreen
 import uz.pley.app.presentation.sessions.SessionDetailScreen
@@ -41,11 +42,7 @@ class AppLifecycleViewModel @Inject constructor(
     connectivityObserver: ConnectivityObserver,
     val tokenManager: TokenManager
 ) : ViewModel() {
-    val isOnline: StateFlow<Boolean> = connectivityObserver.isOnline.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = true
-    )
+    val isOnline: StateFlow<Boolean> = connectivityObserver.isConnected
 }
 
 @Composable
@@ -68,6 +65,7 @@ fun AppNavHost(
     val currentTab = when {
         currentRoute?.contains("Home") == true -> BottomTab.HOME
         currentRoute?.contains("Discover") == true -> BottomTab.DISCOVER
+        currentRoute?.contains("EventMap") == true -> BottomTab.DISCOVER
         currentRoute?.contains("MyGames") == true -> BottomTab.MY_GAMES
         currentRoute?.contains("Profile") == true -> BottomTab.PROFILE
         else -> null
@@ -115,12 +113,27 @@ fun AppNavHost(
                     },
                     onSessionClick = { sessionId ->
                         navController.navigate(NavDestination.SessionDetail(sessionId = sessionId))
+                    },
+                    onNavigateToMap = {
+                        navController.navigate(NavDestination.EventMap)
                     }
                 )
             }
 
             composable<NavDestination.Discover> {
                 DiscoverScreen(
+                    onSessionClick = { sessionId ->
+                        navController.navigate(NavDestination.SessionDetail(sessionId = sessionId))
+                    },
+                    onNavigateToMap = {
+                        navController.navigate(NavDestination.EventMap)
+                    }
+                )
+            }
+
+            composable<NavDestination.EventMap> {
+                EventMapScreen(
+                    onBack = { navController.popBackStack() },
                     onSessionClick = { sessionId ->
                         navController.navigate(NavDestination.SessionDetail(sessionId = sessionId))
                     }
