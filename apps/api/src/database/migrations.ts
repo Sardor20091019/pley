@@ -2,7 +2,7 @@ import { Kysely, sql } from 'kysely';
 
 export interface Migration {
   name: string;
-  up: (db: Kysely<any>, isPostgres: boolean) => Promise<void>;
+  up: (db: Kysely<any>) => Promise<void>;
 }
 
 export const migrations: Migration[] = [
@@ -172,34 +172,21 @@ export const migrations: Migration[] = [
   },
   {
     name: '002_add_inquiry_and_session_image_columns',
-    up: async (db: Kysely<any>, isPostgres: boolean): Promise<void> => {
-      const addColumn = async (table: string, column: string, def: string): Promise<void> => {
-        try {
-          if (isPostgres) {
-            await sql.raw(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${column} ${def}`).execute(db);
-          } else {
-            await sql.raw(`ALTER TABLE ${table} ADD COLUMN ${column} ${def}`).execute(db);
-          }
-        } catch {}
-      };
-
-      await addColumn('sessions', 'image_url', 'TEXT');
-      await addColumn('partnership_inquiries', 'inquiry_type', "TEXT DEFAULT 'VENUE'");
-      await addColumn('partnership_inquiries', 'image_url', 'TEXT');
-      await addColumn('partnership_inquiries', 'scheduled_at', 'TEXT');
-      await addColumn('partnership_inquiries', 'price_per_slot', 'INTEGER');
-      await addColumn('partnership_inquiries', 'status', "TEXT DEFAULT 'PENDING'");
+    up: async (db: Kysely<any>): Promise<void> => {
+      await sql`ALTER TABLE sessions ADD COLUMN IF NOT EXISTS image_url TEXT`.execute(db);
+      await sql`ALTER TABLE partnership_inquiries ADD COLUMN IF NOT EXISTS inquiry_type TEXT DEFAULT 'VENUE'`.execute(db);
+      await sql`ALTER TABLE partnership_inquiries ADD COLUMN IF NOT EXISTS image_url TEXT`.execute(db);
+      await sql`ALTER TABLE partnership_inquiries ADD COLUMN IF NOT EXISTS scheduled_at TEXT`.execute(db);
+      await sql`ALTER TABLE partnership_inquiries ADD COLUMN IF NOT EXISTS price_per_slot INTEGER`.execute(db);
+      await sql`ALTER TABLE partnership_inquiries ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'PENDING'`.execute(db);
     },
   },
   {
     name: '003_drop_session_organizer_not_null',
-    up: async (db: Kysely<any>, isPostgres: boolean): Promise<void> => {
-      if (isPostgres) {
-        try {
-          await sql`ALTER TABLE sessions ALTER COLUMN organizer_id DROP NOT NULL`.execute(db);
-        } catch {}
-      }
+    up: async (db: Kysely<any>): Promise<void> => {
+      try {
+        await sql`ALTER TABLE sessions ALTER COLUMN organizer_id DROP NOT NULL`.execute(db);
+      } catch {}
     },
   },
 ];
-

@@ -2,35 +2,29 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Kysely, PostgresDialect, sql } from 'kysely';
 import { DatabaseSchema } from './database.types';
 import { Pool } from 'pg';
-import { DatabaseSync } from 'node:sqlite';
-import { NodeSqliteDialect } from './node-sqlite.dialect';
 import { migrations } from './migrations';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private dbInstance: Kysely<DatabaseSchema> | null = null;
   private poolInstance: Pool | null = null;
-  private sqliteInstance: DatabaseSync | null = null;
 
   public async onModuleInit(): Promise<void> {
     const databaseUrl = process.env.DATABASE_URL;
 
-    if (databaseUrl && !databaseUrl.startsWith('sqlite:')) {
-      this.poolInstance = new Pool({
-        connectionString: databaseUrl,
-      });
-      this.dbInstance = new Kysely<DatabaseSchema>({
-        dialect: new PostgresDialect({
-          pool: this.poolInstance,
-        }),
-      });
-    } else {
-      const dbPath = process.env.SQLITE_PATH || ':memory:';
-      this.sqliteInstance = new DatabaseSync(dbPath);
-      this.dbInstance = new Kysely<DatabaseSchema>({
-        dialect: new NodeSqliteDialect(this.sqliteInstance),
-      });
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL is not defined in environment variables');
     }
+
+    this.poolInstance = new Pool({
+      connectionString: databaseUrl,
+    });
+
+    this.dbInstance = new Kysely<DatabaseSchema>({
+      dialect: new PostgresDialect({
+        pool: this.poolInstance,
+      }),
+    });
 
     await this.runMigrations();
   }
@@ -44,7 +38,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       await this.poolInstance.end();
       this.poolInstance = null;
     }
-    this.sqliteInstance = null;
   }
 
   public getDb(): Kysely<DatabaseSchema> {
@@ -56,7 +49,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
   private async runMigrations(): Promise<void> {
     const db = this.getDb();
-    const isPostgres = this.poolInstance !== null;
 
     await sql`
       CREATE TABLE IF NOT EXISTS _migrations (
@@ -74,7 +66,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
     for (const migration of migrations) {
       if (!executedSet.has(migration.name)) {
-        await migration.up(db, isPostgres);
+        await migration.up(db);
         await db
           .insertInto('_migrations')
           .values({

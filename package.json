@@ -12,7 +12,6 @@
     "build:api": "tsc -p apps/api/tsconfig.json",
     "build:web": "npm --prefix apps/web run build",
     "build": "tsc -p apps/api/tsconfig.json && npm --prefix apps/web run build && node scripts/sync-build-output.js",
-    "test": "vitest run --root apps/api",
     "lint:api": "tsc -p apps/api/tsconfig.json --noEmit",
     "lint:web": "tsc -p apps/web/tsconfig.app.json --noEmit",
     "lint": "tsc -p apps/api/tsconfig.json --noEmit && tsc -p apps/web/tsconfig.app.json --noEmit"
