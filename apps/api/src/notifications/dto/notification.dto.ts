@@ -27,3 +27,4 @@ export class NotificationResponseDto {
   public isRead!: number;
   public createdAt!: string;
 }
+

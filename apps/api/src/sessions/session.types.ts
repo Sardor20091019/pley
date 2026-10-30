@@ -49,3 +49,4 @@ export interface SessionDetail extends SessionListItem {
   currentUserBookingStatus: string | null;
   currentUserBookingId: string | null;
 }
+

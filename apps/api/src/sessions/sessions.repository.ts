@@ -242,3 +242,4 @@ export class SessionsRepository {
     await db.insertInto('audit_logs').values(log).execute();
   }
 }
+

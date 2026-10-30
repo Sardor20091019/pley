@@ -35,3 +35,4 @@ export class NotificationsRepository {
     await db.insertInto('notifications').values(notification).execute();
   }
 }
+

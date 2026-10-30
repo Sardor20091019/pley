@@ -4,15 +4,16 @@ import {
   Logger,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { DatabaseService } from '../database/database.service';
 import { UTApi } from 'uploadthing/server';
+import { UploadRepository } from './upload.repository';
+import { UploadResultDto } from './dto/upload.dto';
 
 @Injectable()
 export class UploadService {
   private readonly logger = new Logger(UploadService.name);
   private utapi: UTApi | null = null;
 
-  constructor(private readonly databaseService: DatabaseService) {
+  constructor(private readonly uploadRepository: UploadRepository) {
     this.initUtApi();
   }
 
@@ -36,28 +37,38 @@ export class UploadService {
   public async uploadUserAvatar(
     file: Express.Multer.File,
     userId: string,
-  ): Promise<{ url: string }> {
+  ): Promise<UploadResultDto> {
     if (!file) {
       throw new BadRequestException('No image file provided');
     }
 
     if (!file.mimetype.startsWith('image/')) {
-      throw new BadRequestException('Uploaded file must be an image (JPEG, PNG, WebP)');
+      throw new BadRequestException(
+        'Uploaded file must be an image (JPEG, PNG, WebP)',
+      );
     }
 
     let uploadedUrl = '';
 
     if (this.utapi) {
       try {
-        const fileObj = new File([new Uint8Array(file.buffer)], file.originalname || 'avatar.jpg', {
-          type: file.mimetype,
-        });
+        const fileObj = new File(
+          [new Uint8Array(file.buffer)],
+          file.originalname || 'avatar.jpg',
+          {
+            type: file.mimetype,
+          },
+        );
 
         const uploadRes = await this.utapi.uploadFiles(fileObj);
-        const fileData = uploadRes.data as (typeof uploadRes.data & { ufsUrl?: string }) | undefined;
+        const fileData = uploadRes.data as
+          | (typeof uploadRes.data & { ufsUrl?: string })
+          | undefined;
         const resolvedUrl = fileData?.ufsUrl || fileData?.url;
         if (uploadRes.error || !resolvedUrl) {
-          throw new Error(uploadRes.error?.message || 'UploadThing upload failed');
+          throw new Error(
+            uploadRes.error?.message || 'UploadThing upload failed',
+          );
         }
 
         uploadedUrl = resolvedUrl;
@@ -69,58 +80,57 @@ export class UploadService {
       uploadedUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
     }
 
-    const db = this.databaseService.getDb();
     const now = new Date().toISOString();
 
-    await db
-      .updateTable('users')
-      .set({
-        avatar_url: uploadedUrl,
-        updated_at: now,
-      })
-      .where('id', '=', userId)
-      .execute();
+    await this.uploadRepository.updateUserAvatar(userId, uploadedUrl, now);
 
-    await db
-      .insertInto('audit_logs')
-      .values({
-        id: randomUUID(),
-        actor_id: userId,
-        action: 'UPDATE_AVATAR',
-        target_type: 'USER',
-        target_id: userId,
-        payload: JSON.stringify({ avatarUrl: uploadedUrl }),
-        created_at: now,
-      })
-      .execute();
+    await this.uploadRepository.recordAuditLog({
+      id: randomUUID(),
+      actor_id: userId,
+      action: 'UPDATE_AVATAR',
+      target_type: 'USER',
+      target_id: userId,
+      payload: JSON.stringify({ avatarUrl: uploadedUrl }),
+      created_at: now,
+    });
 
     return { url: uploadedUrl };
   }
 
   public async uploadImage(
     file: Express.Multer.File,
-  ): Promise<{ url: string }> {
+  ): Promise<UploadResultDto> {
     if (!file) {
       throw new BadRequestException('No image file provided');
     }
 
     if (!file.mimetype.startsWith('image/')) {
-      throw new BadRequestException('Uploaded file must be an image (JPEG, PNG, WebP)');
+      throw new BadRequestException(
+        'Uploaded file must be an image (JPEG, PNG, WebP)',
+      );
     }
 
     let uploadedUrl = '';
 
     if (this.utapi) {
       try {
-        const fileObj = new File([new Uint8Array(file.buffer)], file.originalname || 'session-pic.jpg', {
-          type: file.mimetype,
-        });
+        const fileObj = new File(
+          [new Uint8Array(file.buffer)],
+          file.originalname || 'session-pic.jpg',
+          {
+            type: file.mimetype,
+          },
+        );
 
         const uploadRes = await this.utapi.uploadFiles(fileObj);
-        const fileData = uploadRes.data as (typeof uploadRes.data & { ufsUrl?: string }) | undefined;
+        const fileData = uploadRes.data as
+          | (typeof uploadRes.data & { ufsUrl?: string })
+          | undefined;
         const resolvedUrl = fileData?.ufsUrl || fileData?.url;
         if (uploadRes.error || !resolvedUrl) {
-          throw new Error(uploadRes.error?.message || 'UploadThing upload failed');
+          throw new Error(
+            uploadRes.error?.message || 'UploadThing upload failed',
+          );
         }
 
         uploadedUrl = resolvedUrl;

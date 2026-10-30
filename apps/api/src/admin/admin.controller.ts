@@ -1,17 +1,19 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
   Patch,
-  Body,
-  UseGuards,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { AdminService, AdminMetrics } from './admin.service';
 import { UsersService } from '../users/users.service';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard, Roles } from '../auth/roles.guard';
-import { AuditLogsTable, UsersTable, UserStatus } from '../database/database.types';
+import { AuditLogsTable, UsersTable } from '../database/database.types';
+import { UpdateUserStatusDto } from '../users/dto/user.dto';
+import { AdminBookingItem, AuditLogsQueryDto } from './dto/admin.dto';
 
 @Controller('admin')
 @UseGuards(AuthGuard, RolesGuard)
@@ -29,14 +31,14 @@ export class AdminController {
 
   @Get('audit-logs')
   public async getAuditLogs(
-    @Query('limit') limit?: string,
+    @Query() query: AuditLogsQueryDto,
   ): Promise<AuditLogsTable[]> {
-    const parsed = limit ? parseInt(limit, 10) : 50;
-    return this.adminService.listAuditLogs(parsed);
+    const limit = query.limit || 50;
+    return this.adminService.listAuditLogs(limit);
   }
 
   @Get('bookings')
-  public async getAllBookings(): Promise<any[]> {
+  public async getAllBookings(): Promise<AdminBookingItem[]> {
     return this.adminService.listAllBookingsForAdmin();
   }
 
@@ -48,9 +50,8 @@ export class AdminController {
   @Patch('users/:id/status')
   public async updateUserStatus(
     @Param('id') id: string,
-    @Body('status') status: UserStatus,
+    @Body() dto: UpdateUserStatusDto,
   ): Promise<UsersTable> {
-    return this.usersService.updateUserStatus(id, status);
+    return this.usersService.updateUserStatus(id, dto.status);
   }
 }
-
