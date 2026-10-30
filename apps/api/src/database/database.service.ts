@@ -34,10 +34,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
       await this.dbInstance.destroy();
       this.dbInstance = null;
     }
-    if (this.poolInstance) {
-      await this.poolInstance.end();
-      this.poolInstance = null;
-    }
+    this.poolInstance = null;
   }
 
   public getDb(): Kysely<DatabaseSchema> {

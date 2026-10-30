@@ -63,9 +63,9 @@ export const migrations: Migration[] = [
       await sql`
         CREATE TABLE IF NOT EXISTS sessions (
           id TEXT PRIMARY KEY,
-          venue_id TEXT NOT NULL,
-          sport_id TEXT NOT NULL,
-          organizer_id TEXT,
+          venue_id TEXT NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
+          sport_id TEXT NOT NULL REFERENCES sports(id) ON DELETE CASCADE,
+          organizer_id TEXT REFERENCES users(id) ON DELETE SET NULL,
           title TEXT NOT NULL,
           scheduled_at TEXT NOT NULL,
           duration_minutes INTEGER NOT NULL,
@@ -83,18 +83,15 @@ export const migrations: Migration[] = [
           status TEXT NOT NULL,
           image_url TEXT,
           created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL,
-          FOREIGN KEY (venue_id) REFERENCES venues(id),
-          FOREIGN KEY (sport_id) REFERENCES sports(id),
-          FOREIGN KEY (organizer_id) REFERENCES users(id)
+          updated_at TEXT NOT NULL
         )
       `.execute(db);
 
       await sql`
         CREATE TABLE IF NOT EXISTS bookings (
           id TEXT PRIMARY KEY,
-          session_id TEXT NOT NULL,
-          user_id TEXT NOT NULL,
+          session_id TEXT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+          user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
           status TEXT NOT NULL,
           price_snapshot INTEGER NOT NULL,
           service_fee_snapshot INTEGER NOT NULL,
@@ -103,16 +100,14 @@ export const migrations: Migration[] = [
           booked_at TEXT NOT NULL,
           cancelled_at TEXT,
           created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL,
-          FOREIGN KEY (session_id) REFERENCES sessions(id),
-          FOREIGN KEY (user_id) REFERENCES users(id)
+          updated_at TEXT NOT NULL
         )
       `.execute(db);
 
       await sql`
         CREATE TABLE IF NOT EXISTS payments (
           id TEXT PRIMARY KEY,
-          booking_id TEXT NOT NULL,
+          booking_id TEXT NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
           provider TEXT NOT NULL,
           provider_transaction_id TEXT,
           amount INTEGER NOT NULL,
@@ -121,8 +116,7 @@ export const migrations: Migration[] = [
           idempotency_key TEXT NOT NULL UNIQUE,
           verified_at TEXT,
           created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL,
-          FOREIGN KEY (booking_id) REFERENCES bookings(id)
+          updated_at TEXT NOT NULL
         )
       `.execute(db);
 
@@ -141,13 +135,12 @@ export const migrations: Migration[] = [
       await sql`
         CREATE TABLE IF NOT EXISTS notifications (
           id TEXT PRIMARY KEY,
-          user_id TEXT NOT NULL,
+          user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
           type TEXT NOT NULL,
           title TEXT NOT NULL,
           message TEXT NOT NULL,
           is_read INTEGER NOT NULL,
-          created_at TEXT NOT NULL,
-          FOREIGN KEY (user_id) REFERENCES users(id)
+          created_at TEXT NOT NULL
         )
       `.execute(db);
 
@@ -168,25 +161,6 @@ export const migrations: Migration[] = [
           created_at TEXT NOT NULL
         )
       `.execute(db);
-    },
-  },
-  {
-    name: '002_add_inquiry_and_session_image_columns',
-    up: async (db: Kysely<any>): Promise<void> => {
-      await sql`ALTER TABLE sessions ADD COLUMN IF NOT EXISTS image_url TEXT`.execute(db);
-      await sql`ALTER TABLE partnership_inquiries ADD COLUMN IF NOT EXISTS inquiry_type TEXT DEFAULT 'VENUE'`.execute(db);
-      await sql`ALTER TABLE partnership_inquiries ADD COLUMN IF NOT EXISTS image_url TEXT`.execute(db);
-      await sql`ALTER TABLE partnership_inquiries ADD COLUMN IF NOT EXISTS scheduled_at TEXT`.execute(db);
-      await sql`ALTER TABLE partnership_inquiries ADD COLUMN IF NOT EXISTS price_per_slot INTEGER`.execute(db);
-      await sql`ALTER TABLE partnership_inquiries ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'PENDING'`.execute(db);
-    },
-  },
-  {
-    name: '003_drop_session_organizer_not_null',
-    up: async (db: Kysely<any>): Promise<void> => {
-      try {
-        await sql`ALTER TABLE sessions ALTER COLUMN organizer_id DROP NOT NULL`.execute(db);
-      } catch {}
     },
   },
 ];
