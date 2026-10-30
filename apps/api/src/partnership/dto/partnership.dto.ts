@@ -4,47 +4,52 @@ import { Type } from 'class-transformer';
 export class CreatePartnershipInquiryDto {
   @IsNotEmpty()
   @IsString()
-  contactName!: string;
+  public contactName!: string;
 
   @IsNotEmpty()
   @IsString()
-  phone!: string;
+  public phone!: string;
 
   @IsNotEmpty()
   @IsString()
-  venueName!: string;
+  public venueName!: string;
 
   @IsNotEmpty()
   @IsString()
-  district!: string;
+  public district!: string;
 
   @IsNotEmpty()
   @IsString()
-  sportTypes!: string;
+  public sportTypes!: string;
 
   @IsOptional()
   @IsString()
-  message?: string;
+  public message?: string;
 
   @IsOptional()
   @IsIn(['VENUE', 'SESSION'])
-  inquiryType?: 'VENUE' | 'SESSION';
+  public inquiryType?: 'VENUE' | 'SESSION';
 
   @IsOptional()
   @IsString()
-  imageUrl?: string;
+  public imageUrl?: string;
 
   @IsOptional()
   @IsString()
-  scheduledAt?: string;
+  public scheduledAt?: string;
 
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  pricePerSlot?: number;
+  public pricePerSlot?: number;
 
   @IsOptional()
   @IsString()
-  turnstileToken?: string;
+  public turnstileToken?: string;
 }
 
+export class UpdatePartnershipStatusDto {
+  @IsNotEmpty()
+  @IsIn(['PENDING', 'ACCEPTED', 'REJECTED'])
+  public status!: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+}

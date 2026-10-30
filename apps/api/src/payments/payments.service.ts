@@ -5,18 +5,18 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { DatabaseService } from '../database/database.service';
 import { PaymentsTable, PaymentStatus } from '../database/database.types';
 import { ClickProvider } from './providers/click.provider';
 import { PaymeProvider } from './providers/payme.provider';
 import { SimulatedProvider } from './providers/simulated.provider';
 import { PaymentInitiationResult } from './providers/payment-provider.interface';
 import { InitiatePaymentDto } from './dto/payment.dto';
+import { PaymentsRepository } from './payments.repository';
 
 @Injectable()
 export class PaymentsService {
   constructor(
-    private readonly databaseService: DatabaseService,
+    private readonly paymentsRepository: PaymentsRepository,
     private readonly clickProvider: ClickProvider,
     private readonly paymeProvider: PaymeProvider,
     private readonly simulatedProvider: SimulatedProvider,
@@ -26,12 +26,7 @@ export class PaymentsService {
     dto: InitiatePaymentDto,
     userId: string,
   ): Promise<PaymentInitiationResult> {
-    const db = this.databaseService.getDb();
-    const booking = await db
-      .selectFrom('bookings')
-      .selectAll()
-      .where('id', '=', dto.bookingId)
-      .executeTakeFirst();
+    const booking = await this.paymentsRepository.findBookingById(dto.bookingId);
 
     if (!booking) {
       throw new NotFoundException(`Booking ${dto.bookingId} not found`);
@@ -48,11 +43,8 @@ export class PaymentsService {
     const totalAmount = booking.price_snapshot + booking.service_fee_snapshot;
     const idempotencyKey = `idemp_${dto.bookingId}_${dto.provider}_${totalAmount}`;
 
-    let existingPayment = await db
-      .selectFrom('payments')
-      .selectAll()
-      .where('idempotency_key', '=', idempotencyKey)
-      .executeTakeFirst();
+    const existingPayment =
+      await this.paymentsRepository.findPaymentByIdempotencyKey(idempotencyKey);
 
     if (existingPayment && existingPayment.status === 'PAID') {
       return {
@@ -80,37 +72,27 @@ export class PaymentsService {
 
     const now = new Date().toISOString();
     const paymentId = randomUUID();
-    const initialStatus: PaymentStatus = result.status === 'SUCCESS' ? 'PAID' : 'UNPAID';
+    const initialStatus: PaymentStatus =
+      result.status === 'SUCCESS' ? 'PAID' : 'UNPAID';
 
     if (!existingPayment) {
-      await db
-        .insertInto('payments')
-        .values({
-          id: paymentId,
-          booking_id: dto.bookingId,
-          provider: dto.provider,
-          provider_transaction_id: result.providerTransactionId,
-          amount: totalAmount,
-          currency: 'UZS',
-          status: initialStatus,
-          idempotency_key: idempotencyKey,
-          verified_at: result.status === 'SUCCESS' ? now : null,
-          created_at: now,
-          updated_at: now,
-        })
-        .execute();
+      await this.paymentsRepository.createPayment({
+        id: paymentId,
+        booking_id: dto.bookingId,
+        provider: dto.provider,
+        provider_transaction_id: result.providerTransactionId,
+        amount: totalAmount,
+        currency: 'UZS',
+        status: initialStatus,
+        idempotency_key: idempotencyKey,
+        verified_at: result.status === 'SUCCESS' ? now : null,
+        created_at: now,
+        updated_at: now,
+      });
     }
 
     if (result.status === 'SUCCESS') {
-      await db
-        .updateTable('bookings')
-        .set({
-          status: 'CONFIRMED',
-          payment_status: 'PAID',
-          updated_at: now,
-        })
-        .where('id', '=', dto.bookingId)
-        .execute();
+      await this.paymentsRepository.markBookingAsPaid(dto.bookingId, now);
     }
 
     return result;
@@ -120,12 +102,7 @@ export class PaymentsService {
     bookingId: string,
     userId: string,
   ): Promise<PaymentsTable | null> {
-    const db = this.databaseService.getDb();
-    const booking = await db
-      .selectFrom('bookings')
-      .selectAll()
-      .where('id', '=', bookingId)
-      .executeTakeFirst();
+    const booking = await this.paymentsRepository.findBookingById(bookingId);
 
     if (!booking) {
       throw new NotFoundException(`Booking ${bookingId} not found`);
@@ -135,14 +112,9 @@ export class PaymentsService {
       throw new ForbiddenException('Cannot inspect another user payment');
     }
 
-    const payment = await db
-      .selectFrom('payments')
-      .selectAll()
-      .where('booking_id', '=', bookingId)
-      .orderBy('created_at', 'desc')
-      .executeTakeFirst();
+    const payment =
+      await this.paymentsRepository.findLatestPaymentByBookingId(bookingId);
 
     return payment || null;
   }
 }
-
