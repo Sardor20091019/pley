@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uz.pley.app.core.network.model.SessionItemDto
 import uz.pley.app.core.network.model.SportDto
+import uz.pley.app.core.network.toUserFriendlyMessage
 import uz.pley.app.data.repository.SessionsRepository
 import javax.inject.Inject
 
@@ -148,7 +149,7 @@ class DiscoverViewModel @Inject constructor(
             search = current.searchQuery.ifBlank { null },
             skillLevel = current.selectedSkillLevel
         ).onFailure {
-            errorFlow.value = it.message ?: "Failed to fetch sessions"
+            errorFlow.value = it.toUserFriendlyMessage()
         }
     }
 }

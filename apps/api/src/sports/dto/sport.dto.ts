@@ -24,3 +24,4 @@ export class CreateSportDto {
   @IsOptional()
   public active?: number;
 }
+

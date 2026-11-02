@@ -41,3 +41,4 @@ export class VenuesRepository {
     await db.insertInto('audit_logs').values(log).execute();
   }
 }
+

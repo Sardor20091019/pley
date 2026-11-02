@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uz.pley.app.core.network.model.SessionItemDto
 import uz.pley.app.core.network.model.SportDto
+import uz.pley.app.core.network.toUserFriendlyMessage
 import uz.pley.app.data.repository.SessionsRepository
 import javax.inject.Inject
 
@@ -58,7 +59,7 @@ class HomeViewModel @Inject constructor(
         loadData()
     }
 
-    fun loadData() {
+    fun loadData(): Unit {
         viewModelScope.launch {
             isRefreshingFlow.value = true
             errorMessageFlow.value = null
@@ -67,7 +68,7 @@ class HomeViewModel @Inject constructor(
                 .onSuccess { sportsFlow.value = it }
 
             sessionsRepository.refreshSessions()
-                .onFailure { errorMessageFlow.value = it.message ?: "Failed to load featured games" }
+                .onFailure { errorMessageFlow.value = it.toUserFriendlyMessage() }
 
             isRefreshingFlow.value = false
         }

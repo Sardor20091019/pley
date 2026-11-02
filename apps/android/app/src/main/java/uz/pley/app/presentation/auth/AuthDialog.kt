@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -43,14 +44,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import uz.pley.app.BuildConfig
-import uz.pley.app.core.ui.components.carbonCard
-import uz.pley.app.core.ui.theme.DarkCardHighlight
+import uz.pley.app.core.ui.theme.DarkCard
 import uz.pley.app.core.ui.theme.DarkSurfaceElevated
 import uz.pley.app.core.ui.theme.ElectricLime
 import uz.pley.app.core.ui.theme.PlatinumSilver
@@ -112,12 +113,25 @@ fun AuthDialog(
         }
     }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .carbonCard(shape = RoundedCornerShape(28.dp), containerColor = DarkCardHighlight)
-                .padding(28.dp)
+                .padding(horizontal = 24.dp)
+                .clip(RoundedCornerShape(26.dp))
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF161B28),
+                            Color(0xFF0F121C)
+                        )
+                    )
+                )
+                .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(26.dp))
+                .padding(24.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -125,19 +139,19 @@ fun AuthDialog(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(54.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(DarkSurfaceElevated)
-                        .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(16.dp)),
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(Color(0x1FD4FF00))
+                        .border(BorderStroke(1.dp, Color(0x40D4FF00)), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    GoogleLogo(modifier = Modifier.size(32.dp))
+                    GoogleLogo(modifier = Modifier.size(30.dp))
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
                 Text(
-                    text = "Sign In with Google",
+                    text = "Sign In to Pley",
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold,
                     color = PureWhite,
@@ -147,10 +161,11 @@ fun AuthDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Connect your account to reserve individual spots, track upcoming bookings, and join casual sports across Tashkent.",
+                    text = "Reserve solo spots in vetted casual matches across Tashkent and manage your player pass.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = PlatinumSilver,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    lineHeight = 20.sp
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -222,9 +237,10 @@ fun AuthDialog(
                     onClick = onDismiss,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(48.dp)
                         .minimumInteractiveComponentSize()
                 ) {
-                    Text("Cancel", color = SlateMuted)
+                    Text("Cancel", color = SlateMuted, fontWeight = FontWeight.SemiBold)
                 }
             }
         }

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UsersTable, UserStatus } from '../database/database.types';
 import { UpdateProfileDto } from '../auth/dto/auth.dto';
-import { UsersRepository } from './users.repository';
+import { UsersRepository } from './users.repo';
 
 export interface UserAchievement {
   id: string;

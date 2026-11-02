@@ -3,6 +3,8 @@ package uz.pley.app.presentation.discover
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +26,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,10 +40,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,9 +58,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import uz.pley.app.core.ui.components.PleyEmptyState
 import uz.pley.app.core.ui.components.SessionCardSkeleton
-import uz.pley.app.core.ui.components.carbonCard
-import uz.pley.app.core.ui.components.glassCard
 import uz.pley.app.core.ui.components.kineticTouchEffect
 import uz.pley.app.core.ui.components.resolveSportTheme
 import uz.pley.app.core.ui.theme.DarkCard
@@ -64,10 +68,10 @@ import uz.pley.app.core.ui.theme.ElectricLime
 import uz.pley.app.core.ui.theme.PlatinumSilver
 import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
-import uz.pley.app.core.ui.theme.StatusAmber
 import uz.pley.app.presentation.home.HomeSessionCard
 
 private val TashkentDistricts = listOf(
+    "All",
     "Mirabad",
     "Yunusabad",
     "Chilanzar",
@@ -108,25 +112,26 @@ fun DiscoverScreen(
                 actions = {
                     Box(
                         modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(Color(0x26D4FF00))
-                            .border(BorderStroke(1.dp, Color(0x66D4FF00)), CircleShape),
+                            .size(48.dp)
+                            .clip(CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         IconButton(
                             onClick = onNavigateToMap,
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier
+                                .size(44.dp)
+                                .background(Color(0x1FD4FF00), CircleShape)
+                                .border(BorderStroke(1.dp, Color(0x40D4FF00)), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Map,
                                 contentDescription = "Discovery Map Radar",
                                 tint = ElectricLime,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
@@ -145,7 +150,7 @@ fun DiscoverScreen(
             when (val state = uiState) {
                 is DiscoverUiState.Loading -> {
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
@@ -153,11 +158,12 @@ fun DiscoverScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(52.dp)
-                                    .carbonCard(shape = RoundedCornerShape(16.dp))
+                                    .height(54.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(DarkCard)
                             )
                         }
-                        items(5) {
+                        items(4) {
                             SessionCardSkeleton()
                         }
                     }
@@ -167,285 +173,377 @@ fun DiscoverScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(24.dp),
+                            .padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .glassCard(shape = RoundedCornerShape(26.dp))
-                                .padding(28.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(8.dp)
-                                            .clip(CircleShape)
-                                            .background(StatusAmber)
-                                    )
-                                    Text(
-                                        text = "RADAR DISCOVERY PAUSED",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = StatusAmber
-                                    )
-                                }
-
-                                Text(
-                                    text = state.message,
-                                    color = PureWhite,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(14.dp))
-                                        .background(ElectricLime)
-                                        .kineticTouchEffect(onClick = { viewModel.refresh() })
-                                        .padding(horizontal = 24.dp, vertical = 12.dp)
-                                ) {
-                                    Text(
-                                        text = "Tap to Retry",
-                                        color = Color(0xFF0F1117),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Black
-                                    )
-                                }
-                            }
-                        }
+                        PleyEmptyState(
+                            title = "Catalog Offline",
+                            description = state.message,
+                            iconEmoji = "📡",
+                            actionLabel = "Tap to Retry",
+                            onActionClick = { viewModel.refresh() }
+                        )
                     }
                 }
 
                 is DiscoverUiState.Success -> {
                     val pullState = rememberPullToRefreshState()
-                    PullToRefreshBox(
-                        isRefreshing = state.isRefreshing,
-                        onRefresh = { viewModel.refresh() },
-                        state = pullState,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        LazyColumn(
-                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
-                            verticalArrangement = Arrangement.spacedBy(18.dp),
+                    val hasActiveFilters = state.filterState.selectedSport != null ||
+                            state.filterState.selectedDistrict != null ||
+                            state.filterState.searchQuery.isNotBlank()
+
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        PullToRefreshBox(
+                            isRefreshing = state.isRefreshing,
+                            onRefresh = { viewModel.refresh() },
+                            state = pullState,
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            item(contentType = "search_field") {
-                                OutlinedTextField(
-                                    value = state.filterState.searchQuery,
-                                    onValueChange = { viewModel.onSearchQueryChanged(it) },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    placeholder = {
-                                        Text(
-                                            "Search by sport, venue, district...",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = SlateMuted
-                                        )
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Search,
-                                            contentDescription = null,
-                                            tint = ElectricLime,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    },
-                                    trailingIcon = {
-                                        if (state.filterState.searchQuery.isNotEmpty()) {
-                                            IconButton(
-                                                onClick = { viewModel.onSearchQueryChanged("") },
-                                                modifier = Modifier.size(24.dp)
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Clear,
-                                                    contentDescription = "Clear search",
-                                                    tint = SlateMuted,
-                                                    modifier = Modifier.size(16.dp)
-                                                )
-                                            }
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(16.dp),
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                                    keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedContainerColor = DarkCard,
-                                        unfocusedContainerColor = DarkCard,
-                                        focusedBorderColor = ElectricLime,
-                                        unfocusedBorderColor = Color(0x22FFFFFF),
-                                        cursorColor = ElectricLime,
-                                        focusedTextColor = PureWhite,
-                                        unfocusedTextColor = PureWhite
-                                    )
-                                )
-                            }
-
-                            item(contentType = "sport_chips") {
-                                Column {
-                                    Text(
-                                        text = "SPORTS",
-                                        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
-                                        color = SlateMuted
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                        items(
-                                            items = state.sports,
-                                            key = { it.id },
-                                            contentType = { "sport_filter_chip" }
-                                        ) { sport ->
-                                            val isSelected = state.filterState.selectedSport.equals(sport.slug, ignoreCase = true)
-                                            val theme = resolveSportTheme(sport.slug)
-                                            Box(
-                                                modifier = Modifier
-                                                    .clip(RoundedCornerShape(14.dp))
-                                                    .background(
-                                                        if (isSelected) {
-                                                            Brush.horizontalGradient(
-                                                                colors = listOf(
-                                                                    theme.primaryColor,
-                                                                    theme.primaryColor.copy(alpha = 0.85f)
-                                                                )
-                                                            )
-                                                        } else {
-                                                            Brush.verticalGradient(
-                                                                colors = listOf(
-                                                                    theme.containerColor.copy(alpha = 0.25f),
-                                                                    DarkCard
-                                                                )
-                                                            )
-                                                        }
-                                                    )
-                                                    .border(
-                                                        BorderStroke(
-                                                            1.dp,
-                                                            if (isSelected) theme.primaryColor else theme.borderColor.copy(alpha = 0.4f)
-                                                        ),
-                                                        RoundedCornerShape(14.dp)
-                                                    )
-                                                    .kineticTouchEffect(pressedScale = 0.94f) {
-                                                        viewModel.onSportSelected(sport.slug)
-                                                    }
-                                                    .padding(horizontal = 14.dp, vertical = 9.dp)
-                                            ) {
-                                                Text(
-                                                    text = "${sport.icon} ${sport.name}",
-                                                    style = MaterialTheme.typography.labelMedium,
-                                                    color = if (isSelected) Color.Black else PureWhite,
-                                                    fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            item(contentType = "district_chips") {
-                                Column {
-                                    Text(
-                                        text = "DISTRICT",
-                                        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
-                                        color = SlateMuted
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        items(
-                                            items = TashkentDistricts,
-                                            contentType = { "district_filter_chip" }
-                                        ) { district ->
-                                            val isSelected = state.filterState.selectedDistrict == district
-                                            Box(
-                                                modifier = Modifier
-                                                    .clip(RoundedCornerShape(12.dp))
-                                                    .background(
-                                                        if (isSelected) ElectricLime else DarkSurfaceElevated
-                                                    )
-                                                    .border(
-                                                        BorderStroke(
-                                                            1.dp,
-                                                            if (isSelected) ElectricLime else Color(0x22FFFFFF)
-                                                        ),
-                                                        RoundedCornerShape(12.dp)
-                                                    )
-                                                    .kineticTouchEffect(pressedScale = 0.94f) {
-                                                        viewModel.onDistrictSelected(district)
-                                                    }
-                                                    .padding(horizontal = 14.dp, vertical = 8.dp)
-                                            ) {
-                                                Text(
-                                                    text = district,
-                                                    style = MaterialTheme.typography.labelMedium,
-                                                    color = if (isSelected) Color.Black else PlatinumSilver,
-                                                    fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            item(contentType = "result_counter") {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(6.dp)
-                                                .clip(CircleShape)
-                                                .background(ElectricLime)
-                                        )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text(
-                                            text = "${state.sessions.size} open fixtures found",
-                                            style = MaterialTheme.typography.titleSmall,
-                                            color = PlatinumSilver
-                                        )
-                                    }
-                                }
-                            }
-
-                            if (state.sessions.isEmpty()) {
-                                item(contentType = "empty_results") {
-                                    Box(
+                            LazyColumn(
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                item(contentType = "search_field") {
+                                    OutlinedTextField(
+                                        value = state.filterState.searchQuery,
+                                        onValueChange = { viewModel.onSearchQueryChanged(it) },
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .carbonCard(shape = RoundedCornerShape(20.dp))
-                                            .padding(40.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
+                                            .height(54.dp),
+                                        placeholder = {
+                                            Text(
+                                                "Search by sport, venue, or district...",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = SlateMuted
+                                            )
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Default.Search,
+                                                contentDescription = null,
+                                                tint = ElectricLime,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        },
+                                        trailingIcon = {
+                                            if (state.filterState.searchQuery.isNotEmpty()) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(48.dp)
+                                                        .clip(CircleShape),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    IconButton(
+                                                        onClick = { viewModel.onSearchQueryChanged("") },
+                                                        modifier = Modifier.size(36.dp)
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Clear,
+                                                            contentDescription = "Clear search",
+                                                            tint = PlatinumSilver,
+                                                            modifier = Modifier.size(18.dp)
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        shape = RoundedCornerShape(16.dp),
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                                        keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedContainerColor = DarkCard,
+                                            unfocusedContainerColor = DarkCard,
+                                            focusedBorderColor = ElectricLime,
+                                            unfocusedBorderColor = Color(0x28FFFFFF),
+                                            cursorColor = ElectricLime,
+                                            focusedTextColor = PureWhite,
+                                            unfocusedTextColor = PureWhite
+                                        )
+                                    )
+                                }
+
+                                item(contentType = "sport_chips") {
+                                    Column {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "SPORTS",
+                                                style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
+                                                color = SlateMuted
+                                            )
+                                            if (state.filterState.selectedSport != null) {
+                                                Text(
+                                                    text = "CLEAR SPORT",
+                                                    style = MaterialTheme.typography.labelSmall.copy(
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 10.sp
+                                                    ),
+                                                    color = ElectricLime,
+                                                    modifier = Modifier
+                                                        .clickable { viewModel.onSportSelected(null) }
+                                                        .padding(4.dp)
+                                                )
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            item {
+                                                val isAllSelected = state.filterState.selectedSport == null
+                                                Box(
+                                                    modifier = Modifier
+                                                        .height(48.dp)
+                                                        .clip(RoundedCornerShape(14.dp))
+                                                        .background(
+                                                            if (isAllSelected) ElectricLime else DarkSurfaceElevated
+                                                        )
+                                                        .border(
+                                                            BorderStroke(
+                                                                1.dp,
+                                                                if (isAllSelected) ElectricLime else Color(0x26FFFFFF)
+                                                            ),
+                                                            RoundedCornerShape(14.dp)
+                                                        )
+                                                        .kineticTouchEffect(pressedScale = 0.94f) {
+                                                            viewModel.onSportSelected(null)
+                                                        }
+                                                        .padding(horizontal = 16.dp),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(
+                                                        text = "🔥 All Sports",
+                                                        style = MaterialTheme.typography.labelMedium,
+                                                        color = if (isAllSelected) Color.Black else PureWhite,
+                                                        fontWeight = if (isAllSelected) FontWeight.Black else FontWeight.Bold
+                                                    )
+                                                }
+                                            }
+
+                                            items(
+                                                items = state.sports,
+                                                key = { it.id },
+                                                contentType = { "sport_filter_chip" }
+                                            ) { sport ->
+                                                val isSelected = state.filterState.selectedSport.equals(sport.slug, ignoreCase = true)
+                                                val theme = resolveSportTheme(sport.slug)
+                                                Box(
+                                                    modifier = Modifier
+                                                        .height(48.dp)
+                                                        .clip(RoundedCornerShape(14.dp))
+                                                        .background(
+                                                            if (isSelected) {
+                                                                Brush.horizontalGradient(
+                                                                    colors = listOf(
+                                                                        theme.primaryColor,
+                                                                        theme.primaryColor.copy(alpha = 0.85f)
+                                                                    )
+                                                                )
+                                                            } else {
+                                                                Brush.verticalGradient(
+                                                                    colors = listOf(
+                                                                        theme.containerColor.copy(alpha = 0.3f),
+                                                                        DarkCard
+                                                                    )
+                                                                )
+                                                            }
+                                                        )
+                                                        .border(
+                                                            BorderStroke(
+                                                                1.dp,
+                                                                if (isSelected) theme.primaryColor else theme.borderColor.copy(alpha = 0.5f)
+                                                            ),
+                                                            RoundedCornerShape(14.dp)
+                                                        )
+                                                        .kineticTouchEffect(pressedScale = 0.94f) {
+                                                            if (isSelected) {
+                                                                viewModel.onSportSelected(null)
+                                                            } else {
+                                                                viewModel.onSportSelected(sport.slug)
+                                                            }
+                                                        }
+                                                        .padding(horizontal = 14.dp),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(
+                                                        text = "${sport.icon} ${sport.name}",
+                                                        style = MaterialTheme.typography.labelMedium,
+                                                        color = if (isSelected) Color.Black else PureWhite,
+                                                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                item(contentType = "district_chips") {
+                                    Column {
                                         Text(
-                                            text = "No matches match your current filters.",
-                                            style = MaterialTheme.typography.bodyMedium,
+                                            text = "DISTRICT",
+                                            style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
                                             color = SlateMuted
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            items(
+                                                items = TashkentDistricts,
+                                                contentType = { "district_filter_chip" }
+                                            ) { district ->
+                                                val isSelected = (district == "All" && state.filterState.selectedDistrict == null) ||
+                                                        (state.filterState.selectedDistrict == district)
+                                                Box(
+                                                    modifier = Modifier
+                                                        .height(44.dp)
+                                                        .clip(RoundedCornerShape(12.dp))
+                                                        .background(
+                                                            if (isSelected) ElectricLime else DarkSurfaceElevated
+                                                        )
+                                                        .border(
+                                                            BorderStroke(
+                                                                1.dp,
+                                                                if (isSelected) ElectricLime else Color(0x22FFFFFF)
+                                                            ),
+                                                            RoundedCornerShape(12.dp)
+                                                        )
+                                                        .kineticTouchEffect(pressedScale = 0.94f) {
+                                                            if (district == "All") {
+                                                                viewModel.onDistrictSelected(null)
+                                                            } else {
+                                                                viewModel.onDistrictSelected(district)
+                                                            }
+                                                        }
+                                                        .padding(horizontal = 14.dp),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(
+                                                        text = district,
+                                                        style = MaterialTheme.typography.labelMedium,
+                                                        color = if (isSelected) Color.Black else PlatinumSilver,
+                                                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                item(contentType = "result_counter") {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(8.dp)
+                                                    .clip(CircleShape)
+                                                    .background(ElectricLime)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = "${state.sessions.size} open games available",
+                                                style = MaterialTheme.typography.titleSmall,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = PureWhite
+                                            )
+                                        }
+
+                                        if (hasActiveFilters) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .height(36.dp)
+                                                    .clip(RoundedCornerShape(8.dp))
+                                                    .clickable {
+                                                        viewModel.onSportSelected(null)
+                                                        viewModel.onDistrictSelected(null)
+                                                        viewModel.onSearchQueryChanged("")
+                                                    }
+                                                    .padding(horizontal = 8.dp),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = "Reset Filters ✕",
+                                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                                    color = ElectricLime
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (state.sessions.isEmpty()) {
+                                    item(contentType = "empty_results") {
+                                        PleyEmptyState(
+                                            title = "No Matches Found",
+                                            description = "We couldn't find any games matching your current search or filters. Try choosing a different sport or district.",
+                                            iconEmoji = "🔍",
+                                            actionLabel = "Reset Filters",
+                                            onActionClick = {
+                                                viewModel.onSportSelected(null)
+                                                viewModel.onDistrictSelected(null)
+                                                viewModel.onSearchQueryChanged("")
+                                            }
+                                        )
+                                    }
+                                } else {
+                                    items(
+                                        items = state.sessions,
+                                        key = { it.id },
+                                        contentType = { "session_card" }
+                                    ) { session ->
+                                        HomeSessionCard(
+                                            session = session,
+                                            onClick = { onSessionClick(session.id) }
                                         )
                                     }
                                 }
-                            } else {
-                                items(
-                                    items = state.sessions,
-                                    key = { it.id },
-                                    contentType = { "session_card" }
-                                ) { session ->
-                                    HomeSessionCard(
-                                        session = session,
-                                        onClick = { onSessionClick(session.id) }
-                                    )
+
+                                item {
+                                    Spacer(modifier = Modifier.height(32.dp))
                                 }
                             }
+                        }
 
-                            item {
-                                Spacer(modifier = Modifier.height(72.dp))
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(end = 16.dp, bottom = 16.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .height(48.dp)
+                                    .clip(RoundedCornerShape(24.dp))
+                                    .background(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(ElectricLime, Color(0xFF00E676))
+                                        )
+                                    )
+                                    .border(BorderStroke(1.dp, Color(0x66FFFFFF)), RoundedCornerShape(24.dp))
+                                    .kineticTouchEffect(onClick = onNavigateToMap)
+                                    .padding(horizontal = 18.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.Map,
+                                        contentDescription = "Map View",
+                                        tint = Color(0xFF0A0C05),
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "MAP VIEW",
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Black,
+                                        color = Color(0xFF0A0C05)
+                                    )
+                                }
                             }
                         }
                     }

@@ -27,3 +27,4 @@ export class UploadRepository {
     await db.insertInto('audit_logs').values(log).execute();
   }
 }
+

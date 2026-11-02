@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SportsController } from './sports.controller';
 import { SportsService } from './sports.service';
-import { SportsRepository } from './sports.repository';
+import { SportsRepository } from './sports.repo';
 
 @Module({
   controllers: [SportsController],

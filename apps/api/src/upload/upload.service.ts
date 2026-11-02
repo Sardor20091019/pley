@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { UTApi } from 'uploadthing/server';
-import { UploadRepository } from './upload.repository';
+import { UploadRepository } from './upload.repo';
 import { UploadResultDto } from './dto/upload.dto';
 
 @Injectable()

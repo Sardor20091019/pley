@@ -4,6 +4,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import uz.pley.app.core.database.dao.SessionDao
 import uz.pley.app.core.database.entity.SessionEntity
+import uz.pley.app.core.network.AppError
+import uz.pley.app.core.network.ConnectivityObserver
 import uz.pley.app.core.network.PleyApiService
 import uz.pley.app.core.network.model.CreateBookingRequest
 import uz.pley.app.core.network.model.SessionDetailDto
@@ -13,6 +15,7 @@ import uz.pley.app.core.network.model.SessionVibe
 import uz.pley.app.core.network.model.SkillLevel
 import uz.pley.app.core.network.model.SportDto
 import uz.pley.app.core.network.model.VenueNestedDto
+import uz.pley.app.core.network.toAppError
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,7 +36,8 @@ interface SessionsRepository {
 @Singleton
 class SessionsRepositoryImpl @Inject constructor(
     private val apiService: PleyApiService,
-    private val sessionDao: SessionDao
+    private val sessionDao: SessionDao,
+    private val connectivityObserver: ConnectivityObserver
 ) : SessionsRepository {
 
     override fun observeSessions(): Flow<List<SessionItemDto>> {
@@ -50,6 +54,15 @@ class SessionsRepositoryImpl @Inject constructor(
         sessionVibe: String?
     ): Result<List<SessionItemDto>> {
         return try {
+            if (!connectivityObserver.isConnected.value) {
+                val cached = sessionDao.getSessionsList().map { it.toDto() }
+                if (cached.isNotEmpty()) {
+                    val filtered = filterSessions(cached, sport, district, search)
+                    return Result.success(filtered)
+                }
+                return Result.failure(AppError.NoNetwork())
+            }
+
             val response = apiService.listSessions(
                 sport = sport,
                 district = district,
@@ -57,6 +70,16 @@ class SessionsRepositoryImpl @Inject constructor(
                 skillLevel = if (skillLevel == "ALL_LEVELS") null else skillLevel,
                 sessionVibe = sessionVibe
             )
+
+            if (!response.isSuccessful) {
+                val cached = sessionDao.getSessionsList().map { it.toDto() }
+                if (cached.isNotEmpty()) {
+                    val filtered = filterSessions(cached, sport, district, search)
+                    return Result.success(filtered)
+                }
+                return Result.failure(response.toAppError())
+            }
+
             val items = response.body().orEmpty()
             sessionDao.clearSessions()
             sessionDao.insertSessions(items.map { it.toEntity() })
@@ -64,68 +87,107 @@ class SessionsRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             val cached = sessionDao.getSessionsList().map { it.toDto() }
             if (cached.isNotEmpty()) {
-                val filtered = cached.filter { item ->
-                    (sport == null || item.sport.slug.equals(sport, ignoreCase = true) || item.sport.name.equals(sport, ignoreCase = true)) &&
-                    (district == null || item.venue.district.equals(district, ignoreCase = true)) &&
-                    (search == null || item.title.contains(search, ignoreCase = true) || item.venue.name.contains(search, ignoreCase = true))
-                }
+                val filtered = filterSessions(cached, sport, district, search)
                 Result.success(filtered)
             } else {
-                Result.failure(e)
+                Result.failure(if (e is AppError) e else AppError.Unknown(e.localizedMessage ?: "Failed to load matches", e))
             }
         }
     }
 
     override suspend fun getSessionDetail(id: String): Result<SessionDetailDto> {
         return try {
+            if (!connectivityObserver.isConnected.value) {
+                val cached = sessionDao.getSessionByIdOnce(id)
+                if (cached != null) {
+                    return Result.success(cached.toDto().toDetailDto())
+                }
+                return Result.failure(AppError.NoNetwork())
+            }
+
             val response = apiService.getSessionById(id)
-            val body = response.body() ?: throw IllegalStateException("Session not found")
+            if (!response.isSuccessful) {
+                val cached = sessionDao.getSessionByIdOnce(id)
+                if (cached != null) {
+                    return Result.success(cached.toDto().toDetailDto())
+                }
+                return Result.failure(response.toAppError())
+            }
+
+            val body = response.body() ?: return Result.failure(AppError.NotFound("Session not found"))
             Result.success(body)
         } catch (e: Exception) {
             val cached = sessionDao.getSessionByIdOnce(id)
             if (cached != null) {
-                val dto = cached.toDto()
-                Result.success(
-                    SessionDetailDto(
-                        id = dto.id,
-                        title = dto.title,
-                        scheduledAt = dto.scheduledAt,
-                        durationMinutes = dto.durationMinutes,
-                        maxSlots = dto.maxSlots,
-                        bookedSlots = dto.bookedSlots,
-                        remainingSlots = dto.remainingSlots,
-                        pricePerSlot = dto.pricePerSlot,
-                        serviceFee = dto.serviceFee,
-                        totalPrice = dto.totalPrice,
-                        skillLevel = dto.skillLevel,
-                        sessionVibe = dto.sessionVibe,
-                        status = dto.status,
-                        equipmentProvided = dto.equipmentProvided,
-                        imageUrl = dto.imageUrl,
-                        venue = dto.venue,
-                        sport = dto.sport
-                    )
-                )
+                Result.success(cached.toDto().toDetailDto())
             } else {
-                Result.failure(e)
+                Result.failure(if (e is AppError) e else AppError.Unknown(e.localizedMessage ?: "Failed to load match detail", e))
             }
         }
     }
 
     override suspend fun reserveSpot(sessionId: String): Result<Unit> {
-        return runCatching {
+        return try {
+            if (!connectivityObserver.isConnected.value) {
+                return Result.failure(AppError.NoNetwork())
+            }
+
             val response = apiService.reserveSpot(CreateBookingRequest(sessionId = sessionId))
             if (!response.isSuccessful) {
-                throw IllegalStateException("Failed to reserve spot: ${response.code()}")
+                return Result.failure(response.toAppError())
             }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(if (e is AppError) e else AppError.Unknown(e.localizedMessage ?: "Failed to reserve spot", e))
         }
     }
 
     override suspend fun getSports(): Result<List<SportDto>> {
-        return runCatching {
+        return try {
             val response = apiService.listSports()
-            response.body().orEmpty()
+            if (!response.isSuccessful) {
+                return Result.failure(response.toAppError())
+            }
+            Result.success(response.body().orEmpty())
+        } catch (e: Exception) {
+            Result.failure(if (e is AppError) e else AppError.Unknown(e.localizedMessage ?: "Failed to load sports", e))
         }
+    }
+
+    private fun filterSessions(
+        list: List<SessionItemDto>,
+        sport: String?,
+        district: String?,
+        search: String?
+    ): List<SessionItemDto> {
+        return list.filter { item ->
+            (sport == null || item.sport.slug.equals(sport, ignoreCase = true) || item.sport.name.equals(sport, ignoreCase = true)) &&
+            (district == null || item.venue.district.equals(district, ignoreCase = true)) &&
+            (search == null || item.title.contains(search, ignoreCase = true) || item.venue.name.contains(search, ignoreCase = true))
+        }
+    }
+
+    private fun SessionItemDto.toDetailDto(): SessionDetailDto {
+        return SessionDetailDto(
+            id = id,
+            title = title,
+            scheduledAt = scheduledAt,
+            durationMinutes = durationMinutes,
+            maxSlots = maxSlots,
+            bookedSlots = bookedSlots,
+            remainingSlots = remainingSlots,
+            pricePerSlot = pricePerSlot,
+            serviceFee = serviceFee,
+            totalPrice = totalPrice,
+            skillLevel = skillLevel,
+            sessionVibe = sessionVibe,
+            status = status,
+            equipmentProvided = equipmentProvided,
+            imageUrl = imageUrl,
+            venue = venue,
+            sport = sport
+        )
     }
 
     private fun SessionItemDto.toEntity(): SessionEntity {

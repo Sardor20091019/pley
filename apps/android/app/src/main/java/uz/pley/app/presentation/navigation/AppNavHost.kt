@@ -144,7 +144,16 @@ fun AppNavHost(
                 val detail = backStackEntry.toRoute<NavDestination.SessionDetail>()
                 SessionDetailScreen(
                     onBack = { navController.popBackStack() },
-                    onNavigateToAuth = { isAuthDialogOpen = true }
+                    onNavigateToAuth = { isAuthDialogOpen = true },
+                    onNavigateToMyGames = {
+                        navController.navigate(NavDestination.MyGames) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                 )
             }
 

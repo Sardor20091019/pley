@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PartnershipController } from './partnership.controller';
-import { PartnershipRepository } from './partnership.repository';
+import { PartnershipRepository } from './partnership.repo';
 import { PartnershipService } from './partnership.service';
 
 @Module({

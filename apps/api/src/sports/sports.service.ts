@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { SportsRepository } from './sports.repository';
+import { SportsRepository } from './sports.repo';
 import { SportsTable } from '../database/database.types';
 
 @Injectable()

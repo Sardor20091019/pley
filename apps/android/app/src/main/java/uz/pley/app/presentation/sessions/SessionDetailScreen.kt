@@ -28,27 +28,28 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -57,10 +58,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.pley.app.core.network.model.ParticipantDto
 import uz.pley.app.core.network.model.SessionDetailDto
 import uz.pley.app.core.ui.components.MatchVisualTag
+import uz.pley.app.core.ui.components.PleyAlertDialog
+import uz.pley.app.core.ui.components.PleyAlertTone
+import uz.pley.app.core.ui.components.PleyEmptyState
 import uz.pley.app.core.ui.components.PleyImage
 import uz.pley.app.core.ui.components.SessionCapacityMeter
 import uz.pley.app.core.ui.components.SportNeonBadge
-import uz.pley.app.core.ui.components.glassCard
 import uz.pley.app.core.ui.components.kineticTouchEffect
 import uz.pley.app.core.ui.components.resolveSportTheme
 import uz.pley.app.core.ui.components.shimmerEffect
@@ -71,19 +74,69 @@ import uz.pley.app.core.ui.theme.PlatinumSilver
 import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
 import uz.pley.app.core.ui.theme.StatusGreen
-import uz.pley.app.core.ui.theme.StatusRed
+
+private val DetailCardShape = RoundedCornerShape(22.dp)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SessionDetailScreen(
     onBack: () -> Unit,
     onNavigateToAuth: () -> Unit,
+    onNavigateToMyGames: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: SessionDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle(minActiveState = Lifecycle.State.STARTED)
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val successState = uiState as? SessionDetailUiState.Success
+    if (successState?.userActionError != null) {
+        if (successState.isBookingConflict) {
+            PleyAlertDialog(
+                title = "Already Reserved",
+                message = successState.userActionError,
+                tone = PleyAlertTone.WARNING,
+                primaryButtonText = "View in My Games",
+                onPrimaryClick = {
+                    viewModel.dismissUserActionError()
+                    onNavigateToMyGames()
+                },
+                secondaryButtonText = "Dismiss",
+                onSecondaryClick = { viewModel.dismissUserActionError() },
+                onDismiss = { viewModel.dismissUserActionError() }
+            )
+        } else {
+            val isOffline = successState.userActionError.contains("connection", ignoreCase = true) ||
+                successState.userActionError.contains("internet", ignoreCase = true)
+            PleyAlertDialog(
+                title = if (isOffline) "Connection Error" else "Booking Issue",
+                message = successState.userActionError,
+                tone = if (isOffline) PleyAlertTone.OFFLINE else PleyAlertTone.ERROR,
+                primaryButtonText = "Got It",
+                onPrimaryClick = { viewModel.dismissUserActionError() },
+                onDismiss = { viewModel.dismissUserActionError() }
+            )
+        }
+    }
+
+    if (successState?.userActionSuccess != null) {
+        PleyAlertDialog(
+            title = "Spot Reserved!",
+            message = successState.userActionSuccess,
+            tone = PleyAlertTone.SUCCESS,
+            primaryButtonText = "View in My Games",
+            onPrimaryClick = {
+                viewModel.dismissUserActionSuccess()
+                onNavigateToMyGames()
+            },
+            secondaryButtonText = "Done",
+            onSecondaryClick = { viewModel.dismissUserActionSuccess() },
+            onDismiss = { viewModel.dismissUserActionSuccess() }
+        )
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -97,22 +150,23 @@ fun SessionDetailScreen(
                 navigationIcon = {
                     Box(
                         modifier = Modifier
-                            .padding(start = 12.dp)
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(DarkCard)
-                            .border(BorderStroke(1.dp, Color(0x22FFFFFF)), CircleShape),
+                            .padding(start = 8.dp)
+                            .size(48.dp)
+                            .clip(CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         IconButton(
                             onClick = onBack,
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier
+                                .size(44.dp)
+                                .background(DarkCard, CircleShape)
+                                .border(BorderStroke(1.dp, Color(0x28FFFFFF)), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Back",
                                 tint = PureWhite,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
@@ -153,28 +207,28 @@ fun SessionDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(20.dp),
+                            .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(180.dp)
-                                .clip(RoundedCornerShape(20.dp))
+                                .height(200.dp)
+                                .clip(DetailCardShape)
                                 .shimmerEffect()
                         )
                         Box(
                             modifier = Modifier
-                                .width(200.dp)
-                                .height(24.dp)
-                                .clip(RoundedCornerShape(6.dp))
+                                .width(220.dp)
+                                .height(28.dp)
+                                .clip(RoundedCornerShape(8.dp))
                                 .shimmerEffect()
                         )
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(100.dp)
-                                .clip(RoundedCornerShape(16.dp))
+                                .height(120.dp)
+                                .clip(DetailCardShape)
                                 .shimmerEffect()
                         )
                     }
@@ -184,27 +238,17 @@ fun SessionDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(28.dp),
+                            .padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(
-                            text = state.message,
-                            color = StatusRed,
-                            style = MaterialTheme.typography.bodyLarge
+                        PleyEmptyState(
+                            title = "Could Not Load Match",
+                            description = state.message,
+                            iconEmoji = "⚠️",
+                            actionLabel = "Retry",
+                            onActionClick = { viewModel.loadSession() }
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { viewModel.loadSession() },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = ElectricLime,
-                                contentColor = Color.Black
-                            ),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.minimumInteractiveComponentSize()
-                        ) {
-                            Text("Retry", fontWeight = FontWeight.Bold)
-                        }
                     }
                 }
 
@@ -213,48 +257,39 @@ fun SessionDetailScreen(
                     val theme = resolveSportTheme(session.sport.slug)
 
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         if (!session.imageUrl.isNullOrBlank()) {
-                            item(contentType = "session_cover") {
+                            item(contentType = "hero_image") {
                                 PleyImage(
                                     imageUrl = session.imageUrl,
                                     fallbackText = session.sport.icon,
                                     contentDescription = session.title,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(190.dp)
-                                        .clip(RoundedCornerShape(22.dp))
+                                        .height(210.dp)
+                                        .clip(DetailCardShape)
+                                        .border(BorderStroke(1.dp, Color(0x28FFFFFF)), DetailCardShape)
                                 )
                             }
                         }
 
-                        if (state.userActionError != null) {
-                            item(contentType = "error_banner") {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(14.dp))
-                                        .background(StatusRed.copy(alpha = 0.15f))
-                                        .border(1.dp, StatusRed.copy(alpha = 0.4f), RoundedCornerShape(14.dp))
-                                        .padding(14.dp)
-                                ) {
-                                    Text(
-                                        text = state.userActionError,
-                                        color = StatusRed,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                            }
-                        }
-
-                        item(contentType = "header_card") {
+                        item(contentType = "main_card") {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .glassCard(shape = RoundedCornerShape(24.dp), borderAlpha = 0.28f)
+                                    .clip(DetailCardShape)
+                                    .background(
+                                        brush = Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color(0xFF151928),
+                                                Color(0xFF0F121C)
+                                            )
+                                        )
+                                    )
+                                    .border(BorderStroke(1.dp, Color(0x30FFFFFF)), DetailCardShape)
                                     .padding(20.dp)
                             ) {
                                 Column {
@@ -267,21 +302,19 @@ fun SessionDetailScreen(
                                             SportNeonBadge(
                                                 icon = session.sport.icon,
                                                 theme = theme,
-                                                size = 36.dp
+                                                size = 42.dp
                                             )
-                                            Spacer(modifier = Modifier.width(10.dp))
+                                            Spacer(modifier = Modifier.width(12.dp))
                                             Column {
                                                 Text(
                                                     text = session.sport.name.uppercase(),
-                                                    style = MaterialTheme.typography.labelSmall.copy(
-                                                        fontWeight = FontWeight.Black,
-                                                        letterSpacing = 1.sp
-                                                    ),
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    fontWeight = FontWeight.Black,
                                                     color = theme.primaryColor
                                                 )
                                                 Text(
-                                                    text = theme.disciplineTag,
-                                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                                    text = "OFFICIAL RECREATIONAL",
+                                                    style = MaterialTheme.typography.labelSmall,
                                                     color = SlateMuted
                                                 )
                                             }
@@ -298,6 +331,7 @@ fun SessionDetailScreen(
                                     Text(
                                         text = session.title,
                                         style = MaterialTheme.typography.headlineLarge,
+                                        fontWeight = FontWeight.Bold,
                                         color = PureWhite
                                     )
 
@@ -327,24 +361,33 @@ fun SessionDetailScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .glassCard(shape = RoundedCornerShape(24.dp), borderAlpha = 0.22f)
+                                    .clip(DetailCardShape)
+                                    .background(
+                                        brush = Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color(0xFF131724),
+                                                Color(0xFF0D0F18)
+                                            )
+                                        )
+                                    )
+                                    .border(BorderStroke(1.dp, Color(0x28FFFFFF)), DetailCardShape)
                                     .padding(20.dp)
                             ) {
                                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Box(
                                             modifier = Modifier
-                                                .size(38.dp)
-                                                .clip(RoundedCornerShape(10.dp))
+                                                .size(42.dp)
+                                                .clip(RoundedCornerShape(12.dp))
                                                 .background(DarkSurfaceElevated)
-                                                .border(BorderStroke(1.dp, Color(0x22FFFFFF)), RoundedCornerShape(10.dp)),
+                                                .border(BorderStroke(1.dp, Color(0x22FFFFFF)), RoundedCornerShape(12.dp)),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Schedule,
                                                 contentDescription = null,
                                                 tint = theme.primaryColor,
-                                                modifier = Modifier.size(18.dp)
+                                                modifier = Modifier.size(20.dp)
                                             )
                                         }
                                         Spacer(modifier = Modifier.width(12.dp))
@@ -373,23 +416,23 @@ fun SessionDetailScreen(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Box(
                                             modifier = Modifier
-                                                .size(38.dp)
-                                                .clip(RoundedCornerShape(10.dp))
+                                                .size(42.dp)
+                                                .clip(RoundedCornerShape(12.dp))
                                                 .background(DarkSurfaceElevated)
-                                                .border(BorderStroke(1.dp, Color(0x22FFFFFF)), RoundedCornerShape(10.dp)),
+                                                .border(BorderStroke(1.dp, Color(0x22FFFFFF)), RoundedCornerShape(12.dp)),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.LocationOn,
                                                 contentDescription = null,
                                                 tint = theme.primaryColor,
-                                                modifier = Modifier.size(18.dp)
+                                                modifier = Modifier.size(20.dp)
                                             )
                                         }
                                         Spacer(modifier = Modifier.width(12.dp))
                                         Column {
                                             Text(
-                                                text = "${session.venue.district.uppercase()} — ${session.venue.name}",
+                                                text = "${session.venue.district} • ${session.venue.name}",
                                                 style = MaterialTheme.typography.titleMedium,
                                                 fontWeight = FontWeight.Bold,
                                                 color = PureWhite
@@ -410,7 +453,7 @@ fun SessionDetailScreen(
                                 Column {
                                     Text(
                                         text = "VENUE AMENITIES",
-                                        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
+                                        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
                                         color = SlateMuted
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
@@ -430,7 +473,7 @@ fun SessionDetailScreen(
                             Column {
                                 Text(
                                     text = "ROSTERED PLAYERS (${session.bookedSlots} / ${session.maxSlots})",
-                                    style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
+                                    style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
                                     color = SlateMuted
                                 )
                                 Spacer(modifier = Modifier.height(10.dp))
@@ -438,7 +481,9 @@ fun SessionDetailScreen(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .glassCard(shape = RoundedCornerShape(16.dp))
+                                            .clip(DetailCardShape)
+                                            .background(DarkCard)
+                                            .border(BorderStroke(1.dp, Color(0x20FFFFFF)), DetailCardShape)
                                             .padding(20.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
@@ -450,7 +495,7 @@ fun SessionDetailScreen(
                                     }
                                 } else {
                                     LazyRow(
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(14.dp)
                                     ) {
                                         items(
                                             items = session.participants,
@@ -469,7 +514,9 @@ fun SessionDetailScreen(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .glassCard(shape = RoundedCornerShape(20.dp))
+                                        .clip(DetailCardShape)
+                                        .background(DarkCard)
+                                        .border(BorderStroke(1.dp, Color(0x20FFFFFF)), DetailCardShape)
                                         .padding(20.dp)
                                 ) {
                                     Column {
@@ -491,7 +538,7 @@ fun SessionDetailScreen(
                         }
 
                         item {
-                            Spacer(modifier = Modifier.height(90.dp))
+                            Spacer(modifier = Modifier.height(100.dp))
                         }
                     }
                 }
@@ -509,7 +556,7 @@ fun DetailBadge(text: String) {
 fun ParticipantAvatar(player: ParticipantDto) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(64.dp)
+        modifier = Modifier.width(68.dp)
     ) {
         if (!player.avatarUrl.isNullOrBlank()) {
             PleyImage(
@@ -517,13 +564,14 @@ fun ParticipantAvatar(player: ParticipantDto) {
                 fallbackText = player.firstName.take(1).uppercase(),
                 contentDescription = player.firstName,
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(52.dp)
                     .clip(CircleShape)
+                    .border(BorderStroke(1.5.dp, Color(0x33FFFFFF)), CircleShape)
             )
         } else {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(52.dp)
                     .clip(CircleShape)
                     .background(
                         brush = Brush.linearGradient(
@@ -535,8 +583,8 @@ fun ParticipantAvatar(player: ParticipantDto) {
                 Text(
                     text = player.firstName.take(1).uppercase(),
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    fontSize = 18.sp
+                    color = Color(0xFF0A0C05),
+                    fontSize = 20.sp
                 )
             }
         }
@@ -545,7 +593,8 @@ fun ParticipantAvatar(player: ParticipantDto) {
             text = player.firstName,
             style = MaterialTheme.typography.labelSmall,
             color = PlatinumSilver,
-            maxLines = 1
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -565,13 +614,22 @@ fun BottomBookingBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 20.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .glassCard(shape = RoundedCornerShape(26.dp), borderAlpha = 0.3f)
-                .padding(horizontal = 20.dp, vertical = 14.dp)
+                .clip(RoundedCornerShape(26.dp))
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF161B28),
+                            Color(0xFF0E1119)
+                        )
+                    )
+                )
+                .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(26.dp))
+                .padding(horizontal = 18.dp, vertical = 14.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -580,14 +638,14 @@ fun BottomBookingBar(
             ) {
                 Column {
                     Text(
-                        text = "ENTRY FEE",
-                        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
+                        text = "TOTAL FEE",
+                        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
                         color = SlateMuted
                     )
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
                             text = "${session.pricePerSlot.toInt()}",
-                            style = MaterialTheme.typography.headlineLarge,
+                            style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Black,
                             color = PureWhite
                         )
@@ -596,7 +654,7 @@ fun BottomBookingBar(
                             text = "UZS",
                             style = MaterialTheme.typography.labelSmall,
                             color = PlatinumSilver,
-                            modifier = Modifier.padding(bottom = 3.dp)
+                            modifier = Modifier.padding(bottom = 2.dp)
                         )
                     }
                 }
@@ -604,17 +662,19 @@ fun BottomBookingBar(
                 if (alreadyBooked) {
                     Box(
                         modifier = Modifier
+                            .height(52.dp)
                             .clip(RoundedCornerShape(14.dp))
                             .background(StatusGreen.copy(alpha = 0.2f))
                             .border(BorderStroke(1.dp, StatusGreen.copy(alpha = 0.6f)), RoundedCornerShape(14.dp))
-                            .padding(horizontal = 20.dp, vertical = 12.dp)
+                            .padding(horizontal = 20.dp),
+                        contentAlignment = Alignment.Center
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = null,
                                 tint = StatusGreen,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
@@ -628,6 +688,7 @@ fun BottomBookingBar(
                 } else {
                     Box(
                         modifier = Modifier
+                            .height(52.dp)
                             .clip(RoundedCornerShape(14.dp))
                             .background(
                                 if (session.isFull || isBooking)
@@ -636,21 +697,22 @@ fun BottomBookingBar(
                                     theme.primaryColor
                             )
                             .kineticTouchEffect(
-                                pressedScale = 0.94f,
+                                pressedScale = 0.95f,
                                 onClick = if (!session.isFull && !isBooking) onBookClick else null
                             )
-                            .padding(horizontal = 24.dp, vertical = 12.dp)
+                            .padding(horizontal = 24.dp),
+                        contentAlignment = Alignment.Center
                     ) {
                         if (isBooking) {
                             CircularProgressIndicator(
-                                color = Color.White,
+                                color = Color.Black,
                                 strokeWidth = 2.dp,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(22.dp)
                             )
                         } else {
                             Text(
                                 text = if (session.isFull) "MATCH FULL" else if (!isAuthenticated) "SIGN IN TO BOOK" else "BOOK SPOT",
-                                color = if (session.isFull) SlateMuted else Color.Black,
+                                color = if (session.isFull) SlateMuted else Color(0xFF0A0C05),
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Black
                             )

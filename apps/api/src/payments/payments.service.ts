@@ -11,7 +11,7 @@ import { PaymeProvider } from './providers/payme.provider';
 import { SimulatedProvider } from './providers/simulated.provider';
 import { PaymentInitiationResult } from './providers/payment-provider.interface';
 import { InitiatePaymentDto } from './dto/payment.dto';
-import { PaymentsRepository } from './payments.repository';
+import { PaymentsRepository } from './payments.repo';
 
 @Injectable()
 export class PaymentsService {

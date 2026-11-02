@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +9,17 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.compose.compiler)
 }
+
+val localProps = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        FileInputStream(file).use { load(it) }
+    }
+}
+val mapsApiKey: String = localProps.getProperty("MAPS_API_KEY")
+    ?: (project.findProperty("MAPS_API_KEY") as? String)
+    ?: System.getenv("MAPS_API_KEY")
+    ?: "AIzaSyDummyKeyForMapsInitialization"
 
 android {
     namespace = "uz.pley.app"
@@ -23,6 +37,8 @@ android {
             useSupportLibrary = true
         }
 
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
+        buildConfigField("String", "MAPS_API_KEY", "\"$mapsApiKey\"")
         buildConfigField("String", "GOOGLE_CLIENT_ID", "\"210623201179-4i14mlaibn8lh0h6clu6mthh3g8084lm.apps.googleusercontent.com\"")
     }
 

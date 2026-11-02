@@ -4,9 +4,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import uz.pley.app.core.database.dao.BookingDao
 import uz.pley.app.core.database.entity.BookingEntity
+import uz.pley.app.core.network.AppError
+import uz.pley.app.core.network.ConnectivityObserver
 import uz.pley.app.core.network.PleyApiService
 import uz.pley.app.core.network.model.BookingStatus
 import uz.pley.app.core.network.model.UserBookingDto
+import uz.pley.app.core.network.toAppError
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,7 +22,8 @@ interface BookingsRepository {
 @Singleton
 class BookingsRepositoryImpl @Inject constructor(
     private val apiService: PleyApiService,
-    private val bookingDao: BookingDao
+    private val bookingDao: BookingDao,
+    private val connectivityObserver: ConnectivityObserver
 ) : BookingsRepository {
 
     override fun observeMyBookings(): Flow<List<UserBookingDto>> {
@@ -30,7 +34,23 @@ class BookingsRepositoryImpl @Inject constructor(
 
     override suspend fun refreshMyBookings(): Result<List<UserBookingDto>> {
         return try {
+            if (!connectivityObserver.isConnected.value) {
+                val cached = bookingDao.getBookingsList().map { it.toDto() }
+                if (cached.isNotEmpty()) {
+                    return Result.success(cached)
+                }
+                return Result.failure(AppError.NoNetwork())
+            }
+
             val response = apiService.getMyBookings()
+            if (!response.isSuccessful) {
+                val cached = bookingDao.getBookingsList().map { it.toDto() }
+                if (cached.isNotEmpty()) {
+                    return Result.success(cached)
+                }
+                return Result.failure(response.toAppError())
+            }
+
             val bookings = response.body().orEmpty()
             bookingDao.clearBookings()
             bookingDao.insertBookings(bookings.map { it.toEntity() })
@@ -40,18 +60,26 @@ class BookingsRepositoryImpl @Inject constructor(
             if (cached.isNotEmpty()) {
                 Result.success(cached)
             } else {
-                Result.failure(e)
+                Result.failure(if (e is AppError) e else AppError.Unknown(e.localizedMessage ?: "Failed to load bookings", e))
             }
         }
     }
 
     override suspend fun cancelBooking(bookingId: String): Result<Unit> {
-        return runCatching {
+        return try {
+            if (!connectivityObserver.isConnected.value) {
+                return Result.failure(AppError.NoNetwork())
+            }
+
             val response = apiService.cancelBooking(bookingId)
             if (!response.isSuccessful) {
-                throw IllegalStateException("Failed to cancel booking: ${response.code()}")
+                return Result.failure(response.toAppError())
             }
+
             bookingDao.deleteBooking(bookingId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(if (e is AppError) e else AppError.Unknown(e.localizedMessage ?: "Failed to cancel booking", e))
         }
     }
 
@@ -101,4 +129,3 @@ class BookingsRepositoryImpl @Inject constructor(
         )
     }
 }
-

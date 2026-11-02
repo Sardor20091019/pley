@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { NotificationsTable } from '../database/database.types';
-import { NotificationsRepository } from './notifications.repository';
+import { NotificationsRepository } from './notifications.repo';
 
 @Injectable()
 export class NotificationsService {

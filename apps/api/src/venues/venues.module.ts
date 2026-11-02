@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { VenuesController } from './venues.controller';
-import { VenuesRepository } from './venues.repository';
+import { VenuesRepository } from './venues.repo';
 import { VenuesService } from './venues.service';
 
 @Module({

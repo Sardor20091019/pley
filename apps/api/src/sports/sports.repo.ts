@@ -39,3 +39,4 @@ export class SportsRepository {
     await db.insertInto('sports').values(data).execute();
   }
 }
+

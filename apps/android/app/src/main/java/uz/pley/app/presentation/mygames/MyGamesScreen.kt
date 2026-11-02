@@ -3,8 +3,6 @@ package uz.pley.app.presentation.mygames
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,11 +58,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.pley.app.core.network.model.UserBookingDto
 import uz.pley.app.core.ui.components.MatchVisualTag
-import uz.pley.app.core.ui.components.PerforatedTicketDivider
+import uz.pley.app.core.ui.components.PleyAlertDialog
+import uz.pley.app.core.ui.components.PleyAlertTone
+import uz.pley.app.core.ui.components.PleyEmptyState
 import uz.pley.app.core.ui.components.SessionCardSkeleton
 import uz.pley.app.core.ui.components.SportNeonBadge
-import uz.pley.app.core.ui.components.carbonCard
-import uz.pley.app.core.ui.components.glassCard
 import uz.pley.app.core.ui.components.kineticTouchEffect
 import uz.pley.app.core.ui.components.resolveSportTheme
 import uz.pley.app.core.ui.theme.DarkCard
@@ -75,6 +73,8 @@ import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
 import uz.pley.app.core.ui.theme.StatusGreen
 import uz.pley.app.core.ui.theme.StatusRed
+
+private val TicketShape = RoundedCornerShape(22.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,6 +87,18 @@ fun MyGamesScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle(minActiveState = Lifecycle.State.STARTED)
     var selectedTab by remember { mutableIntStateOf(0) }
     var bookingToCancel by remember { mutableStateOf<UserBookingDto?>(null) }
+
+    val successState = uiState as? MyGamesUiState.Success
+    if (successState?.cancelError != null) {
+        PleyAlertDialog(
+            title = "Cancellation Failed",
+            message = successState.cancelError,
+            tone = PleyAlertTone.ERROR,
+            primaryButtonText = "Got It",
+            onPrimaryClick = { viewModel.clearCancelError() },
+            onDismiss = { viewModel.clearCancelError() }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -125,61 +137,23 @@ fun MyGamesScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(24.dp),
+                            .padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .glassCard(shape = RoundedCornerShape(26.dp), borderAlpha = 0.3f)
-                                .padding(28.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(54.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0x26D4FF00))
-                                        .border(BorderStroke(1.dp, Color(0x66D4FF00)), CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(text = "⚡", fontSize = 24.sp)
-                                }
-
-                                Text(
-                                    text = "Sign in to view your booked match spots",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = PureWhite,
-                                    fontWeight = FontWeight.Bold
-                                )
-
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(14.dp))
-                                        .background(ElectricLime)
-                                        .kineticTouchEffect(onClick = onNavigateToAuth)
-                                        .padding(horizontal = 28.dp, vertical = 12.dp)
-                                ) {
-                                    Text(
-                                        text = "Sign In / Register",
-                                        color = Color(0xFF0F1117),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Black
-                                    )
-                                }
-                            }
-                        }
+                        PleyEmptyState(
+                            title = "Sign In Required",
+                            description = "Sign in with your Google account to view your confirmed match spots and roster tickets.",
+                            iconEmoji = "🔒",
+                            actionLabel = "Sign In / Register",
+                            onActionClick = onNavigateToAuth
+                        )
                     }
                 }
 
                 is MyGamesUiState.Loading -> {
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
@@ -188,10 +162,11 @@ fun MyGamesScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(48.dp)
-                                    .carbonCard(shape = RoundedCornerShape(14.dp))
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(DarkCard)
                             )
                         }
-                        items(4) {
+                        items(3) {
                             SessionCardSkeleton()
                         }
                     }
@@ -201,41 +176,17 @@ fun MyGamesScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(24.dp),
+                            .padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .glassCard(shape = RoundedCornerShape(24.dp))
-                                .padding(28.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                Text(
-                                    text = state.message,
-                                    color = StatusRed,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(ElectricLime)
-                                        .kineticTouchEffect(onClick = { viewModel.refresh() })
-                                        .padding(horizontal = 24.dp, vertical = 10.dp)
-                                ) {
-                                    Text(
-                                        text = "Retry",
-                                        color = Color.Black,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                        }
+                        PleyEmptyState(
+                            title = "Error Loading Matches",
+                            description = state.message,
+                            iconEmoji = "⚠️",
+                            actionLabel = "Tap to Retry",
+                            onActionClick = { viewModel.refresh() }
+                        )
                     }
                 }
 
@@ -250,53 +201,55 @@ fun MyGamesScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(horizontal = 20.dp, vertical = 12.dp)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .glassCard(shape = RoundedCornerShape(18.dp), borderAlpha = 0.25f)
+                                    .clip(RoundedCornerShape(18.dp))
+                                    .background(DarkSurfaceElevated)
+                                    .border(BorderStroke(1.dp, Color(0x28FFFFFF)), RoundedCornerShape(18.dp))
                                     .padding(4.dp)
                             ) {
                                 Row(modifier = Modifier.fillMaxWidth()) {
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
+                                            .height(48.dp)
                                             .clip(RoundedCornerShape(14.dp))
                                             .background(
                                                 if (selectedTab == 0) ElectricLime else Color.Transparent
                                             )
                                             .kineticTouchEffect(pressedScale = 0.94f) {
                                                 selectedTab = 0
-                                            }
-                                            .padding(vertical = 10.dp),
+                                            },
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
                                             text = "Upcoming (${state.upcomingBookings.size})",
-                                            style = MaterialTheme.typography.labelMedium,
+                                            style = MaterialTheme.typography.labelLarge,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (selectedTab == 0) Color.Black else SlateMuted
+                                            color = if (selectedTab == 0) Color(0xFF0A0C05) else PlatinumSilver
                                         )
                                     }
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
+                                            .height(48.dp)
                                             .clip(RoundedCornerShape(14.dp))
                                             .background(
                                                 if (selectedTab == 1) ElectricLime else Color.Transparent
                                             )
                                             .kineticTouchEffect(pressedScale = 0.94f) {
                                                 selectedTab = 1
-                                            }
-                                            .padding(vertical = 10.dp),
+                                            },
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
                                             text = "Past (${state.pastBookings.size})",
-                                            style = MaterialTheme.typography.labelMedium,
+                                            style = MaterialTheme.typography.labelLarge,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (selectedTab == 1) Color.Black else SlateMuted
+                                            color = if (selectedTab == 1) Color(0xFF0A0C05) else PlatinumSilver
                                         )
                                     }
                                 }
@@ -307,19 +260,14 @@ fun MyGamesScreen(
                             val currentList = if (selectedTab == 0) state.upcomingBookings else state.pastBookings
 
                             if (currentList.isEmpty()) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .carbonCard(shape = RoundedCornerShape(20.dp))
-                                        .padding(40.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = if (selectedTab == 0) "No upcoming matches booked." else "No past matches recorded.",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = SlateMuted
-                                    )
-                                }
+                                PleyEmptyState(
+                                    title = if (selectedTab == 0) "No Upcoming Matches" else "No Past History",
+                                    description = if (selectedTab == 0)
+                                        "You don't have any booked match spots right now. Check out the open rallies in Tashkent!"
+                                    else
+                                        "Matches you complete or cancel will appear in this history tab.",
+                                    iconEmoji = if (selectedTab == 0) "🎾" else "📋"
+                                )
                             } else {
                                 LazyColumn(
                                     verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -339,7 +287,7 @@ fun MyGamesScreen(
                                     }
 
                                     item {
-                                        Spacer(modifier = Modifier.height(72.dp))
+                                        Spacer(modifier = Modifier.height(32.dp))
                                     }
                                 }
                             }
@@ -356,14 +304,16 @@ fun MyGamesScreen(
             onDismissRequest = { bookingToCancel = null },
             title = {
                 Text(
-                    text = "Cancel Match Spot",
+                    text = "Release Match Spot",
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = PureWhite
                 )
             },
             text = {
                 Text(
-                    text = "Are you sure you want to release your spot in '${target.sessionTitle}'?",
+                    text = "Are you sure you want to release your spot in '${target.sessionTitle}'? Other waiting players will be given access.",
+                    style = MaterialTheme.typography.bodyMedium,
                     color = PlatinumSilver
                 )
             },
@@ -376,18 +326,23 @@ fun MyGamesScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = StatusRed,
                         contentColor = PureWhite
-                    )
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.height(48.dp)
                 ) {
-                    Text("Release Spot")
+                    Text("Release Spot", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { bookingToCancel = null }) {
-                    Text("Keep Spot", color = SlateMuted)
+                TextButton(
+                    onClick = { bookingToCancel = null },
+                    modifier = Modifier.height(48.dp)
+                ) {
+                    Text("Keep Spot", color = PureWhite, fontWeight = FontWeight.SemiBold)
                 }
             },
             containerColor = DarkCard,
-            shape = RoundedCornerShape(20.dp)
+            shape = RoundedCornerShape(22.dp)
         )
     }
 }
@@ -404,9 +359,18 @@ fun BookingCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .glassCard(shape = RoundedCornerShape(24.dp), borderAlpha = 0.25f)
-            .kineticTouchEffect(pressedScale = 0.96f, onClick = onSessionClick)
-            .padding(20.dp)
+            .clip(TicketShape)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF151928),
+                        Color(0xFF0F121C)
+                    )
+                )
+            )
+            .border(BorderStroke(1.dp, Color(0x30FFFFFF)), TicketShape)
+            .kineticTouchEffect(pressedScale = 0.97f, onClick = onSessionClick)
+            .padding(18.dp)
     ) {
         Column {
             Row(
@@ -418,7 +382,7 @@ fun BookingCard(
                     SportNeonBadge(
                         icon = booking.sportIcon,
                         theme = theme,
-                        size = 36.dp
+                        size = 38.dp
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
@@ -448,34 +412,25 @@ fun BookingCard(
                                 DarkSurfaceElevated
                         )
                         .border(
-                            0.5.dp,
-                            if (booking.status.name == "CONFIRMED")
-                                StatusGreen.copy(alpha = 0.5f)
-                            else
-                                Color(0x22FFFFFF),
+                            BorderStroke(
+                                1.dp,
+                                if (booking.status.name == "CONFIRMED")
+                                    StatusGreen.copy(alpha = 0.5f)
+                                else
+                                    Color(0x22FFFFFF)
+                            ),
                             RoundedCornerShape(8.dp)
                         )
-                        .padding(horizontal = 9.dp, vertical = 4.dp)
+                        .padding(horizontal = 10.dp, vertical = 5.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        if (booking.status.name == "CONFIRMED") {
-                            Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = null,
-                                tint = StatusGreen,
-                                modifier = Modifier.size(12.dp)
-                            )
-                        }
-                        Text(
-                            text = booking.status.name,
-                            color = if (booking.status.name == "CONFIRMED") StatusGreen else SlateMuted,
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = booking.status.name,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp
+                        ),
+                        color = if (booking.status.name == "CONFIRMED") StatusGreen else PlatinumSilver
+                    )
                 }
             }
 
@@ -483,11 +438,12 @@ fun BookingCard(
 
             Text(
                 text = booking.sessionTitle,
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
                 color = PureWhite
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -498,52 +454,83 @@ fun BookingCard(
                     icon = Icons.Default.CalendarMonth
                 )
                 MatchVisualTag(
-                    text = "${booking.venueDistrict} • ${booking.venueName}",
-                    icon = Icons.Default.LocationOn,
+                    text = "${booking.durationMinutes}m",
                     tint = theme.primaryColor
+                )
+                MatchVisualTag(
+                    text = booking.venueDistrict,
+                    icon = Icons.Default.LocationOn
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            PerforatedTicketDivider()
+            Text(
+                text = booking.venueName,
+                style = MaterialTheme.typography.bodySmall,
+                color = SlateMuted
+            )
 
             Spacer(modifier = Modifier.height(14.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(Color(0x1AFFFFFF))
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.Bottom) {
+                Column {
                     Text(
-                        text = "${booking.totalPrice.toInt()}",
-                        style = MaterialTheme.typography.titleLarge,
+                        text = "Total Paid",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                        color = SlateMuted
+                    )
+                    Text(
+                        text = "${booking.totalPrice.toInt()} UZS",
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Black,
                         color = PureWhite
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "UZS",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = PlatinumSilver,
-                        modifier = Modifier.padding(bottom = 2.dp)
-                    )
                 }
 
-                if (booking.status.name == "CONFIRMED" && booking.isEligibleForCancel) {
+                if (booking.isEligibleForCancel) {
                     OutlinedButton(
                         onClick = onCancelClick,
-                        enabled = !isCancelling,
-                        shape = RoundedCornerShape(10.dp),
-                        border = BorderStroke(1.dp, StatusRed.copy(alpha = 0.5f)),
-                        modifier = Modifier.minimumInteractiveComponentSize()
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = StatusRed
+                        ),
+                        border = BorderStroke(1.dp, StatusRed.copy(alpha = 0.6f)),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .height(48.dp)
+                            .minimumInteractiveComponentSize()
                     ) {
                         Text(
-                            text = "Cancel Spot",
-                            color = StatusRed,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
+                            text = "Release Spot",
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                        )
+                    }
+                } else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = StatusGreen,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Roster Locked",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = SlateMuted
                         )
                     }
                 }

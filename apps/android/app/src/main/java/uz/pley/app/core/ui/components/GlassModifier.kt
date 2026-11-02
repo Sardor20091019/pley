@@ -15,7 +15,7 @@ import uz.pley.app.core.ui.theme.DarkCard
 
 fun Modifier.glassCard(
     shape: Shape = RoundedCornerShape(24.dp),
-    backgroundColor: Color = Color(0xFF141724),
+    backgroundColor: Color = Color(0xFF131724),
     borderAlpha: Float = 0.22f,
     strokeWidth: Dp = 1.dp
 ): Modifier = composed {
@@ -25,7 +25,7 @@ fun Modifier.glassCard(
             brush = Brush.verticalGradient(
                 colors = listOf(
                     backgroundColor,
-                    Color(0xFF0C0E15)
+                    Color(0xFF0C0E17)
                 )
             )
         )
@@ -34,8 +34,8 @@ fun Modifier.glassCard(
             brush = Brush.verticalGradient(
                 colors = listOf(
                     Color.White.copy(alpha = borderAlpha),
-                    Color.White.copy(alpha = borderAlpha * 0.35f),
-                    Color.Transparent
+                    Color.White.copy(alpha = borderAlpha * 0.4f),
+                    Color(0x08FFFFFF)
                 )
             ),
             shape = shape
@@ -49,28 +49,21 @@ fun Modifier.carbonCard(
     backgroundAlpha: Float = 1.0f,
     borderColor: Color? = null
 ): Modifier = composed {
-    val bgColors = if (backgroundAlpha < 1.0f) {
-        listOf(
-            containerColor.copy(alpha = backgroundAlpha),
-            Color(0xFF090B10).copy(alpha = backgroundAlpha)
-        )
-    } else {
-        listOf(
-            containerColor,
-            Color(0xFF090B10)
-        )
-    }
+    val bgColors = listOf(
+        containerColor.copy(alpha = backgroundAlpha),
+        Color(0xFF0A0C12).copy(alpha = backgroundAlpha)
+    )
     val borderColors = if (borderColor != null) {
         listOf(
             borderColor,
-            borderColor.copy(alpha = borderColor.alpha * 0.3f),
-            Color.Transparent
+            borderColor.copy(alpha = borderColor.alpha * 0.4f),
+            Color(0x0AFFFFFF)
         )
     } else {
         listOf(
             Color.White.copy(alpha = borderAlpha),
-            Color.White.copy(alpha = borderAlpha * 0.25f),
-            Color.Transparent
+            Color.White.copy(alpha = borderAlpha * 0.35f),
+            Color(0x08FFFFFF)
         )
     }
     this
@@ -93,7 +86,7 @@ fun Modifier.glassCardSubtle(
     shape: Shape = RoundedCornerShape(16.dp)
 ): Modifier = glassCard(
     shape = shape,
-    backgroundColor = Color(0xFF11141E),
+    backgroundColor = Color(0xFF111420),
     borderAlpha = 0.16f
 )
 
@@ -101,6 +94,6 @@ fun Modifier.glassCardProminent(
     shape: Shape = RoundedCornerShape(24.dp)
 ): Modifier = glassCard(
     shape = shape,
-    backgroundColor = Color(0xFF191D2C),
-    borderAlpha = 0.35f
+    backgroundColor = Color(0xFF191E2E),
+    borderAlpha = 0.32f
 )

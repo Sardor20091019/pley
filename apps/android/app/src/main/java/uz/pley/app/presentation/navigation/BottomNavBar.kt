@@ -1,5 +1,6 @@
 package uz.pley.app.presentation.navigation
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -29,22 +30,27 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import uz.pley.app.core.ui.components.glassCard
+import androidx.compose.ui.unit.sp
 import uz.pley.app.core.ui.components.kineticTouchEffect
 import uz.pley.app.core.ui.theme.DarkCard
+import uz.pley.app.core.ui.theme.DarkSurfaceElevated
 import uz.pley.app.core.ui.theme.ElectricLime
+import uz.pley.app.core.ui.theme.PlatinumSilver
 import uz.pley.app.core.ui.theme.PureWhite
+import uz.pley.app.core.ui.theme.SlateMuted
 
 enum class BottomTab(val route: NavDestination, val label: String, val icon: ImageVector) {
     HOME(NavDestination.Home, "Home", Icons.Default.Home),
@@ -64,23 +70,36 @@ fun BottomNavBar(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 6.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .glassCard(shape = RoundedCornerShape(32.dp))
-                .padding(horizontal = 8.dp, vertical = 6.dp)
+                .clip(RoundedCornerShape(28.dp))
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF141824),
+                            Color(0xFF0C0E17)
+                        )
+                    )
+                )
+                .border(
+                    BorderStroke(1.dp, Color(0x2BFFFFFF)),
+                    RoundedCornerShape(28.dp)
+                )
+                .padding(horizontal = 6.dp, vertical = 6.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
+                horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 BottomTab.entries.forEach { tab ->
                     val isSelected = tab == currentTab
+
                     val scale by animateFloatAsState(
-                        targetValue = if (isSelected) 1.08f else 1.0f,
+                        targetValue = if (isSelected) 1.05f else 1.0f,
                         animationSpec = spring(
                             dampingRatio = Spring.DampingRatioLowBouncy,
                             stiffness = Spring.StiffnessMediumLow
@@ -88,39 +107,66 @@ fun BottomNavBar(
                         label = "tab_scale"
                     )
 
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                    val iconTint by animateColorAsState(
+                        targetValue = if (isSelected) ElectricLime else Color(0xFF94A3B8),
+                        animationSpec = spring(stiffness = Spring.StiffnessLow),
+                        label = "tab_icon_tint"
+                    )
+
+                    val textColor by animateColorAsState(
+                        targetValue = if (isSelected) PureWhite else SlateMuted,
+                        animationSpec = spring(stiffness = Spring.StiffnessLow),
+                        label = "tab_text_color"
+                    )
+
+                    Box(
                         modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp)
                             .graphicsLayer {
                                 scaleX = scale
                                 scaleY = scale
                             }
                             .clip(RoundedCornerShape(20.dp))
-                            .kineticTouchEffect(pressedScale = 0.90f) {
+                            .background(
+                                if (isSelected) Color(0x1FD4FF00) else Color.Transparent
+                            )
+                            .then(
+                                if (isSelected) {
+                                    Modifier.border(
+                                        BorderStroke(1.dp, Color(0x38D4FF00)),
+                                        RoundedCornerShape(20.dp)
+                                    )
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .kineticTouchEffect(pressedScale = 0.94f) {
                                 onTabSelected(tab)
-                            }
-                            .padding(horizontal = 14.dp, vertical = 6.dp)
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = tab.icon,
-                            contentDescription = tab.label,
-                            tint = if (isSelected) ElectricLime else Color(0xFF6B7280),
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.height(3.dp))
-                        Text(
-                            text = tab.label,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (isSelected) PureWhite else Color(0xFF6B7280),
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
-                        )
-                        Spacer(modifier = Modifier.height(3.dp))
-                        Box(
-                            modifier = Modifier
-                                .size(width = if (isSelected) 12.dp else 0.dp, height = 2.5.dp)
-                                .clip(CircleShape)
-                                .background(if (isSelected) ElectricLime else Color.Transparent)
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = tab.icon,
+                                contentDescription = tab.label,
+                                tint = iconTint,
+                                modifier = Modifier.size(22.dp)
+                            )
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                text = tab.label,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 11.sp,
+                                    letterSpacing = 0.2.sp
+                                ),
+                                color = textColor,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }

@@ -11,7 +11,7 @@ import {
   UpdateSessionDto,
 } from './dto/session.dto';
 import { ParticipantPreview, SessionDetail, SessionListItem } from './session.types';
-import { SessionsRepository } from './sessions.repository';
+import { SessionsRepository } from './sessions.repo';
 
 export { ParticipantPreview, SessionDetail, SessionListItem };
 

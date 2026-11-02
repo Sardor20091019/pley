@@ -44,6 +44,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.ripple
@@ -63,18 +64,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import uz.pley.app.core.network.model.SessionItemDto
 import uz.pley.app.core.network.model.SportDto
-import uz.pley.app.core.ui.components.LivePulseRadarBadge
 import uz.pley.app.core.ui.components.MatchVisualTag
+import uz.pley.app.core.ui.components.PleyEmptyState
 import uz.pley.app.core.ui.components.PleyImage
 import uz.pley.app.core.ui.components.SessionCapacityMeter
 import uz.pley.app.core.ui.components.SessionCardSkeleton
 import uz.pley.app.core.ui.components.SportNeonBadge
-import uz.pley.app.core.ui.components.carbonCard
-import uz.pley.app.core.ui.components.glassCard
 import uz.pley.app.core.ui.components.kineticTouchEffect
 import uz.pley.app.core.ui.components.resolveSportTheme
 import uz.pley.app.core.ui.theme.DarkCard
-import uz.pley.app.core.ui.theme.DarkSurface
 import uz.pley.app.core.ui.theme.DarkSurfaceElevated
 import uz.pley.app.core.ui.theme.ElectricLime
 import uz.pley.app.core.ui.theme.PlatinumSilver
@@ -82,9 +80,8 @@ import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
 import uz.pley.app.core.ui.theme.StatusAmber
 
-private val CarbonHeroShape = RoundedCornerShape(26.dp)
-private val CarbonCardShape = RoundedCornerShape(24.dp)
-private val SportPillShape = RoundedCornerShape(16.dp)
+private val ModernCardShape = RoundedCornerShape(22.dp)
+private val SportChipShape = RoundedCornerShape(16.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,7 +101,7 @@ fun HomeScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(38.dp)
+                                .size(40.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(
                                     brush = Brush.linearGradient(
@@ -115,9 +112,9 @@ fun HomeScreen(
                         ) {
                             Text(
                                 text = "P",
-                                color = Color.Black,
+                                color = Color(0xFF0A0C05),
                                 fontWeight = FontWeight.Black,
-                                fontSize = 22.sp
+                                fontSize = 24.sp
                             )
                         }
                         Spacer(modifier = Modifier.width(12.dp))
@@ -130,7 +127,7 @@ fun HomeScreen(
                                 letterSpacing = 1.sp
                             )
                             Text(
-                                text = "TASHKENT RECREATIONAL",
+                                text = "Tashkent Sports Hub",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = SlateMuted
                             )
@@ -140,46 +137,48 @@ fun HomeScreen(
                 actions = {
                     Box(
                         modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(Color(0x26D4FF00))
-                            .border(BorderStroke(1.dp, Color(0x66D4FF00)), CircleShape),
+                            .size(48.dp)
+                            .clip(CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         IconButton(
                             onClick = onNavigateToMap,
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier
+                                .size(44.dp)
+                                .background(Color(0x1FD4FF00), CircleShape)
+                                .border(BorderStroke(1.dp, Color(0x40D4FF00)), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Map,
                                 contentDescription = "Discovery Map Radar",
                                 tint = ElectricLime,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
                     Box(
                         modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(DarkCard)
-                            .border(BorderStroke(1.dp, Color(0x22FFFFFF)), CircleShape),
+                            .size(48.dp)
+                            .clip(CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         IconButton(
                             onClick = { viewModel.loadData() },
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier
+                                .size(44.dp)
+                                .background(DarkCard, CircleShape)
+                                .border(BorderStroke(1.dp, Color(0x26FFFFFF)), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
                                 contentDescription = "Refresh",
                                 tint = PlatinumSilver,
-                                modifier = Modifier.size(18.dp)
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
@@ -198,7 +197,7 @@ fun HomeScreen(
             when (val state = uiState) {
                 is HomeUiState.Loading -> {
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
@@ -206,11 +205,12 @@ fun HomeScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(190.dp)
-                                    .carbonCard(shape = CarbonHeroShape)
+                                    .height(180.dp)
+                                    .clip(ModernCardShape)
+                                    .background(DarkCard)
                             )
                         }
-                        items(4) {
+                        items(3) {
                             SessionCardSkeleton()
                         }
                     }
@@ -220,60 +220,17 @@ fun HomeScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(24.dp),
+                            .padding(20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .glassCard(shape = RoundedCornerShape(26.dp))
-                                .padding(28.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(8.dp)
-                                            .clip(CircleShape)
-                                            .background(StatusAmber)
-                                    )
-                                    Text(
-                                        text = "SYNC PAUSED • OFFLINE RESILIENT",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = StatusAmber
-                                    )
-                                }
-
-                                Text(
-                                    text = state.message,
-                                    color = PureWhite,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(14.dp))
-                                        .background(ElectricLime)
-                                        .kineticTouchEffect(onClick = { viewModel.loadData() })
-                                        .padding(horizontal = 24.dp, vertical = 12.dp)
-                                ) {
-                                    Text(
-                                        text = "Tap to Reconnect",
-                                        color = Color(0xFF0F1117),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        fontWeight = FontWeight.Black
-                                    )
-                                }
-                            }
-                        }
+                        PleyEmptyState(
+                            title = "Connection Paused",
+                            description = state.message,
+                            iconEmoji = "📡",
+                            actionLabel = "Tap to Reconnect",
+                            onActionClick = { viewModel.loadData() }
+                        )
                     }
                 }
 
@@ -286,8 +243,8 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         LazyColumn(
-                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
-                            verticalArrangement = Arrangement.spacedBy(20.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(18.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
                             item(contentType = "hero_banner") {
@@ -296,64 +253,71 @@ fun HomeScreen(
 
                             if (state.sports.isNotEmpty()) {
                                 item(contentType = "sports_row") {
-                                    SportsRow(sports = state.sports)
+                                    SportsRow(
+                                        sports = state.sports,
+                                        onSportClick = { onNavigateToDiscover() }
+                                    )
                                 }
                             }
 
                             item(contentType = "section_header") {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 4.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.Bottom
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column {
                                         Text(
-                                            text = "CURATED FIXTURES",
+                                            text = "UPCOMING MATCHES",
                                             style = MaterialTheme.typography.labelSmall.copy(
-                                                letterSpacing = 1.2.sp
+                                                letterSpacing = 1.sp,
+                                                fontWeight = FontWeight.Bold
                                             ),
                                             color = ElectricLime
                                         )
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Text(
-                                            text = "Open Pickups",
-                                            style = MaterialTheme.typography.displaySmall,
+                                            text = "Open Rallies & Pickups",
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            fontWeight = FontWeight.Bold,
                                             color = PureWhite
                                         )
                                     }
-                                    Text(
-                                        text = "EXPLORE ALL →",
-                                        style = MaterialTheme.typography.labelMedium.copy(
-                                            fontWeight = FontWeight.Bold,
-                                            letterSpacing = 0.5.sp
-                                        ),
-                                        color = ElectricLime,
+                                    Box(
                                         modifier = Modifier
+                                            .height(48.dp)
+                                            .clip(RoundedCornerShape(12.dp))
                                             .clickable(
                                                 interactionSource = remember { MutableInteractionSource() },
-                                                indication = ripple(bounded = false),
+                                                indication = ripple(bounded = true),
                                                 onClick = onNavigateToDiscover
                                             )
-                                            .padding(bottom = 4.dp)
-                                    )
+                                            .padding(horizontal = 12.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "SEE ALL →",
+                                            style = MaterialTheme.typography.labelLarge.copy(
+                                                fontWeight = FontWeight.Black,
+                                                letterSpacing = 0.5.sp
+                                            ),
+                                            color = ElectricLime
+                                        )
+                                    }
                                 }
                             }
 
                             if (state.featuredSessions.isEmpty()) {
                                 item(contentType = "empty_fixtures") {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .carbonCard(shape = CarbonCardShape)
-                                            .padding(36.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "No open matches on the roster today.",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = SlateMuted
-                                        )
-                                    }
+                                    PleyEmptyState(
+                                        title = "No Matches Today",
+                                        description = "No open matches on the roster today. Check back soon or explore upcoming sports.",
+                                        iconEmoji = "🎾",
+                                        actionLabel = "Explore All Sports",
+                                        onActionClick = onNavigateToDiscover
+                                    )
                                 }
                             } else {
                                 items(
@@ -369,7 +333,7 @@ fun HomeScreen(
                             }
 
                             item {
-                                Spacer(modifier = Modifier.height(72.dp))
+                                Spacer(modifier = Modifier.height(24.dp))
                             }
                         }
                     }
@@ -390,14 +354,26 @@ fun HeroSection(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(CarbonHeroShape)
+                .clip(ModernCardShape)
         ) { page ->
             if (page == 0) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .glassCard(shape = CarbonHeroShape, borderAlpha = 0.32f)
-                        .padding(22.dp)
+                        .clip(ModernCardShape)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color(0xFF161A28),
+                                    Color(0xFF0F121C)
+                                )
+                            )
+                        )
+                        .border(
+                            BorderStroke(1.dp, Color(0x33FFFFFF)),
+                            ModernCardShape
+                        )
+                        .padding(20.dp)
                 ) {
                     Column {
                         Row(
@@ -405,34 +381,43 @@ fun HeroSection(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            LivePulseRadarBadge(label = "TASHKENT RADAR • LIVE")
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(DarkSurfaceElevated)
-                                    .border(BorderStroke(0.5.dp, Color(0x33FFFFFF)), RoundedCornerShape(8.dp))
+                                    .background(Color(0x1FD4FF00))
+                                    .border(BorderStroke(1.dp, Color(0x40D4FF00)), RoundedCornerShape(8.dp))
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             ) {
                                 Text(
-                                    text = "38+ MATCHES",
+                                    text = "⚡ TASHKENT LIVE",
                                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                     color = ElectricLime
                                 )
                             }
+
+                            Text(
+                                text = "Casual • Social",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = SlateMuted
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(14.dp))
 
                         Text(
                             text = "Play Without\nthe Friction.",
-                            style = MaterialTheme.typography.displayLarge,
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontSize = 26.sp,
+                                lineHeight = 30.sp
+                            ),
+                            fontWeight = FontWeight.Black,
                             color = PureWhite
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "Reserve individual spots in vetted casual matches across Tashkent. No squad coordination needed.",
+                            text = "Join friendly casual matches across Tashkent. Book a solo spot — we assemble the squad.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = PlatinumSilver
                         )
@@ -446,35 +431,35 @@ fun HeroSection(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .kineticTouchEffect(onClick = onFindMatchClick)
+                                    .height(48.dp)
                                     .clip(RoundedCornerShape(14.dp))
                                     .background(
                                         brush = Brush.horizontalGradient(
                                             colors = listOf(ElectricLime, Color(0xFF00E676))
                                         )
                                     )
-                                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                                    .kineticTouchEffect(onClick = onFindMatchClick)
+                                    .padding(horizontal = 20.dp),
+                                contentAlignment = Alignment.Center
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
-                                        text = "DISCOVER GAMES",
+                                        text = "FIND A MATCH",
                                         style = MaterialTheme.typography.labelLarge,
                                         fontWeight = FontWeight.Black,
-                                        color = Color.Black
+                                        color = Color(0xFF0A0C05)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                         contentDescription = null,
-                                        tint = Color.Black,
+                                        tint = Color(0xFF0A0C05),
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
                             }
 
-                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                MatchVisualTag(text = "6 Districts", icon = Icons.Default.LocationOn)
-                            }
+                            MatchVisualTag(text = "6 Districts", icon = Icons.Default.LocationOn)
                         }
                     }
                 }
@@ -482,8 +467,20 @@ fun HeroSection(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .glassCard(shape = CarbonHeroShape, borderAlpha = 0.32f)
-                        .padding(22.dp)
+                        .clip(ModernCardShape)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color(0xFF161A28),
+                                    Color(0xFF0F121C)
+                                )
+                            )
+                        )
+                        .border(
+                            BorderStroke(1.dp, Color(0x33FFFFFF)),
+                            ModernCardShape
+                        )
+                        .padding(20.dp)
                 ) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -495,7 +492,7 @@ fun HeroSection(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "SKILL TIERS • BALANCED COMPETITION",
+                                text = "BALANCED TIERS • FAIR PLAY",
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                 color = StatusAmber
                             )
@@ -505,14 +502,18 @@ fun HeroSection(
 
                         Text(
                             text = "Matched by\nSkill Level.",
-                            style = MaterialTheme.typography.displayLarge,
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontSize = 26.sp,
+                                lineHeight = 30.sp
+                            ),
+                            fontWeight = FontWeight.Black,
                             color = PureWhite
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "From relaxed weekend social rallies to competitive community tournaments with verified rosters.",
+                            text = "Filter by Beginner, Intermediate, or Advanced so games remain fun, competitive, and fair.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = PlatinumSilver
                         )
@@ -521,15 +522,17 @@ fun HeroSection(
 
                         Box(
                             modifier = Modifier
-                                .kineticTouchEffect(onClick = onFindMatchClick)
+                                .height(48.dp)
                                 .clip(RoundedCornerShape(14.dp))
                                 .background(DarkSurfaceElevated)
                                 .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(14.dp))
-                                .padding(horizontal = 20.dp, vertical = 12.dp)
+                                .kineticTouchEffect(onClick = onFindMatchClick)
+                                .padding(horizontal = 20.dp),
+                            contentAlignment = Alignment.Center
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
-                                    text = "VIEW SKILL BRACKETS",
+                                    text = "BROWSE SKILL LEVELS",
                                     style = MaterialTheme.typography.labelLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = PureWhite
@@ -539,7 +542,7 @@ fun HeroSection(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                     contentDescription = null,
                                     tint = PureWhite,
-                                    modifier = Modifier.size(15.dp)
+                                    modifier = Modifier.size(16.dp)
                                 )
                             }
                         }
@@ -578,12 +581,13 @@ fun HeroSection(
 
 @Composable
 fun SportsRow(
-    sports: List<SportDto>
+    sports: List<SportDto>,
+    onSportClick: () -> Unit = {}
 ) {
     Column {
         Text(
-            text = "DISCIPLINES",
-            style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
+            text = "EXPLORE BY SPORT",
+            style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
             color = SlateMuted
         )
         Spacer(modifier = Modifier.height(10.dp))
@@ -598,28 +602,30 @@ fun SportsRow(
                 val theme = resolveSportTheme(sport.slug)
                 Box(
                     modifier = Modifier
-                        .kineticTouchEffect(pressedScale = 0.94f)
-                        .clip(SportPillShape)
+                        .height(48.dp)
+                        .clip(SportChipShape)
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    theme.containerColor.copy(alpha = 0.28f),
-                                    DarkCard
+                                    theme.containerColor.copy(alpha = 0.35f),
+                                    Color(0xFF131724)
                                 )
                             )
                         )
                         .border(
-                            BorderStroke(1.dp, theme.borderColor.copy(alpha = 0.5f)),
-                            SportPillShape
+                            BorderStroke(1.dp, theme.borderColor.copy(alpha = 0.6f)),
+                            SportChipShape
                         )
-                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                        .kineticTouchEffect(pressedScale = 0.94f, onClick = onSportClick)
+                        .padding(horizontal = 16.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = sport.icon, fontSize = 16.sp)
+                        Text(text = sport.icon, fontSize = 18.sp)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = sport.name.uppercase(),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                            text = sport.name,
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
                             color = PureWhite
                         )
                     }
@@ -640,9 +646,21 @@ fun EditorialSessionCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .glassCard(shape = CarbonCardShape, borderAlpha = 0.25f)
-            .kineticTouchEffect(pressedScale = 0.96f, onClick = onClick)
-            .padding(20.dp)
+            .clip(ModernCardShape)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF151928),
+                        Color(0xFF0F121C)
+                    )
+                )
+            )
+            .border(
+                BorderStroke(1.dp, Color(0x2EFFFFFF)),
+                ModernCardShape
+            )
+            .kineticTouchEffect(pressedScale = 0.97f, onClick = onClick)
+            .padding(18.dp)
     ) {
         Column {
             if (!session.imageUrl.isNullOrBlank()) {
@@ -652,10 +670,10 @@ fun EditorialSessionCard(
                     contentDescription = session.title,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(160.dp)
+                        .height(150.dp)
                         .clip(RoundedCornerShape(16.dp))
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
             }
 
             Row(
@@ -667,7 +685,7 @@ fun EditorialSessionCard(
                     SportNeonBadge(
                         icon = session.sport.icon,
                         theme = theme,
-                        size = 36.dp
+                        size = 38.dp
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
@@ -698,13 +716,14 @@ fun EditorialSessionCard(
 
             Text(
                 text = session.title,
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
                 color = PureWhite,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -719,13 +738,13 @@ fun EditorialSessionCard(
                     icon = Icons.Default.Schedule
                 )
                 MatchVisualTag(
-                    text = session.venue.district.uppercase(),
+                    text = session.venue.district,
                     icon = Icons.Default.LocationOn,
                     tint = theme.primaryColor
                 )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = session.venue.name,
@@ -743,7 +762,7 @@ fun EditorialSessionCard(
                 accentColor = theme.primaryColor
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             Box(
                 modifier = Modifier
@@ -752,44 +771,62 @@ fun EditorialSessionCard(
                     .background(Color(0x1AFFFFFF))
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.Bottom) {
+                Column {
                     Text(
-                        text = "${session.pricePerSlot.toInt()}",
-                        style = MaterialTheme.typography.displayMedium,
-                        fontWeight = FontWeight.Black,
-                        color = PureWhite
+                        text = "Price per player",
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                        color = SlateMuted
                     )
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Text(
-                        text = "UZS / spot",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = PlatinumSilver,
-                        modifier = Modifier.padding(bottom = 3.dp)
-                    )
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text(
+                            text = "${session.pricePerSlot.toInt()}",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Black,
+                            color = PureWhite
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "UZS",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = PlatinumSilver,
+                            modifier = Modifier.padding(bottom = 2.dp)
+                        )
+                    }
                 }
 
                 Box(
                     modifier = Modifier
+                        .height(48.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(theme.containerColor)
                         .border(BorderStroke(1.dp, theme.borderColor), RoundedCornerShape(12.dp))
-                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "VIEW FIXTURE →",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 0.5.sp
-                        ),
-                        color = theme.primaryColor
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "JOIN MATCH",
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 0.5.sp
+                            ),
+                            color = theme.primaryColor
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = null,
+                            tint = theme.primaryColor,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
         }

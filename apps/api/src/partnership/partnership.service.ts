@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { TurnstileService } from '../auth/turnstile.service';
 import { CreatePartnershipInquiryDto } from './dto/partnership.dto';
 import { PartnershipInquiriesTable } from '../database/database.types';
-import { PartnershipRepository } from './partnership.repository';
+import { PartnershipRepository } from './partnership.repo';
 
 @Injectable()
 export class PartnershipService {

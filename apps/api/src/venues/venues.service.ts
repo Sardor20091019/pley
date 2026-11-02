@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { VenuesTable } from '../database/database.types';
 import { CreateVenueDto, UpdateVenueDto } from './dto/venue.dto';
-import { VenuesRepository } from './venues.repository';
+import { VenuesRepository } from './venues.repo';
 
 @Injectable()
 export class VenuesService {

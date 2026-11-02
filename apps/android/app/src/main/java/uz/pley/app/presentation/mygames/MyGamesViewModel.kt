@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import uz.pley.app.core.network.ConnectivityObserver
 import uz.pley.app.core.network.model.UserBookingDto
+import uz.pley.app.core.network.toUserFriendlyMessage
 import uz.pley.app.data.repository.AuthRepository
 import uz.pley.app.data.repository.BookingsRepository
 import javax.inject.Inject
@@ -30,7 +32,8 @@ sealed interface MyGamesUiState {
 @HiltViewModel
 class MyGamesViewModel @Inject constructor(
     private val bookingsRepository: BookingsRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val connectivityObserver: ConnectivityObserver
 ) : ViewModel() {
 
     private val isCancellingFlow = MutableStateFlow(false)
@@ -68,28 +71,39 @@ class MyGamesViewModel @Inject constructor(
         refresh()
     }
 
-    fun refresh() {
+    fun refresh(): Unit {
         viewModelScope.launch {
             if (!authRepository.isAuthenticated()) return@launch
             isRefreshingFlow.value = true
+            if (!connectivityObserver.isConnected.value) {
+                isRefreshingFlow.value = false
+                return@launch
+            }
             bookingsRepository.refreshMyBookings()
                 .onFailure {
-                    errorFlow.value = it.message ?: "Failed to refresh bookings"
+                    errorFlow.value = it.toUserFriendlyMessage()
                 }
             isRefreshingFlow.value = false
         }
     }
 
-    fun cancelBooking(bookingId: String) {
+    fun cancelBooking(bookingId: String): Unit {
         viewModelScope.launch {
+            if (!connectivityObserver.isConnected.value) {
+                cancelErrorFlow.value = "Cannot cancel booking while offline. Please connect to the internet."
+                return@launch
+            }
             isCancellingFlow.value = true
             cancelErrorFlow.value = null
             bookingsRepository.cancelBooking(bookingId)
                 .onFailure {
-                    cancelErrorFlow.value = it.message ?: "Failed to cancel booking"
+                    cancelErrorFlow.value = it.toUserFriendlyMessage()
                 }
             isCancellingFlow.value = false
         }
     }
-}
 
+    fun clearCancelError(): Unit {
+        cancelErrorFlow.value = null
+    }
+}

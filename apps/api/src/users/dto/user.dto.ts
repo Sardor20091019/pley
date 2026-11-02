@@ -6,3 +6,4 @@ export class UpdateUserStatusDto {
   @IsEnum(['ACTIVE', 'SUSPENDED'])
   public status!: UserStatus;
 }
+
