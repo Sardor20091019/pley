@@ -46,6 +46,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Refresh
@@ -73,6 +75,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -124,6 +127,7 @@ private val TashkentDistricts = listOf(
 )
 
 enum class MapDisplayMode {
+    MAP,
     RADAR,
     LIST
 }
@@ -165,14 +169,17 @@ fun EventMapScreen(
         }.getOrDefault(false)
     }
 
-    var displayMode by remember { mutableStateOf(MapDisplayMode.RADAR) }
+    var displayMode by remember {
+        mutableStateOf(if (isGooglePlayServicesAvailable) MapDisplayMode.MAP else MapDisplayMode.RADAR)
+    }
+    var isMapLoaded by remember { mutableStateOf(false) }
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(TashkentCenter, 12.5f)
     }
     val mapProperties = remember {
         MapProperties(
-            mapStyleOptions = MapStyleOptions(MapDarkStyle.JSON),
+            mapStyleOptions = runCatching { MapStyleOptions(MapDarkStyle.JSON) }.getOrNull(),
             isMyLocationEnabled = false
         )
     }
@@ -225,35 +232,90 @@ fun EventMapScreen(
             .background(DarkBackground)
     ) {
         when (displayMode) {
-            MapDisplayMode.RADAR -> {
+            MapDisplayMode.MAP -> {
                 if (isGooglePlayServicesAvailable) {
-                    GoogleMap(
-                        modifier = Modifier.fillMaxSize(),
-                        cameraPositionState = cameraPositionState,
-                        properties = mapProperties,
-                        uiSettings = mapUiSettings
-                    ) {
-                        uiState.sessions.forEachIndexed { index, session ->
-                            val isSelected = session.id == uiState.selectedSessionId
-                            val markerState = rememberMarkerState(
-                                key = session.id,
-                                position = session.toLatLng()
-                            )
-
-                            MarkerComposable(
-                                state = markerState,
-                                zIndex = if (isSelected) 10f else 1f,
-                                onClick = {
-                                    scope.launch {
-                                        pagerState.animateScrollToPage(index)
-                                    }
-                                    true
-                                }
-                            ) {
-                                MapMarkerBadge(
-                                    session = session,
-                                    isSelected = isSelected
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        GoogleMap(
+                            modifier = Modifier.fillMaxSize(),
+                            cameraPositionState = cameraPositionState,
+                            properties = mapProperties,
+                            uiSettings = mapUiSettings,
+                            onMapLoaded = { isMapLoaded = true }
+                        ) {
+                            uiState.sessions.forEachIndexed { index, session ->
+                                val isSelected = session.id == uiState.selectedSessionId
+                                val markerState = rememberMarkerState(
+                                    key = session.id,
+                                    position = session.toLatLng()
                                 )
+
+                                MarkerComposable(
+                                    state = markerState,
+                                    zIndex = if (isSelected) 10f else 1f,
+                                    onClick = {
+                                        scope.launch {
+                                            pagerState.animateScrollToPage(index)
+                                        }
+                                        true
+                                    }
+                                ) {
+                                    MapMarkerBadge(
+                                        session = session,
+                                        isSelected = isSelected
+                                    )
+                                }
+                            }
+                        }
+
+                        if (!isMapLoaded) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .padding(horizontal = 24.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(Color(0xE6141824))
+                                    .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(16.dp))
+                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        CircularProgressIndicator(
+                                            color = ElectricLime,
+                                            strokeWidth = 2.dp,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "Connecting to Google Maps...",
+                                            color = PureWhite,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    Text(
+                                        text = "If tiles appear grey, Google Cloud requires billing enabled. Tap below to use interactive Radar mode.",
+                                        color = PlatinumSilver,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontSize = 11.sp
+                                    )
+                                    Button(
+                                        onClick = { displayMode = MapDisplayMode.RADAR },
+                                        colors = ButtonDefaults.buttonColors(containerColor = ElectricLime),
+                                        shape = RoundedCornerShape(10.dp),
+                                        modifier = Modifier.height(34.dp),
+                                        contentPadding = PaddingValues(horizontal = 14.dp)
+                                    ) {
+                                        Text(
+                                            text = "Switch to Radar Mode 📡",
+                                            color = Color(0xFF0F1117),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Black
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -272,12 +334,26 @@ fun EventMapScreen(
                 }
             }
 
+            MapDisplayMode.RADAR -> {
+                DiscoveryRadarCanvas(
+                    sessions = uiState.sessions,
+                    selectedSessionId = uiState.selectedSessionId,
+                    onBlipClick = { session, index ->
+                        viewModel.selectSession(session.id)
+                        scope.launch {
+                            pagerState.animateScrollToPage(index)
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
             MapDisplayMode.LIST -> {
                 if (uiState.sessions.isEmpty() && !uiState.isLoading) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = 180.dp, start = 20.dp, end = 20.dp),
+                            .padding(top = 220.dp, start = 20.dp, end = 20.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         PleyEmptyState(
@@ -292,7 +368,7 @@ fun EventMapScreen(
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = 175.dp),
+                            .padding(top = 215.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         verticalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
@@ -362,7 +438,11 @@ fun EventMapScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = if (displayMode == MapDisplayMode.RADAR) "Discovery Radar" else "Venue Roster",
+                            text = when (displayMode) {
+                                MapDisplayMode.MAP -> "Google Maps View"
+                                MapDisplayMode.RADAR -> "Discovery Radar"
+                                MapDisplayMode.LIST -> "Venue Roster"
+                            },
                             color = PureWhite,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Black
@@ -374,39 +454,6 @@ fun EventMapScreen(
                             fontWeight = FontWeight.SemiBold
                         )
                     }
-
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        IconButton(
-                            onClick = {
-                                displayMode = if (displayMode == MapDisplayMode.RADAR) MapDisplayMode.LIST else MapDisplayMode.RADAR
-                            },
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(CircleShape)
-                                .background(if (displayMode == MapDisplayMode.LIST) ElectricLime.copy(alpha = 0.2f) else Color(0x26FFFFFF))
-                                .border(
-                                    BorderStroke(
-                                        1.dp,
-                                        if (displayMode == MapDisplayMode.LIST) ElectricLime else Color.Transparent
-                                    ),
-                                    CircleShape
-                                )
-                        ) {
-                            Icon(
-                                imageVector = if (displayMode == MapDisplayMode.RADAR) Icons.AutoMirrored.Filled.FormatListBulleted else Icons.Default.Map,
-                                contentDescription = "Switch View",
-                                tint = if (displayMode == MapDisplayMode.LIST) ElectricLime else PureWhite,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(4.dp))
 
                     Box(
                         modifier = Modifier
@@ -429,6 +476,38 @@ fun EventMapScreen(
                             )
                         }
                     }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xE6121520))
+                        .border(BorderStroke(1.dp, Color(0x28FFFFFF)), RoundedCornerShape(16.dp))
+                        .padding(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    ModeSegmentPill(
+                        label = "Map",
+                        icon = Icons.Default.Map,
+                        isSelected = displayMode == MapDisplayMode.MAP,
+                        onClick = { displayMode = MapDisplayMode.MAP },
+                        modifier = Modifier.weight(1f)
+                    )
+                    ModeSegmentPill(
+                        label = "Radar",
+                        icon = Icons.Default.Explore,
+                        isSelected = displayMode == MapDisplayMode.RADAR,
+                        onClick = { displayMode = MapDisplayMode.RADAR },
+                        modifier = Modifier.weight(1f)
+                    )
+                    ModeSegmentPill(
+                        label = "List",
+                        icon = Icons.AutoMirrored.Filled.FormatListBulleted,
+                        isSelected = displayMode == MapDisplayMode.LIST,
+                        onClick = { displayMode = MapDisplayMode.LIST },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
 
                 Row(
@@ -558,7 +637,7 @@ fun EventMapScreen(
             }
         }
 
-        if (displayMode == MapDisplayMode.RADAR && uiState.sessions.isNotEmpty()) {
+        if (displayMode != MapDisplayMode.LIST && uiState.sessions.isNotEmpty()) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -579,6 +658,43 @@ fun EventMapScreen(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ModeSegmentPill(
+    label: String,
+    icon: ImageVector,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(42.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (isSelected) ElectricLime else Color.Transparent)
+            .kineticTouchEffect(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (isSelected) Color(0xFF0F1117) else PlatinumSilver,
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = label,
+                color = if (isSelected) Color(0xFF0F1117) else PlatinumSilver,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold
+            )
         }
     }
 }
