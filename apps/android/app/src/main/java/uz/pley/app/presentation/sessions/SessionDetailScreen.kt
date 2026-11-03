@@ -75,7 +75,7 @@ import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
 import uz.pley.app.core.ui.theme.StatusGreen
 
-private val DetailCardShape = RoundedCornerShape(22.dp)
+private val DetailCardShape = RoundedCornerShape(24.dp)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -207,13 +207,13 @@ fun SessionDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                            .padding(18.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(200.dp)
+                                .height(210.dp)
                                 .clip(DetailCardShape)
                                 .shimmerEffect()
                         )
@@ -227,7 +227,7 @@ fun SessionDetailScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(120.dp)
+                                .height(130.dp)
                                 .clip(DetailCardShape)
                                 .shimmerEffect()
                         )
@@ -238,7 +238,7 @@ fun SessionDetailScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(20.dp),
+                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
@@ -257,8 +257,8 @@ fun SessionDetailScreen(
                     val theme = resolveSportTheme(session.sport.slug)
 
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         if (!session.imageUrl.isNullOrBlank()) {
@@ -284,8 +284,8 @@ fun SessionDetailScreen(
                                     .background(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
-                                                Color(0xFF151928),
-                                                Color(0xFF0F121C)
+                                                Color(0xFF161C2C),
+                                                Color(0xFF0F131E)
                                             )
                                         )
                                     )
@@ -365,8 +365,8 @@ fun SessionDetailScreen(
                                     .background(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
-                                                Color(0xFF131724),
-                                                Color(0xFF0D0F18)
+                                                Color(0xFF131826),
+                                                Color(0xFF0D101A)
                                             )
                                         )
                                     )
@@ -538,7 +538,7 @@ fun SessionDetailScreen(
                         }
 
                         item {
-                            Spacer(modifier = Modifier.height(100.dp))
+                            Spacer(modifier = Modifier.height(110.dp))
                         }
                     }
                 }
@@ -564,18 +564,18 @@ fun ParticipantAvatar(player: ParticipantDto) {
                 fallbackText = player.firstName.take(1).uppercase(),
                 contentDescription = player.firstName,
                 modifier = Modifier
-                    .size(52.dp)
+                    .size(54.dp)
                     .clip(CircleShape)
                     .border(BorderStroke(1.5.dp, Color(0x33FFFFFF)), CircleShape)
             )
         } else {
             Box(
                 modifier = Modifier
-                    .size(52.dp)
+                    .size(54.dp)
                     .clip(CircleShape)
                     .background(
                         brush = Brush.linearGradient(
-                            colors = listOf(ElectricLime, Color(0xFF00E676))
+                            colors = listOf(ElectricLime, Color(0xFF10B981))
                         )
                     ),
                 contentAlignment = Alignment.Center
@@ -583,7 +583,7 @@ fun ParticipantAvatar(player: ParticipantDto) {
                 Text(
                     text = player.firstName.take(1).uppercase(),
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0A0C05),
+                    color = Color(0xFF0B0E14),
                     fontSize = 20.sp
                 )
             }
@@ -614,22 +614,22 @@ fun BottomBookingBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 18.dp, vertical = 10.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(26.dp))
+                .clip(RoundedCornerShape(28.dp))
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF161B28),
-                            Color(0xFF0E1119)
+                            Color(0xFF161C2C),
+                            Color(0xFF0E121E)
                         )
                     )
                 )
-                .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(26.dp))
-                .padding(horizontal = 18.dp, vertical = 14.dp)
+                .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(28.dp))
+                .padding(horizontal = 20.dp, vertical = 14.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -692,7 +692,7 @@ fun BottomBookingBar(
                             .clip(RoundedCornerShape(14.dp))
                             .background(
                                 if (session.isFull || isBooking)
-                                    Color(0xFF232838)
+                                    Color(0xFF242A3D)
                                 else
                                     theme.primaryColor
                             )
@@ -712,7 +712,7 @@ fun BottomBookingBar(
                         } else {
                             Text(
                                 text = if (session.isFull) "MATCH FULL" else if (!isAuthenticated) "SIGN IN TO BOOK" else "BOOK SPOT",
-                                color = if (session.isFull) SlateMuted else Color(0xFF0A0C05),
+                                color = if (session.isFull) SlateMuted else Color(0xFF0B0E14),
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Black
                             )

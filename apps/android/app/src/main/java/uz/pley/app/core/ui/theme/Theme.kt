@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 
 private val LuxuryDarkColorScheme = darkColorScheme(
     primary = ElectricLime,
-    onPrimary = Color(0xFF0A0C05),
+    onPrimary = Color(0xFF0B0E14),
     primaryContainer = ElectricLimeMuted,
     onPrimaryContainer = PureWhite,
     secondary = CyberCyan,
@@ -42,9 +42,9 @@ fun AmbientCanvas(modifier: Modifier = Modifier) {
         drawRect(
             brush = Brush.verticalGradient(
                 colors = listOf(
-                    Color(0xFF0D1018),
-                    Color(0xFF090A0E),
-                    Color(0xFF060709)
+                    Color(0xFF0F131E),
+                    Color(0xFF0B0E17),
+                    Color(0xFF080A10)
                 )
             ),
             size = size
@@ -53,14 +53,27 @@ fun AmbientCanvas(modifier: Modifier = Modifier) {
         drawCircle(
             brush = Brush.radialGradient(
                 colors = listOf(
-                    Color(0x1FD4FF00),
+                    Color(0x1CC8F526),
                     Color.Transparent
                 ),
-                center = Offset(w * 0.5f, -h * 0.05f),
-                radius = w * 0.75f
+                center = Offset(w * 0.5f, -h * 0.04f),
+                radius = w * 0.85f
             ),
-            radius = w * 0.75f,
-            center = Offset(w * 0.5f, -h * 0.05f)
+            radius = w * 0.85f,
+            center = Offset(w * 0.5f, -h * 0.04f)
+        )
+
+        drawCircle(
+            brush = Brush.radialGradient(
+                colors = listOf(
+                    Color(0x1200F5D4),
+                    Color.Transparent
+                ),
+                center = Offset(w * 0.9f, h * 0.55f),
+                radius = w * 0.65f
+            ),
+            radius = w * 0.65f,
+            center = Offset(w * 0.9f, h * 0.55f)
         )
     }
 }

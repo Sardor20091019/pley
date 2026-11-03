@@ -1,5 +1,10 @@
 package uz.pley.app.presentation.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -13,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -22,9 +26,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import uz.pley.app.core.network.ConnectivityObserver
 import uz.pley.app.core.storage.TokenManager
 import uz.pley.app.core.ui.components.NetworkStatusBar
@@ -96,6 +98,24 @@ fun AppNavHost(
         NavHost(
             navController = navController,
             startDestination = NavDestination.Home,
+            enterTransition = {
+                fadeIn(animationSpec = tween(280)) + slideInHorizontally(
+                    animationSpec = tween(280),
+                    initialOffsetX = { 50 }
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(200))
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(250))
+            },
+            popExitTransition = {
+                fadeOut(animationSpec = tween(200)) + slideOutHorizontally(
+                    animationSpec = tween(200),
+                    targetOffsetX = { 50 }
+                )
+            },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)

@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import uz.pley.app.core.ui.theme.DarkCard
 import uz.pley.app.core.ui.theme.ElectricLime
-import uz.pley.app.core.ui.theme.PlatinumSilver
 import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
 
@@ -49,13 +48,20 @@ fun PleyEmptyState(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .background(DarkCard)
-            .border(
-                BorderStroke(1.dp, Color(0x22FFFFFF)),
-                RoundedCornerShape(24.dp)
+            .clip(RoundedCornerShape(26.dp))
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF141A29),
+                        Color(0xFF0F131E)
+                    )
+                )
             )
-            .padding(horizontal = 24.dp, vertical = 32.dp),
+            .border(
+                BorderStroke(1.dp, Color(0x28FFFFFF)),
+                RoundedCornerShape(26.dp)
+            )
+            .padding(horizontal = 24.dp, vertical = 34.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -64,11 +70,11 @@ fun PleyEmptyState(
         ) {
             Box(
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(68.dp)
                     .clip(CircleShape)
-                    .background(Color(0x1AD4FF00))
+                    .background(Color(0x1FC8F526))
                     .border(
-                        BorderStroke(1.dp, Color(0x40D4FF00)),
+                        BorderStroke(1.5.dp, Color(0x4DC8F526)),
                         CircleShape
                     ),
                 contentAlignment = Alignment.Center
@@ -78,17 +84,17 @@ fun PleyEmptyState(
                         imageVector = iconVector,
                         contentDescription = null,
                         tint = ElectricLime,
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(30.dp)
                     )
                 } else if (iconEmoji != null) {
                     Text(
                         text = iconEmoji,
-                        fontSize = 28.sp
+                        fontSize = 30.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Text(
                 text = title,
@@ -110,18 +116,19 @@ fun PleyEmptyState(
             )
 
             if (!actionLabel.isNullOrBlank() && onActionClick != null) {
-                Spacer(modifier = Modifier.height(22.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
                     onClick = onActionClick,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = ElectricLime,
-                        contentColor = Color(0xFF0A0C05)
+                        contentColor = Color(0xFF0B0E14)
                     ),
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier
                         .height(48.dp)
                         .minimumInteractiveComponentSize()
+                        .kineticTouchEffect(pressedScale = 0.95f, onClick = onActionClick)
                 ) {
                     Text(
                         text = actionLabel,
@@ -133,4 +140,3 @@ fun PleyEmptyState(
         }
     }
 }
-

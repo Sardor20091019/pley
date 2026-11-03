@@ -7,8 +7,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -30,10 +27,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,10 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import uz.pley.app.core.ui.components.kineticTouchEffect
-import uz.pley.app.core.ui.theme.DarkCard
-import uz.pley.app.core.ui.theme.DarkSurfaceElevated
 import uz.pley.app.core.ui.theme.ElectricLime
-import uz.pley.app.core.ui.theme.PlatinumSilver
 import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
 
@@ -70,23 +62,23 @@ fun BottomNavBar(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .padding(horizontal = 18.dp, vertical = 8.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(28.dp))
+                .clip(RoundedCornerShape(30.dp))
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF141824),
-                            Color(0xFF0C0E17)
+                            Color(0xFF151A29),
+                            Color(0xFF0C0F1A)
                         )
                     )
                 )
                 .border(
-                    BorderStroke(1.dp, Color(0x2BFFFFFF)),
-                    RoundedCornerShape(28.dp)
+                    BorderStroke(1.dp, Color(0x30FFFFFF)),
+                    RoundedCornerShape(30.dp)
                 )
                 .padding(horizontal = 6.dp, vertical = 6.dp)
         ) {
@@ -99,7 +91,7 @@ fun BottomNavBar(
                     val isSelected = tab == currentTab
 
                     val scale by animateFloatAsState(
-                        targetValue = if (isSelected) 1.05f else 1.0f,
+                        targetValue = if (isSelected) 1.04f else 1.0f,
                         animationSpec = spring(
                             dampingRatio = Spring.DampingRatioLowBouncy,
                             stiffness = Spring.StiffnessMediumLow
@@ -127,21 +119,21 @@ fun BottomNavBar(
                                 scaleX = scale
                                 scaleY = scale
                             }
-                            .clip(RoundedCornerShape(20.dp))
+                            .clip(RoundedCornerShape(22.dp))
                             .background(
-                                if (isSelected) Color(0x1FD4FF00) else Color.Transparent
+                                if (isSelected) Color(0x22C8F526) else Color.Transparent
                             )
                             .then(
                                 if (isSelected) {
                                     Modifier.border(
-                                        BorderStroke(1.dp, Color(0x38D4FF00)),
-                                        RoundedCornerShape(20.dp)
+                                        BorderStroke(1.dp, Color(0x40C8F526)),
+                                        RoundedCornerShape(22.dp)
                                     )
                                 } else {
                                     Modifier
                                 }
                             )
-                            .kineticTouchEffect(pressedScale = 0.94f) {
+                            .kineticTouchEffect(pressedScale = 0.93f) {
                                 onTabSelected(tab)
                             },
                         contentAlignment = Alignment.Center

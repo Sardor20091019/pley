@@ -77,7 +77,7 @@ import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
 import uz.pley.app.core.ui.theme.StatusRed
 
-private val ProfileCardShape = RoundedCornerShape(22.dp)
+private val ProfileCardShape = RoundedCornerShape(24.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,8 +126,8 @@ fun ProfileScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                            .padding(18.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp)
                     ) {
                         Box(
                             modifier = Modifier
@@ -150,7 +150,7 @@ fun ProfileScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(20.dp),
+                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
@@ -167,8 +167,8 @@ fun ProfileScreen(
                 is ProfileUiState.Authenticated -> {
                     val user = state.user
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         item(contentType = "user_header") {
@@ -179,8 +179,8 @@ fun ProfileScreen(
                                     .background(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
-                                                Color(0xFF151928),
-                                                Color(0xFF0F121C)
+                                                Color(0xFF161C2C),
+                                                Color(0xFF0F131E)
                                             )
                                         )
                                     )
@@ -205,14 +205,14 @@ fun ProfileScreen(
                                                 .clip(CircleShape)
                                                 .background(
                                                     brush = Brush.linearGradient(
-                                                        colors = listOf(ElectricLime, Color(0xFF00E676))
+                                                        colors = listOf(ElectricLime, Color(0xFF10B981))
                                                     )
                                                 ),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Text(
                                                 text = user.firstName.take(1).uppercase(),
-                                                color = Color(0xFF0A0C05),
+                                                color = Color(0xFF0B0E14),
                                                 fontWeight = FontWeight.Black,
                                                 fontSize = 26.sp
                                             )
@@ -381,7 +381,7 @@ fun ProfileScreen(
                         }
 
                         item {
-                            Spacer(modifier = Modifier.height(32.dp))
+                            Spacer(modifier = Modifier.height(36.dp))
                         }
                     }
 
@@ -521,7 +521,7 @@ fun EditProfileDialog(
                 onClick = { onSave(firstName.trim(), user.skillLevel, preferredSports.trim()) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = ElectricLime,
-                    contentColor = Color(0xFF0A0C05)
+                    contentColor = Color(0xFF0B0E14)
                 ),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
@@ -542,6 +542,6 @@ fun EditProfileDialog(
                 Text("Cancel", color = SlateMuted)
             }
         },
-        shape = RoundedCornerShape(22.dp)
+        shape = RoundedCornerShape(24.dp)
     )
 }

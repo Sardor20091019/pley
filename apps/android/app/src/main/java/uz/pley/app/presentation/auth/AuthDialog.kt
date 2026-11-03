@@ -1,13 +1,11 @@
 package uz.pley.app.presentation.auth
 
-import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,7 +21,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -51,9 +48,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import uz.pley.app.BuildConfig
-import uz.pley.app.core.ui.theme.DarkCard
-import uz.pley.app.core.ui.theme.DarkSurfaceElevated
-import uz.pley.app.core.ui.theme.ElectricLime
+import uz.pley.app.core.ui.components.kineticTouchEffect
 import uz.pley.app.core.ui.theme.PlatinumSilver
 import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
@@ -121,16 +116,16 @@ fun AuthDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
-                .clip(RoundedCornerShape(26.dp))
+                .clip(RoundedCornerShape(28.dp))
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF161B28),
-                            Color(0xFF0F121C)
+                            Color(0xFF161C2C),
+                            Color(0xFF0E121E)
                         )
                     )
                 )
-                .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(26.dp))
+                .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(28.dp))
                 .padding(24.dp)
         ) {
             Column(
@@ -139,10 +134,10 @@ fun AuthDialog(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(56.dp)
+                        .size(58.dp)
                         .clip(CircleShape)
-                        .background(Color(0x1FD4FF00))
-                        .border(BorderStroke(1.dp, Color(0x40D4FF00)), CircleShape),
+                        .background(Color(0x1FC8F526))
+                        .border(BorderStroke(1.5.dp, Color(0x4DC8F526)), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     GoogleLogo(modifier = Modifier.size(30.dp))
@@ -197,7 +192,10 @@ fun AuthDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp)
-                        .minimumInteractiveComponentSize(),
+                        .minimumInteractiveComponentSize()
+                        .kineticTouchEffect(pressedScale = 0.96f) {
+                            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                        },
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = PureWhite,

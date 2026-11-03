@@ -44,7 +44,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.ripple
@@ -80,7 +79,7 @@ import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
 import uz.pley.app.core.ui.theme.StatusAmber
 
-private val ModernCardShape = RoundedCornerShape(22.dp)
+private val ModernCardShape = RoundedCornerShape(24.dp)
 private val SportChipShape = RoundedCornerShape(16.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,18 +100,18 @@ fun HomeScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
-                                .clip(RoundedCornerShape(12.dp))
+                                .size(42.dp)
+                                .clip(RoundedCornerShape(13.dp))
                                 .background(
                                     brush = Brush.linearGradient(
-                                        colors = listOf(ElectricLime, Color(0xFF00E676))
+                                        colors = listOf(ElectricLime, Color(0xFF10B981))
                                     )
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = "P",
-                                color = Color(0xFF0A0C05),
+                                color = Color(0xFF0B0E14),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 24.sp
                             )
@@ -124,7 +123,7 @@ fun HomeScreen(
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Black,
                                 color = PureWhite,
-                                letterSpacing = 1.sp
+                                letterSpacing = 1.2.sp
                             )
                             Text(
                                 text = "Tashkent Sports Hub",
@@ -145,8 +144,8 @@ fun HomeScreen(
                             onClick = onNavigateToMap,
                             modifier = Modifier
                                 .size(44.dp)
-                                .background(Color(0x1FD4FF00), CircleShape)
-                                .border(BorderStroke(1.dp, Color(0x40D4FF00)), CircleShape)
+                                .background(Color(0x1FC8F526), CircleShape)
+                                .border(BorderStroke(1.dp, Color(0x40C8F526)), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Map,
@@ -168,7 +167,7 @@ fun HomeScreen(
                             modifier = Modifier
                                 .size(44.dp)
                                 .background(DarkCard, CircleShape)
-                                .border(BorderStroke(1.dp, Color(0x26FFFFFF)), CircleShape)
+                                .border(BorderStroke(1.dp, Color(0x28FFFFFF)), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
@@ -178,7 +177,7 @@ fun HomeScreen(
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
@@ -197,8 +196,8 @@ fun HomeScreen(
             when (val state = uiState) {
                 is HomeUiState.Loading -> {
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         item {
@@ -220,7 +219,7 @@ fun HomeScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(20.dp),
+                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
@@ -243,8 +242,8 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         LazyColumn(
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                            verticalArrangement = Arrangement.spacedBy(18.dp),
+                            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
+                            verticalArrangement = Arrangement.spacedBy(20.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
                             item(contentType = "hero_banner") {
@@ -333,7 +332,7 @@ fun HomeScreen(
                             }
 
                             item {
-                                Spacer(modifier = Modifier.height(24.dp))
+                                Spacer(modifier = Modifier.height(28.dp))
                             }
                         }
                     }
@@ -364,8 +363,8 @@ fun HeroSection(
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color(0xFF161A28),
-                                    Color(0xFF0F121C)
+                                    Color(0xFF161C2C),
+                                    Color(0xFF0F131E)
                                 )
                             )
                         )
@@ -373,7 +372,7 @@ fun HeroSection(
                             BorderStroke(1.dp, Color(0x33FFFFFF)),
                             ModernCardShape
                         )
-                        .padding(20.dp)
+                        .padding(22.dp)
                 ) {
                     Column {
                         Row(
@@ -384,9 +383,9 @@ fun HeroSection(
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(Color(0x1FD4FF00))
-                                    .border(BorderStroke(1.dp, Color(0x40D4FF00)), RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                                    .background(Color(0x1FC8F526))
+                                    .border(BorderStroke(1.dp, Color(0x40C8F526)), RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 9.dp, vertical = 4.dp)
                             ) {
                                 Text(
                                     text = "⚡ TASHKENT LIVE",
@@ -408,7 +407,7 @@ fun HeroSection(
                             text = "Play Without\nthe Friction.",
                             style = MaterialTheme.typography.headlineLarge.copy(
                                 fontSize = 26.sp,
-                                lineHeight = 30.sp
+                                lineHeight = 31.sp
                             ),
                             fontWeight = FontWeight.Black,
                             color = PureWhite
@@ -422,7 +421,7 @@ fun HeroSection(
                             color = PlatinumSilver
                         )
 
-                        Spacer(modifier = Modifier.height(18.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -435,7 +434,7 @@ fun HeroSection(
                                     .clip(RoundedCornerShape(14.dp))
                                     .background(
                                         brush = Brush.horizontalGradient(
-                                            colors = listOf(ElectricLime, Color(0xFF00E676))
+                                            colors = listOf(ElectricLime, Color(0xFF10B981))
                                         )
                                     )
                                     .kineticTouchEffect(onClick = onFindMatchClick)
@@ -447,13 +446,13 @@ fun HeroSection(
                                         text = "FIND A MATCH",
                                         style = MaterialTheme.typography.labelLarge,
                                         fontWeight = FontWeight.Black,
-                                        color = Color(0xFF0A0C05)
+                                        color = Color(0xFF0B0E14)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                         contentDescription = null,
-                                        tint = Color(0xFF0A0C05),
+                                        tint = Color(0xFF0B0E14),
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -471,8 +470,8 @@ fun HeroSection(
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    Color(0xFF161A28),
-                                    Color(0xFF0F121C)
+                                    Color(0xFF161C2C),
+                                    Color(0xFF0F131E)
                                 )
                             )
                         )
@@ -480,7 +479,7 @@ fun HeroSection(
                             BorderStroke(1.dp, Color(0x33FFFFFF)),
                             ModernCardShape
                         )
-                        .padding(20.dp)
+                        .padding(22.dp)
                 ) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -504,7 +503,7 @@ fun HeroSection(
                             text = "Matched by\nSkill Level.",
                             style = MaterialTheme.typography.headlineLarge.copy(
                                 fontSize = 26.sp,
-                                lineHeight = 30.sp
+                                lineHeight = 31.sp
                             ),
                             fontWeight = FontWeight.Black,
                             color = PureWhite
@@ -518,7 +517,7 @@ fun HeroSection(
                             color = PlatinumSilver
                         )
 
-                        Spacer(modifier = Modifier.height(18.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
                         Box(
                             modifier = Modifier
@@ -551,7 +550,7 @@ fun HeroSection(
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -608,7 +607,7 @@ fun SportsRow(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
                                     theme.containerColor.copy(alpha = 0.35f),
-                                    Color(0xFF131724)
+                                    Color(0xFF131726)
                                 )
                             )
                         )
@@ -650,8 +649,8 @@ fun EditorialSessionCard(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF151928),
-                        Color(0xFF0F121C)
+                        Color(0xFF151A2A),
+                        Color(0xFF0F131E)
                     )
                 )
             )

@@ -74,7 +74,7 @@ import uz.pley.app.core.ui.theme.SlateMuted
 import uz.pley.app.core.ui.theme.StatusGreen
 import uz.pley.app.core.ui.theme.StatusRed
 
-private val TicketShape = RoundedCornerShape(22.dp)
+private val TicketShape = RoundedCornerShape(24.dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,7 +137,7 @@ fun MyGamesScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(20.dp),
+                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
@@ -153,8 +153,8 @@ fun MyGamesScreen(
 
                 is MyGamesUiState.Loading -> {
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         item {
@@ -176,7 +176,7 @@ fun MyGamesScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(20.dp),
+                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
@@ -201,14 +201,14 @@ fun MyGamesScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .padding(horizontal = 18.dp, vertical = 10.dp)
                         ) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clip(RoundedCornerShape(18.dp))
+                                    .clip(RoundedCornerShape(20.dp))
                                     .background(DarkSurfaceElevated)
-                                    .border(BorderStroke(1.dp, Color(0x28FFFFFF)), RoundedCornerShape(18.dp))
+                                    .border(BorderStroke(1.dp, Color(0x28FFFFFF)), RoundedCornerShape(20.dp))
                                     .padding(4.dp)
                             ) {
                                 Row(modifier = Modifier.fillMaxWidth()) {
@@ -216,7 +216,7 @@ fun MyGamesScreen(
                                         modifier = Modifier
                                             .weight(1f)
                                             .height(48.dp)
-                                            .clip(RoundedCornerShape(14.dp))
+                                            .clip(RoundedCornerShape(16.dp))
                                             .background(
                                                 if (selectedTab == 0) ElectricLime else Color.Transparent
                                             )
@@ -229,14 +229,14 @@ fun MyGamesScreen(
                                             text = "Upcoming (${state.upcomingBookings.size})",
                                             style = MaterialTheme.typography.labelLarge,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (selectedTab == 0) Color(0xFF0A0C05) else PlatinumSilver
+                                            color = if (selectedTab == 0) Color(0xFF0B0E14) else PlatinumSilver
                                         )
                                     }
                                     Box(
                                         modifier = Modifier
                                             .weight(1f)
                                             .height(48.dp)
-                                            .clip(RoundedCornerShape(14.dp))
+                                            .clip(RoundedCornerShape(16.dp))
                                             .background(
                                                 if (selectedTab == 1) ElectricLime else Color.Transparent
                                             )
@@ -249,13 +249,13 @@ fun MyGamesScreen(
                                             text = "Past (${state.pastBookings.size})",
                                             style = MaterialTheme.typography.labelLarge,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (selectedTab == 1) Color(0xFF0A0C05) else PlatinumSilver
+                                            color = if (selectedTab == 1) Color(0xFF0B0E14) else PlatinumSilver
                                         )
                                     }
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(18.dp))
 
                             val currentList = if (selectedTab == 0) state.upcomingBookings else state.pastBookings
 
@@ -270,7 +270,7 @@ fun MyGamesScreen(
                                 )
                             } else {
                                 LazyColumn(
-                                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(18.dp),
                                     modifier = Modifier.fillMaxSize()
                                 ) {
                                     items(
@@ -287,7 +287,7 @@ fun MyGamesScreen(
                                     }
 
                                     item {
-                                        Spacer(modifier = Modifier.height(32.dp))
+                                        Spacer(modifier = Modifier.height(36.dp))
                                     }
                                 }
                             }
@@ -342,7 +342,7 @@ fun MyGamesScreen(
                 }
             },
             containerColor = DarkCard,
-            shape = RoundedCornerShape(22.dp)
+            shape = RoundedCornerShape(24.dp)
         )
     }
 }
@@ -363,8 +363,8 @@ fun BookingCard(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF151928),
-                        Color(0xFF0F121C)
+                        Color(0xFF151A2A),
+                        Color(0xFF0F131E)
                     )
                 )
             )

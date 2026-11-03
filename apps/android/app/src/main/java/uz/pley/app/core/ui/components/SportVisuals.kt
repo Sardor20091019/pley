@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import uz.pley.app.core.ui.theme.DarkSurfaceElevated
+import uz.pley.app.core.ui.theme.ElectricLime
 import uz.pley.app.core.ui.theme.PlatinumSilver
 import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.StatusAmber
@@ -63,39 +64,39 @@ fun resolveSportTheme(slug: String): SportVisualTheme {
 
 object SportThemePresets {
     val Football = SportVisualTheme(
-        primaryColor = Color(0xFF00E676),
-        containerColor = Color(0x2600E676),
-        borderColor = Color(0x6600E676),
+        primaryColor = Color(0xFF10B981),
+        containerColor = Color(0x2610B981),
+        borderColor = Color(0x6610B981),
         disciplineTag = "PITCH"
     )
     val Basketball = SportVisualTheme(
-        primaryColor = Color(0xFFFF6D00),
-        containerColor = Color(0x26FF6D00),
-        borderColor = Color(0x66FF6D00),
+        primaryColor = Color(0xFFF97316),
+        containerColor = Color(0x26F97316),
+        borderColor = Color(0x66F97316),
         disciplineTag = "HARDWOOD"
     )
     val Padel = SportVisualTheme(
-        primaryColor = Color(0xFFD4FF00),
-        containerColor = Color(0x26D4FF00),
-        borderColor = Color(0x66D4FF00),
+        primaryColor = ElectricLime,
+        containerColor = Color(0x26C8F526),
+        borderColor = Color(0x66C8F526),
         disciplineTag = "RACKET"
     )
     val Volleyball = SportVisualTheme(
-        primaryColor = Color(0xFF00E5FF),
-        containerColor = Color(0x2600E5FF),
-        borderColor = Color(0x6600E5FF),
+        primaryColor = Color(0xFF06B6D4),
+        containerColor = Color(0x2606B6D4),
+        borderColor = Color(0x6606B6D4),
         disciplineTag = "COURT"
     )
     val Fitness = SportVisualTheme(
-        primaryColor = Color(0xFFE040FB),
-        containerColor = Color(0x26E040FB),
-        borderColor = Color(0x66E040FB),
+        primaryColor = Color(0xFFA855F7),
+        containerColor = Color(0x26A855F7),
+        borderColor = Color(0x66A855F7),
         disciplineTag = "TRACK"
     )
     val General = SportVisualTheme(
-        primaryColor = Color(0xFFD4FF00),
-        containerColor = Color(0x26D4FF00),
-        borderColor = Color(0x66D4FF00),
+        primaryColor = ElectricLime,
+        containerColor = Color(0x26C8F526),
+        borderColor = Color(0x66C8F526),
         disciplineTag = "ARENA"
     )
 }
@@ -104,30 +105,30 @@ object SportThemePresets {
 fun SportNeonBadge(
     icon: String,
     theme: SportVisualTheme,
-    size: Dp = 38.dp,
+    size: Dp = 40.dp,
     modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .size(size)
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(14.dp))
             .background(
                 brush = Brush.radialGradient(
                     colors = listOf(
                         theme.containerColor,
-                        Color(0xFF101420)
+                        Color(0xFF101422)
                     )
                 )
             )
             .border(
                 BorderStroke(1.2.dp, theme.borderColor),
-                RoundedCornerShape(12.dp)
+                RoundedCornerShape(14.dp)
             ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = icon,
-            fontSize = (size.value * 0.45f).sp
+            fontSize = (size.value * 0.46f).sp
         )
     }
 }
@@ -145,7 +146,7 @@ fun SessionCapacityMeter(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+        verticalArrangement = Arrangement.spacedBy(7.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -155,11 +156,11 @@ fun SessionCapacityMeter(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier
-                        .size(6.dp)
+                        .size(7.dp)
                         .clip(CircleShape)
                         .background(accentColor)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(7.dp))
                 Text(
                     text = "$bookedSlots/$safeMax PLAYERS ROSTERED",
                     style = MaterialTheme.typography.labelSmall.copy(
@@ -191,7 +192,7 @@ fun SessionCapacityMeter(
                         ),
                         RoundedCornerShape(6.dp)
                     )
-                    .padding(horizontal = 7.dp, vertical = 2.dp)
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
             ) {
                 Text(
                     text = when {
@@ -217,7 +218,7 @@ fun SessionCapacityMeter(
                 .fillMaxWidth()
                 .height(6.dp)
                 .clip(RoundedCornerShape(3.dp))
-                .background(Color(0xFF0B0D14))
+                .background(Color(0xFF0B0E17))
                 .border(BorderStroke(0.5.dp, Color(0x26FFFFFF)), RoundedCornerShape(3.dp))
         ) {
             Box(
@@ -228,7 +229,7 @@ fun SessionCapacityMeter(
                     .background(
                         brush = Brush.horizontalGradient(
                             colors = listOf(
-                                accentColor.copy(alpha = 0.65f),
+                                accentColor.copy(alpha = 0.7f),
                                 accentColor
                             )
                         )
@@ -257,9 +258,9 @@ fun LivePulseRadarBadge(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFF0F1524))
+            .background(Color(0xFF0F1526))
             .border(
-                BorderStroke(1.dp, Color(0xFF00E676).copy(alpha = 0.45f)),
+                BorderStroke(1.dp, Color(0xFF10B981).copy(alpha = 0.45f)),
                 RoundedCornerShape(20.dp)
             )
             .padding(horizontal = 12.dp, vertical = 6.dp)
@@ -272,7 +273,7 @@ fun LivePulseRadarBadge(
                 modifier = Modifier
                     .size(8.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF00E676).copy(alpha = alpha))
+                    .background(Color(0xFF10B981).copy(alpha = alpha))
             )
             Text(
                 text = label,
@@ -302,18 +303,18 @@ fun MatchVisualTag(
                 BorderStroke(0.5.dp, Color(0x26FFFFFF)),
                 RoundedCornerShape(8.dp)
             )
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .padding(horizontal = 9.dp, vertical = 5.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             if (icon != null) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
                     tint = tint,
-                    modifier = Modifier.size(12.dp)
+                    modifier = Modifier.size(13.dp)
                 )
             } else if (iconEmoji != null) {
                 Text(text = iconEmoji, fontSize = 11.sp)
@@ -351,4 +352,3 @@ fun PerforatedTicketDivider(
             )
     )
 }
-

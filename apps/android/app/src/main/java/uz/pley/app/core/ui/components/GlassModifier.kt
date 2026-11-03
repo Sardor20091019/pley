@@ -15,8 +15,8 @@ import uz.pley.app.core.ui.theme.DarkCard
 
 fun Modifier.glassCard(
     shape: Shape = RoundedCornerShape(24.dp),
-    backgroundColor: Color = Color(0xFF131724),
-    borderAlpha: Float = 0.22f,
+    backgroundColor: Color = Color(0xFF141928),
+    borderAlpha: Float = 0.24f,
     strokeWidth: Dp = 1.dp
 ): Modifier = composed {
     this
@@ -25,7 +25,7 @@ fun Modifier.glassCard(
             brush = Brush.verticalGradient(
                 colors = listOf(
                     backgroundColor,
-                    Color(0xFF0C0E17)
+                    Color(0xFF0D101A)
                 )
             )
         )
@@ -35,7 +35,7 @@ fun Modifier.glassCard(
                 colors = listOf(
                     Color.White.copy(alpha = borderAlpha),
                     Color.White.copy(alpha = borderAlpha * 0.4f),
-                    Color(0x08FFFFFF)
+                    Color(0x0AFFFFFF)
                 )
             ),
             shape = shape
@@ -43,15 +43,15 @@ fun Modifier.glassCard(
 }
 
 fun Modifier.carbonCard(
-    shape: Shape = RoundedCornerShape(20.dp),
+    shape: Shape = RoundedCornerShape(22.dp),
     containerColor: Color = DarkCard,
-    borderAlpha: Float = 0.20f,
+    borderAlpha: Float = 0.22f,
     backgroundAlpha: Float = 1.0f,
     borderColor: Color? = null
 ): Modifier = composed {
     val bgColors = listOf(
         containerColor.copy(alpha = backgroundAlpha),
-        Color(0xFF0A0C12).copy(alpha = backgroundAlpha)
+        Color(0xFF0C0F18).copy(alpha = backgroundAlpha)
     )
     val borderColors = if (borderColor != null) {
         listOf(
@@ -83,17 +83,17 @@ fun Modifier.carbonCard(
 }
 
 fun Modifier.glassCardSubtle(
-    shape: Shape = RoundedCornerShape(16.dp)
+    shape: Shape = RoundedCornerShape(18.dp)
 ): Modifier = glassCard(
     shape = shape,
-    backgroundColor = Color(0xFF111420),
-    borderAlpha = 0.16f
+    backgroundColor = Color(0xFF111624),
+    borderAlpha = 0.18f
 )
 
 fun Modifier.glassCardProminent(
-    shape: Shape = RoundedCornerShape(24.dp)
+    shape: Shape = RoundedCornerShape(26.dp)
 ): Modifier = glassCard(
     shape = shape,
-    backgroundColor = Color(0xFF191E2E),
-    borderAlpha = 0.32f
+    backgroundColor = Color(0xFF1A2134),
+    borderAlpha = 0.35f
 )

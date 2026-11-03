@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +25,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,12 +38,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -120,8 +116,8 @@ fun DiscoverScreen(
                             onClick = onNavigateToMap,
                             modifier = Modifier
                                 .size(44.dp)
-                                .background(Color(0x1FD4FF00), CircleShape)
-                                .border(BorderStroke(1.dp, Color(0x40D4FF00)), CircleShape)
+                                .background(Color(0x1FC8F526), CircleShape)
+                                .border(BorderStroke(1.dp, Color(0x40C8F526)), CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Map,
@@ -131,7 +127,7 @@ fun DiscoverScreen(
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
@@ -150,8 +146,8 @@ fun DiscoverScreen(
             when (val state = uiState) {
                 is DiscoverUiState.Loading -> {
                     LazyColumn(
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         item {
@@ -173,7 +169,7 @@ fun DiscoverScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(20.dp),
+                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
@@ -201,8 +197,8 @@ fun DiscoverScreen(
                             modifier = Modifier.fillMaxSize()
                         ) {
                             LazyColumn(
-                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
+                                verticalArrangement = Arrangement.spacedBy(18.dp),
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 item(contentType = "search_field") {
@@ -505,7 +501,7 @@ fun DiscoverScreen(
                                 }
 
                                 item {
-                                    Spacer(modifier = Modifier.height(32.dp))
+                                    Spacer(modifier = Modifier.height(36.dp))
                                 }
                             }
                         }
@@ -513,7 +509,7 @@ fun DiscoverScreen(
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
-                                .padding(end = 16.dp, bottom = 16.dp)
+                                .padding(end = 18.dp, bottom = 18.dp)
                         ) {
                             Box(
                                 modifier = Modifier
@@ -521,7 +517,7 @@ fun DiscoverScreen(
                                     .clip(RoundedCornerShape(24.dp))
                                     .background(
                                         brush = Brush.horizontalGradient(
-                                            colors = listOf(ElectricLime, Color(0xFF00E676))
+                                            colors = listOf(ElectricLime, Color(0xFF10B981))
                                         )
                                     )
                                     .border(BorderStroke(1.dp, Color(0x66FFFFFF)), RoundedCornerShape(24.dp))
@@ -533,7 +529,7 @@ fun DiscoverScreen(
                                     Icon(
                                         imageVector = Icons.Default.Map,
                                         contentDescription = "Map View",
-                                        tint = Color(0xFF0A0C05),
+                                        tint = Color(0xFF0B0E14),
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -541,7 +537,7 @@ fun DiscoverScreen(
                                         text = "MAP VIEW",
                                         style = MaterialTheme.typography.labelLarge,
                                         fontWeight = FontWeight.Black,
-                                        color = Color(0xFF0A0C05)
+                                        color = Color(0xFF0B0E14)
                                     )
                                 }
                             }

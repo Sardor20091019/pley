@@ -4,7 +4,7 @@ const { NestFactory } = require('@nestjs/core');
 const { ExpressAdapter } = require('@nestjs/platform-express');
 const { ValidationPipe } = require('@nestjs/common');
 const { json, urlencoded } = require('express');
-const { AppModule } = require('../apps/api/dist/src/app.module.js');
+const { AppModule } = require('../apps/api/dist/app.module.js');
 
 let cachedServer = null;
 
@@ -41,7 +41,12 @@ async function bootstrapServer() {
 }
 
 module.exports = async function handler(req, res) {
-  if (req.headers['x-matched-path']) {
+  if (
+    req.url &&
+    !req.url.startsWith('/api/v1') &&
+    req.headers['x-matched-path'] &&
+    req.headers['x-matched-path'].startsWith('/api/v1')
+  ) {
     req.url = req.headers['x-matched-path'];
   }
   const server = await bootstrapServer();
