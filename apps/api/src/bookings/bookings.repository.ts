@@ -67,6 +67,17 @@ export class BookingsRepository {
       .executeTakeFirst();
   }
 
+  public async findBookingByIdempotencyKey(
+    idempotencyKey: string,
+  ): Promise<BookingsTable | undefined> {
+    const db = this.databaseService.getDb();
+    return db
+      .selectFrom('bookings')
+      .selectAll()
+      .where('idempotency_key', '=', idempotencyKey)
+      .executeTakeFirst();
+  }
+
   public async countActiveBookingsForSession(sessionId: string): Promise<number> {
     const db = this.databaseService.getDb();
     const active = await db

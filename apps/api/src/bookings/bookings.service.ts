@@ -43,7 +43,21 @@ export class BookingsService {
   public async reserveSpot(
     userId: string,
     sessionId: string,
+    idempotencyKey?: string,
   ): Promise<BookingsTable> {
+    if (idempotencyKey) {
+      const existingKeyBooking =
+        await this.bookingsRepository.findBookingByIdempotencyKey(idempotencyKey);
+      if (existingKeyBooking) {
+        if (existingKeyBooking.user_id !== userId) {
+          throw new ConflictException(
+            'Idempotency key was used by another user',
+          );
+        }
+        return existingKeyBooking;
+      }
+    }
+
     const user = await this.bookingsRepository.findUserById(userId);
 
     if (!user) {
@@ -95,44 +109,57 @@ export class BookingsService {
     const bookingId = randomUUID();
     const now = new Date().toISOString();
 
-    return this.bookingsRepository.createBookingWithSideEffects(
-      {
-        id: bookingId,
-        session_id: sessionId,
-        user_id: userId,
-        status: 'CONFIRMED',
-        price_snapshot: session.price_per_slot,
-        service_fee_snapshot: session.service_fee,
-        payment_status: 'PAID',
-        attendance_status: 'UNCONFIRMED',
-        booked_at: now,
-        cancelled_at: null,
-        created_at: now,
-        updated_at: now,
-      },
-      {
-        id: randomUUID(),
-        actor_id: userId,
-        action: 'RESERVE_SPOT',
-        target_type: 'BOOKING',
-        target_id: bookingId,
-        payload: JSON.stringify({
-          sessionId,
-          price: session.price_per_slot,
-          serviceFee: session.service_fee,
-        }),
-        created_at: now,
-      },
-      {
-        id: randomUUID(),
-        user_id: userId,
-        type: 'BOOKING_CONFIRMED',
-        title: 'You are on the team!',
-        message: `Your spot for "${session.title}" has been successfully reserved.`,
-        is_read: 0,
-        created_at: now,
-      },
-    );
+    try {
+      return await this.bookingsRepository.createBookingWithSideEffects(
+        {
+          id: bookingId,
+          session_id: sessionId,
+          user_id: userId,
+          status: 'CONFIRMED',
+          price_snapshot: session.price_per_slot,
+          service_fee_snapshot: session.service_fee,
+          payment_status: 'PAID',
+          attendance_status: 'UNCONFIRMED',
+          booked_at: now,
+          cancelled_at: null,
+          idempotency_key: idempotencyKey || null,
+          created_at: now,
+          updated_at: now,
+        },
+        {
+          id: randomUUID(),
+          actor_id: userId,
+          action: 'RESERVE_SPOT',
+          target_type: 'BOOKING',
+          target_id: bookingId,
+          payload: JSON.stringify({
+            sessionId,
+            price: session.price_per_slot,
+            serviceFee: session.service_fee,
+            idempotencyKey,
+          }),
+          created_at: now,
+        },
+        {
+          id: randomUUID(),
+          user_id: userId,
+          type: 'BOOKING_CONFIRMED',
+          title: 'You are on the team!',
+          message: `Your spot for "${session.title}" has been successfully reserved.`,
+          is_read: 0,
+          created_at: now,
+        },
+      );
+    } catch (error: unknown) {
+      if (idempotencyKey) {
+        const raceBooking =
+          await this.bookingsRepository.findBookingByIdempotencyKey(idempotencyKey);
+        if (raceBooking && raceBooking.user_id === userId) {
+          return raceBooking;
+        }
+      }
+      throw error;
+    }
   }
 
   public async cancelBooking(

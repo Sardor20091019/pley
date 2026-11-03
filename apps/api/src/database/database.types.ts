@@ -98,6 +98,7 @@ export interface BookingsTable {
   attendance_status: AttendanceStatus;
   booked_at: string;
   cancelled_at: string | null;
+  idempotency_key: string | null;
   created_at: string;
   updated_at: string;
 }

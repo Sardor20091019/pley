@@ -1,12 +1,12 @@
-import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import {
-  SessionItem,
+  AdminMetrics,
   SessionDetail,
+  SessionItem,
   UserBooking,
   UserProfile,
-  AdminMetrics,
 } from '../models/types';
 import { getCookie, setCookie } from './cookies';
 
@@ -58,9 +58,18 @@ export class ApiService {
     );
   }
 
-  public async reserveSpot(sessionId: string): Promise<any> {
+  public async reserveSpot(sessionId: string, idempotencyKey?: string): Promise<any> {
+    const key =
+      idempotencyKey ||
+      (typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `booking_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`);
     return firstValueFrom(
-      this.http.post<any>(`${API_BASE_URL}/bookings`, { sessionId }),
+      this.http.post<any>(
+        `${API_BASE_URL}/bookings`,
+        { sessionId, idempotencyKey: key },
+        { headers: { 'Idempotency-Key': key } },
+      ),
     );
   }
 

@@ -3,17 +3,18 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Patch,
   Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { BookingsService, UserBookingItem } from './bookings.service';
-import { CreateBookingDto, UpdateAttendanceDto } from './dto/booking.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard, Roles } from '../auth/roles.guard';
 import { BookingsTable, UsersTable } from '../database/database.types';
+import { BookingsService, UserBookingItem } from './bookings.service';
+import { CreateBookingDto, UpdateAttendanceDto } from './dto/booking.dto';
 
 @Controller('bookings')
 @UseGuards(AuthGuard)
@@ -23,9 +24,12 @@ export class BookingsController {
   @Post()
   public async createBooking(
     @Req() req: { user: UsersTable },
+    @Headers('idempotency-key') headerKey: string | undefined,
+    @Headers('x-idempotency-key') altHeaderKey: string | undefined,
     @Body() dto: CreateBookingDto,
   ): Promise<BookingsTable> {
-    return this.bookingsService.reserveSpot(req.user.id, dto.sessionId);
+    const key = headerKey || altHeaderKey || dto.idempotencyKey;
+    return this.bookingsService.reserveSpot(req.user.id, dto.sessionId, key);
   }
 
   @Get('my')

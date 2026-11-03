@@ -1,5 +1,8 @@
 package uz.pley.app.data.repository
 
+import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import uz.pley.app.core.database.dao.SessionDao
@@ -16,8 +19,6 @@ import uz.pley.app.core.network.model.SkillLevel
 import uz.pley.app.core.network.model.SportDto
 import uz.pley.app.core.network.model.VenueNestedDto
 import uz.pley.app.core.network.toAppError
-import javax.inject.Inject
-import javax.inject.Singleton
 
 interface SessionsRepository {
     fun observeSessions(): Flow<List<SessionItemDto>>
@@ -132,7 +133,14 @@ class SessionsRepositoryImpl @Inject constructor(
                 return Result.failure(AppError.NoNetwork())
             }
 
-            val response = apiService.reserveSpot(CreateBookingRequest(sessionId = sessionId))
+            val idempotencyKey = UUID.randomUUID().toString()
+            val response = apiService.reserveSpot(
+                idempotencyKey = idempotencyKey,
+                request = CreateBookingRequest(
+                    sessionId = sessionId,
+                    idempotencyKey = idempotencyKey
+                )
+            )
             if (!response.isSuccessful) {
                 return Result.failure(response.toAppError())
             }

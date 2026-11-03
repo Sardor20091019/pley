@@ -99,6 +99,7 @@ export const migrations: Migration[] = [
           attendance_status TEXT NOT NULL,
           booked_at TEXT NOT NULL,
           cancelled_at TEXT,
+          idempotency_key TEXT,
           created_at TEXT NOT NULL,
           updated_at TEXT NOT NULL
         )
@@ -160,6 +161,17 @@ export const migrations: Migration[] = [
           status TEXT NOT NULL DEFAULT 'PENDING',
           created_at TEXT NOT NULL
         )
+      `.execute(db);
+    },
+  },
+  {
+    name: '002_booking_idempotency',
+    up: async (db: Kysely<any>): Promise<void> => {
+      await sql`
+        ALTER TABLE bookings ADD COLUMN IF NOT EXISTS idempotency_key TEXT;
+      `.execute(db);
+      await sql`
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_bookings_idempotency_key ON bookings(idempotency_key) WHERE idempotency_key IS NOT NULL;
       `.execute(db);
     },
   },

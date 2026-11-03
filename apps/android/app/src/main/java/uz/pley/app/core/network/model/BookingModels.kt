@@ -7,7 +7,8 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 data class CreateBookingRequest(
-    @SerialName("sessionId") val sessionId: String
+    @SerialName("sessionId") val sessionId: String,
+    @SerialName("idempotencyKey") val idempotencyKey: String? = null
 )
 
 @Immutable
