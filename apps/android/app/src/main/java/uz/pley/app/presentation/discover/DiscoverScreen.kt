@@ -66,16 +66,6 @@ import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
 import uz.pley.app.presentation.home.HomeSessionCard
 
-private val TashkentDistricts = listOf(
-    "All",
-    "Mirabad",
-    "Yunusabad",
-    "Chilanzar",
-    "Yakkasaray",
-    "Mirzo-Ulugbek",
-    "Shaykhontokhur"
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiscoverScreen(
@@ -386,12 +376,44 @@ fun DiscoverScreen(
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            item {
+                                                val isAllSelected = state.filterState.selectedDistrict == null
+                                                Box(
+                                                    modifier = Modifier
+                                                        .height(44.dp)
+                                                        .clip(RoundedCornerShape(12.dp))
+                                                        .background(
+                                                            if (isAllSelected) ElectricLime else DarkSurfaceElevated
+                                                        )
+                                                        .border(
+                                                            BorderStroke(
+                                                                1.dp,
+                                                                if (isAllSelected) ElectricLime else Color(0x22FFFFFF)
+                                                            ),
+                                                            RoundedCornerShape(12.dp)
+                                                        )
+                                                        .kineticTouchEffect(pressedScale = 0.94f) {
+                                                            viewModel.onDistrictSelected(null)
+                                                        }
+                                                        .padding(horizontal = 14.dp),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(
+                                                        text = "All",
+                                                        style = MaterialTheme.typography.labelMedium,
+                                                        color = if (isAllSelected) Color.Black else PureWhite,
+                                                        fontWeight = if (isAllSelected) FontWeight.Black else FontWeight.Medium
+                                                    )
+                                                }
+                                            }
+
                                             items(
-                                                items = TashkentDistricts,
+                                                items = state.districts,
+                                                key = { it.id },
                                                 contentType = { "district_filter_chip" }
                                             ) { district ->
-                                                val isSelected = (district == "All" && state.filterState.selectedDistrict == null) ||
-                                                        (state.filterState.selectedDistrict == district)
+                                                val isSelected = state.filterState.selectedDistrict.equals(district.name, ignoreCase = true) ||
+                                                        state.filterState.selectedDistrict.equals(district.slug, ignoreCase = true)
                                                 Box(
                                                     modifier = Modifier
                                                         .height(44.dp)
@@ -407,17 +429,17 @@ fun DiscoverScreen(
                                                             RoundedCornerShape(12.dp)
                                                         )
                                                         .kineticTouchEffect(pressedScale = 0.94f) {
-                                                            if (district == "All") {
+                                                            if (isSelected) {
                                                                 viewModel.onDistrictSelected(null)
                                                             } else {
-                                                                viewModel.onDistrictSelected(district)
+                                                                viewModel.onDistrictSelected(district.name)
                                                             }
                                                         }
                                                         .padding(horizontal = 14.dp),
                                                     contentAlignment = Alignment.Center
                                                 ) {
                                                     Text(
-                                                        text = district,
+                                                        text = district.name,
                                                         style = MaterialTheme.typography.labelMedium,
                                                         color = if (isSelected) Color.Black else PlatinumSilver,
                                                         fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium

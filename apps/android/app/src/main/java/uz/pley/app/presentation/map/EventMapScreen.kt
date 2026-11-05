@@ -97,6 +97,7 @@ import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import kotlinx.coroutines.launch
+import uz.pley.app.core.network.model.DistrictDto
 import uz.pley.app.core.network.model.SessionItemDto
 import uz.pley.app.core.ui.components.MatchVisualTag
 import uz.pley.app.core.ui.components.PleyEmptyState
@@ -116,36 +117,26 @@ import kotlin.math.sin
 
 private val TashkentCenter = LatLng(41.311081, 69.240562)
 
-private val TashkentDistricts = listOf(
-    "All",
-    "Mirabad",
-    "Yunusabad",
-    "Chilanzar",
-    "Yakkasaray",
-    "Mirzo-Ulugbek",
-    "Shaykhontokhur"
-)
-
 enum class MapDisplayMode {
     MAP,
     RADAR,
     LIST
 }
 
-fun SessionItemDto.toLatLng(): LatLng {
+fun SessionItemDto.toLatLng(districts: List<DistrictDto> = emptyList()): LatLng {
     val venueLat = venue.latitude
     val venueLng = venue.longitude
     if (venueLat != null && venueLng != null && venueLat != 0.0 && venueLng != 0.0) {
         return LatLng(venueLat, venueLng)
     }
-    val base = when (venue.district.lowercase().trim()) {
-        "mirabad" -> LatLng(41.2918, 69.2736)
-        "yunusabad" -> LatLng(41.3654, 69.2891)
-        "chilanzar" -> LatLng(41.2721, 69.2045)
-        "yakkasaray" -> LatLng(41.2825, 69.2514)
-        "mirzo-ulugbek", "mirzo ulugbek" -> LatLng(41.3289, 69.3378)
-        "shaykhontokhur" -> LatLng(41.3211, 69.2312)
-        else -> TashkentCenter
+    val matchedDistrict = districts.firstOrNull {
+        it.name.equals(venue.district, ignoreCase = true) ||
+        it.slug.equals(venue.district.replace(" ", "-"), ignoreCase = true)
+    }
+    val base = if (matchedDistrict != null) {
+        LatLng(matchedDistrict.lat, matchedDistrict.lng)
+    } else {
+        TashkentCenter
     }
     val jitterLat = ((id.hashCode() % 100) - 50) * 0.00018
     val jitterLng = (((id.hashCode() / 100) % 100) - 50) * 0.00018
@@ -202,7 +193,7 @@ fun EventMapScreen(
         snapshotFlow { pagerState.currentPage }.collect { page ->
             if (page in uiState.sessions.indices) {
                 val targetSession = uiState.sessions[page]
-                val targetLatLng = targetSession.toLatLng()
+                val targetLatLng = targetSession.toLatLng(uiState.districts)
                 viewModel.selectSession(targetSession.id)
                 scope.launch {
                     cameraPositionState.animate(
@@ -246,7 +237,7 @@ fun EventMapScreen(
                                 val isSelected = session.id == uiState.selectedSessionId
                                 val markerState = rememberMarkerState(
                                     key = session.id,
-                                    position = session.toLatLng()
+                                    position = session.toLatLng(uiState.districts)
                                 )
 
                                 MarkerComposable(
@@ -322,6 +313,7 @@ fun EventMapScreen(
                 } else {
                     DiscoveryRadarCanvas(
                         sessions = uiState.sessions,
+                        districts = uiState.districts,
                         selectedSessionId = uiState.selectedSessionId,
                         onBlipClick = { session, index ->
                             viewModel.selectSession(session.id)
@@ -337,6 +329,7 @@ fun EventMapScreen(
             MapDisplayMode.RADAR -> {
                 DiscoveryRadarCanvas(
                     sessions = uiState.sessions,
+                    districts = uiState.districts,
                     selectedSessionId = uiState.selectedSessionId,
                     onBlipClick = { session, index ->
                         viewModel.selectSession(session.id)
@@ -516,12 +509,36 @@ fun EventMapScreen(
                         .horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    TashkentDistricts.forEach { district ->
-                        val isSelected = if (district == "All") {
-                            uiState.selectedDistrict == null
-                        } else {
-                            uiState.selectedDistrict.equals(district, ignoreCase = true)
-                        }
+                    val isAllSelected = uiState.selectedDistrict == null
+                    Box(
+                        modifier = Modifier
+                            .height(44.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(if (isAllSelected) ElectricLime else Color(0xEB121520))
+                            .border(
+                                BorderStroke(
+                                    1.dp,
+                                    if (isAllSelected) PureWhite else Color(0x33FFFFFF)
+                                ),
+                                RoundedCornerShape(20.dp)
+                            )
+                            .kineticTouchEffect(pressedScale = 0.94f) {
+                                viewModel.filterByDistrict(null)
+                            }
+                            .padding(horizontal = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "All",
+                            color = if (isAllSelected) Color(0xFF0F1117) else PureWhite,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = if (isAllSelected) FontWeight.Black else FontWeight.Medium
+                        )
+                    }
+
+                    uiState.districts.forEach { district ->
+                        val isSelected = uiState.selectedDistrict.equals(district.name, ignoreCase = true) ||
+                                uiState.selectedDistrict.equals(district.slug, ignoreCase = true)
 
                         Box(
                             modifier = Modifier
@@ -536,14 +553,14 @@ fun EventMapScreen(
                                     RoundedCornerShape(20.dp)
                                 )
                                 .kineticTouchEffect(pressedScale = 0.94f) {
-                                    val filterValue = if (district == "All") null else district
+                                    val filterValue = if (isSelected) null else district.name
                                     viewModel.filterByDistrict(filterValue)
                                 }
                                 .padding(horizontal = 16.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = district,
+                                text = district.name,
                                 color = if (isSelected) Color(0xFF0F1117) else PureWhite,
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium
@@ -702,6 +719,7 @@ private fun ModeSegmentPill(
 @Composable
 private fun DiscoveryRadarCanvas(
     sessions: List<SessionItemDto>,
+    districts: List<DistrictDto> = emptyList(),
     selectedSessionId: String?,
     onBlipClick: (SessionItemDto, Int) -> Unit,
     modifier: Modifier = Modifier
@@ -728,7 +746,7 @@ private fun DiscoveryRadarCanvas(
                     val maxRadius = minOf(size.width, size.height) * 0.42f
 
                     sessions.forEachIndexed { index, session ->
-                        val latLng = session.toLatLng()
+                        val latLng = session.toLatLng(districts)
                         val dLat = (latLng.latitude - TashkentCenter.latitude) / 0.12f
                         val dLng = (latLng.longitude - TashkentCenter.longitude) / 0.12f
                         val blipX = centerX + (dLng.toFloat() * maxRadius)
@@ -794,7 +812,7 @@ private fun DiscoveryRadarCanvas(
             sessions.forEach { session ->
                 val isSelected = session.id == selectedSessionId
                 val theme = resolveSportTheme(session.sport.slug)
-                val latLng = session.toLatLng()
+                val latLng = session.toLatLng(districts)
                 val dLat = (latLng.latitude - TashkentCenter.latitude) / 0.12f
                 val dLng = (latLng.longitude - TashkentCenter.longitude) / 0.12f
 

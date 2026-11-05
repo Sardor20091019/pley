@@ -13,6 +13,7 @@ import uz.pley.app.core.network.model.AchievementDto
 import uz.pley.app.core.network.model.AuthSessionResponse
 import uz.pley.app.core.network.model.BookingDto
 import uz.pley.app.core.network.model.CreateBookingRequest
+import uz.pley.app.core.network.model.DistrictDto
 import uz.pley.app.core.network.model.GoogleCallbackDto
 import uz.pley.app.core.network.model.GoogleCredentialDto
 import uz.pley.app.core.network.model.SessionDetailDto
@@ -90,5 +91,8 @@ interface PleyApiService {
 
     @GET("sports")
     suspend fun listSports(): Response<List<SportDto>>
+
+    @GET("districts")
+    suspend fun listDistricts(): Response<List<DistrictDto>>
 }
 

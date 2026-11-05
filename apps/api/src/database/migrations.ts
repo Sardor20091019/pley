@@ -175,4 +175,49 @@ export const migrations: Migration[] = [
       `.execute(db);
     },
   },
+  {
+    name: '003_districts_table',
+    up: async (db: Kysely<any>): Promise<void> => {
+      await sql`
+        CREATE TABLE IF NOT EXISTS districts (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          slug TEXT NOT NULL UNIQUE,
+          lat DOUBLE PRECISION NOT NULL,
+          lng DOUBLE PRECISION NOT NULL,
+          order_index INTEGER NOT NULL DEFAULT 0,
+          active INTEGER NOT NULL DEFAULT 1,
+          created_at TEXT NOT NULL
+        );
+      `.execute(db);
+
+      const now = new Date().toISOString();
+      const initialDistricts = [
+        { id: 'dist_yunusobod', name: 'Yunusobod', slug: 'yunusobod', lat: 41.3654, lng: 69.2891, order_index: 1 },
+        { id: 'dist_mirzo_ulugbek', name: 'Mirzo Ulugʻbek', slug: 'mirzo-ulugbek', lat: 41.3289, lng: 69.3378, order_index: 2 },
+        { id: 'dist_chilonzor', name: 'Chilonzor', slug: 'chilonzor', lat: 41.2721, lng: 69.2045, order_index: 3 },
+        { id: 'dist_mirobod', name: 'Mirobod', slug: 'mirobod', lat: 41.2918, lng: 69.2736, order_index: 4 },
+        { id: 'dist_yakkasaroy', name: 'Yakkasaroy', slug: 'yakkasaroy', lat: 41.2825, lng: 69.2514, order_index: 5 },
+        { id: 'dist_shayxontohur', name: 'Shayxontohur', slug: 'shayxontohur', lat: 41.3211, lng: 69.2312, order_index: 6 },
+        { id: 'dist_olmazor', name: 'Olmazor', slug: 'olmazor', lat: 41.3533, lng: 69.2241, order_index: 7 },
+        { id: 'dist_yashnobod', name: 'Yashnobod', slug: 'yashnobod', lat: 41.2981, lng: 69.3328, order_index: 8 },
+        { id: 'dist_uchtepa', name: 'Uchtepa', slug: 'uchtepa', lat: 41.2922, lng: 69.1764, order_index: 9 },
+        { id: 'dist_sergeli', name: 'Sergeli', slug: 'sergeli', lat: 41.2225, lng: 69.2217, order_index: 10 },
+        { id: 'dist_yangihayot', name: 'Yangihayot', slug: 'yangihayot', lat: 41.1983, lng: 69.2089, order_index: 11 },
+        { id: 'dist_bektemir', name: 'Bektemir', slug: 'bektemir', lat: 41.2056, lng: 69.3364, order_index: 12 },
+      ];
+
+      for (const d of initialDistricts) {
+        await sql`
+          INSERT INTO districts (id, name, slug, lat, lng, order_index, active, created_at)
+          VALUES (${d.id}, ${d.name}, ${d.slug}, ${d.lat}, ${d.lng}, ${d.order_index}, 1, ${now})
+          ON CONFLICT (slug) DO UPDATE SET
+            name = EXCLUDED.name,
+            lat = EXCLUDED.lat,
+            lng = EXCLUDED.lng,
+            order_index = EXCLUDED.order_index;
+        `.execute(db);
+      }
+    },
+  },
 ];

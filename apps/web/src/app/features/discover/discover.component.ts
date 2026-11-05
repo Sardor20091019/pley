@@ -104,7 +104,7 @@ import { SessionCardComponent } from '../../shared/components/session-card/sessi
                 {{ i18nService.t('discoverSectionDistrict') }}
               </div>
               <div class="flex flex-wrap gap-2">
-                @for (dist of districtsList; track dist.id) {
+                @for (dist of districtsList(); track dist.id) {
                   <button
                     (click)="setDistrict(dist.id)"
                     class="px-3.5 py-1.5 text-xs font-sans font-bold tracking-wider uppercase border transition-all cursor-pointer"
@@ -216,7 +216,7 @@ import { SessionCardComponent } from '../../shared/components/session-card/sessi
               <span class="text-xs font-black uppercase text-[#888888] mr-1">
                 {{ i18nService.t('discoverDistrictLabel') }}
               </span>
-              @for (dist of districtsList; track dist.id) {
+              @for (dist of districtsList(); track dist.id) {
                 <button
                   (click)="setDistrict(dist.id)"
                   class="px-3 py-1.5 rounded-full text-xs font-bold border-2 transition-all"
@@ -307,12 +307,9 @@ export class DiscoverComponent implements OnInit {
     { id: 'basketball-3x3', label: '3x3 Basketbol', icon: '🏀' },
   ];
 
-  public readonly districtsList = [
+  public readonly districtsList: WritableSignal<{ id: string; label: string }[]> = signal([
     { id: '', label: 'Barcha tumanlar' },
-    { id: 'Chilonzor', label: 'Chilonzor' },
-    { id: 'Yunusobod', label: 'Yunusobod' },
-    { id: 'Mirzo Ulugʻbek', label: 'Mirzo Ulugʻbek' },
-  ];
+  ]);
 
   public readonly filteredSessions: Signal<SessionItem[]> = computed(() => {
     const list = this.sessions();
@@ -334,7 +331,20 @@ export class DiscoverComponent implements OnInit {
     const params = this.route.snapshot.queryParams;
     if (params['sport']) this.selectedSport.set(params['sport']);
     if (params['district']) this.selectedDistrict.set(params['district']);
+    this.loadDistricts();
     this.loadSessions();
+  }
+
+  public async loadDistricts(): Promise<void> {
+    try {
+      const districts = await this.api.fetchDistricts();
+      this.districtsList.set([
+        { id: '', label: 'Barcha tumanlar' },
+        ...districts.map((d) => ({ id: d.name, label: d.name })),
+      ]);
+    } catch {
+      this.districtsList.set([{ id: '', label: 'Barcha tumanlar' }]);
+    }
   }
 
   public async loadSessions(): Promise<void> {

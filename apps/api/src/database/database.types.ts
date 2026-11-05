@@ -153,6 +153,17 @@ export interface PartnershipInquiriesTable {
   created_at: string;
 }
 
+export interface DistrictsTable {
+  id: string;
+  name: string;
+  slug: string;
+  lat: number;
+  lng: number;
+  order_index: number;
+  active: number;
+  created_at: string;
+}
+
 export interface MigrationsTable {
   name: string;
   executed_at: string;
@@ -169,4 +180,5 @@ export interface DatabaseSchema {
   audit_logs: AuditLogsTable;
   notifications: NotificationsTable;
   partnership_inquiries: PartnershipInquiriesTable;
+  districts: DistrictsTable;
 }

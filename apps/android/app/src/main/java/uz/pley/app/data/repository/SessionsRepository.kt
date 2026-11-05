@@ -11,6 +11,7 @@ import uz.pley.app.core.network.AppError
 import uz.pley.app.core.network.ConnectivityObserver
 import uz.pley.app.core.network.PleyApiService
 import uz.pley.app.core.network.model.CreateBookingRequest
+import uz.pley.app.core.network.model.DistrictDto
 import uz.pley.app.core.network.model.SessionDetailDto
 import uz.pley.app.core.network.model.SessionItemDto
 import uz.pley.app.core.network.model.SessionStatus
@@ -32,6 +33,7 @@ interface SessionsRepository {
     suspend fun getSessionDetail(id: String): Result<SessionDetailDto>
     suspend fun reserveSpot(sessionId: String): Result<Unit>
     suspend fun getSports(): Result<List<SportDto>>
+    suspend fun getDistricts(): Result<List<DistrictDto>>
 }
 
 @Singleton
@@ -160,6 +162,32 @@ class SessionsRepositoryImpl @Inject constructor(
             Result.success(response.body().orEmpty())
         } catch (e: Exception) {
             Result.failure(if (e is AppError) e else AppError.Unknown(e.localizedMessage ?: "Failed to load sports", e))
+        }
+    }
+
+    private var cachedDistricts: List<DistrictDto> = emptyList()
+
+    override suspend fun getDistricts(): Result<List<DistrictDto>> {
+        if (cachedDistricts.isNotEmpty()) {
+            return Result.success(cachedDistricts)
+        }
+        return try {
+            val response = apiService.listDistricts()
+            if (!response.isSuccessful) {
+                if (cachedDistricts.isNotEmpty()) return Result.success(cachedDistricts)
+                return Result.failure(response.toAppError())
+            }
+            val body = response.body().orEmpty()
+            if (body.isNotEmpty()) {
+                cachedDistricts = body
+            }
+            Result.success(body)
+        } catch (e: Exception) {
+            if (cachedDistricts.isNotEmpty()) {
+                Result.success(cachedDistricts)
+            } else {
+                Result.failure(if (e is AppError) e else AppError.Unknown(e.localizedMessage ?: "Failed to load districts", e))
+            }
         }
     }
 

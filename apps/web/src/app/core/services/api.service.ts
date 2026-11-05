@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import {
   AdminMetrics,
+  DistrictItem,
   SessionDetail,
   SessionItem,
   UserBooking,
@@ -49,6 +50,12 @@ export class ApiService {
 
     return firstValueFrom(
       this.http.get<SessionItem[]>(`${API_BASE_URL}/sessions`, { params }),
+    );
+  }
+
+  public async fetchDistricts(): Promise<DistrictItem[]> {
+    return firstValueFrom(
+      this.http.get<DistrictItem[]>(`${API_BASE_URL}/districts`),
     );
   }
 

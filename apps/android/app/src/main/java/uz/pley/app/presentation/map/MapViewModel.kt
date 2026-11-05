@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import uz.pley.app.core.network.ConnectivityObserver
+import uz.pley.app.core.network.model.DistrictDto
 import uz.pley.app.core.network.model.SessionItemDto
 import uz.pley.app.core.network.toUserFriendlyMessage
 import uz.pley.app.data.repository.SessionsRepository
@@ -16,6 +17,7 @@ import javax.inject.Inject
 
 data class MapUiState(
     val sessions: List<SessionItemDto> = emptyList(),
+    val districts: List<DistrictDto> = emptyList(),
     val selectedIndex: Int = 0,
     val selectedSessionId: String? = null,
     val selectedDistrict: String? = null,
@@ -33,7 +35,17 @@ class MapViewModel @Inject constructor(
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
 
     init {
+        loadDistricts()
         loadSessions()
+    }
+
+    fun loadDistricts(): Unit {
+        viewModelScope.launch {
+            sessionsRepository.getDistricts()
+                .onSuccess { list ->
+                    _uiState.update { it.copy(districts = list) }
+                }
+        }
     }
 
     fun selectIndex(index: Int): Unit {

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import uz.pley.app.core.network.model.DistrictDto
 import uz.pley.app.core.network.model.SessionItemDto
 import uz.pley.app.core.network.model.SportDto
 import uz.pley.app.core.network.toUserFriendlyMessage
@@ -30,6 +31,7 @@ sealed interface DiscoverUiState {
     data class Success(
         val sessions: List<SessionItemDto>,
         val sports: List<SportDto>,
+        val districts: List<DistrictDto>,
         val filterState: FilterState,
         val isRefreshing: Boolean = false
     ) : DiscoverUiState
@@ -43,17 +45,22 @@ class DiscoverViewModel @Inject constructor(
 
     private val filterStateFlow = MutableStateFlow(FilterState())
     private val sportsFlow = MutableStateFlow<List<SportDto>>(emptyList())
+    private val districtsFlow = MutableStateFlow<List<DistrictDto>>(emptyList())
     private val isRefreshingFlow = MutableStateFlow(false)
     private val errorFlow = MutableStateFlow<String?>(null)
     private var searchJob: Job? = null
 
+    private val catalogFlow = combine(sportsFlow, districtsFlow) { sports, districts ->
+        Pair(sports, districts)
+    }
+
     val uiState: StateFlow<DiscoverUiState> = combine(
         sessionsRepository.observeSessions(),
-        sportsFlow,
+        catalogFlow,
         filterStateFlow,
         isRefreshingFlow,
         errorFlow
-    ) { sessions, sports, filters, isRefreshing, error ->
+    ) { sessions, (sports, districts), filters, isRefreshing, error ->
         when {
             error != null && sessions.isEmpty() -> DiscoverUiState.Error(error)
             sessions.isEmpty() && isRefreshing -> DiscoverUiState.Loading
@@ -72,6 +79,7 @@ class DiscoverViewModel @Inject constructor(
                 DiscoverUiState.Success(
                     sessions = filtered,
                     sports = sports,
+                    districts = districts,
                     filterState = filters,
                     isRefreshing = isRefreshing
                 )
@@ -91,6 +99,7 @@ class DiscoverViewModel @Inject constructor(
         viewModelScope.launch {
             isRefreshingFlow.value = true
             sessionsRepository.getSports().onSuccess { sportsFlow.value = it }
+            sessionsRepository.getDistricts().onSuccess { districtsFlow.value = it }
             fetchRemote()
             isRefreshingFlow.value = false
         }
@@ -129,6 +138,8 @@ class DiscoverViewModel @Inject constructor(
     fun refresh() {
         viewModelScope.launch {
             isRefreshingFlow.value = true
+            sessionsRepository.getSports().onSuccess { sportsFlow.value = it }
+            sessionsRepository.getDistricts().onSuccess { districtsFlow.value = it }
             fetchRemote()
             isRefreshingFlow.value = false
         }
