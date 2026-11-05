@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -45,10 +46,10 @@ import uz.pley.app.core.ui.theme.PureWhite
 import uz.pley.app.core.ui.theme.SlateMuted
 
 enum class BottomTab(val route: NavDestination, val label: String, val icon: ImageVector) {
-    HOME(NavDestination.Home, "Home", Icons.Default.Home),
-    DISCOVER(NavDestination.Discover, "Discover", Icons.Default.Explore),
-    MY_GAMES(NavDestination.MyGames, "My Games", Icons.Default.DateRange),
-    PROFILE(NavDestination.Profile, "Profile", Icons.Default.Person)
+    HOME(NavDestination.Home, "Radar", Icons.Default.Home),
+    DISCOVER(NavDestination.Discover, "Explore", Icons.Default.Explore),
+    MY_GAMES(NavDestination.MyGames, "Rallies", Icons.Default.DateRange),
+    PROFILE(NavDestination.Profile, "Squad", Icons.Default.Person)
 }
 
 @Composable
@@ -62,25 +63,25 @@ fun BottomNavBar(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 18.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(30.dp))
+                .clip(RoundedCornerShape(32.dp))
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF151A29),
-                            Color(0xFF0C0F1A)
+                            Color(0xFF161B29),
+                            Color(0xFF0B0E17)
                         )
                     )
                 )
                 .border(
-                    BorderStroke(1.dp, Color(0x30FFFFFF)),
-                    RoundedCornerShape(30.dp)
+                    BorderStroke(1.2.dp, Color(0x38FFFFFF)),
+                    RoundedCornerShape(32.dp)
                 )
-                .padding(horizontal = 6.dp, vertical = 6.dp)
+                .padding(horizontal = 8.dp, vertical = 6.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -91,16 +92,16 @@ fun BottomNavBar(
                     val isSelected = tab == currentTab
 
                     val scale by animateFloatAsState(
-                        targetValue = if (isSelected) 1.04f else 1.0f,
+                        targetValue = if (isSelected) 1.08f else 1.0f,
                         animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
                             stiffness = Spring.StiffnessMediumLow
                         ),
                         label = "tab_scale"
                     )
 
                     val iconTint by animateColorAsState(
-                        targetValue = if (isSelected) ElectricLime else Color(0xFF94A3B8),
+                        targetValue = if (isSelected) ElectricLime else Color(0xFF8692A6),
                         animationSpec = spring(stiffness = Spring.StiffnessLow),
                         label = "tab_icon_tint"
                     )
@@ -114,26 +115,36 @@ fun BottomNavBar(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .height(56.dp)
+                            .height(58.dp)
                             .graphicsLayer {
                                 scaleX = scale
                                 scaleY = scale
                             }
-                            .clip(RoundedCornerShape(22.dp))
+                            .clip(RoundedCornerShape(24.dp))
                             .background(
-                                if (isSelected) Color(0x22C8F526) else Color.Transparent
+                                if (isSelected) {
+                                    Brush.radialGradient(
+                                        colors = listOf(
+                                            Color(0x33C8F526),
+                                            Color(0x10C8F526),
+                                            Color.Transparent
+                                        )
+                                    )
+                                } else {
+                                    Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
+                                }
                             )
                             .then(
                                 if (isSelected) {
                                     Modifier.border(
-                                        BorderStroke(1.dp, Color(0x40C8F526)),
-                                        RoundedCornerShape(22.dp)
+                                        BorderStroke(1.dp, Color(0x66C8F526)),
+                                        RoundedCornerShape(24.dp)
                                     )
                                 } else {
                                     Modifier
                                 }
                             )
-                            .kineticTouchEffect(pressedScale = 0.93f) {
+                            .kineticTouchEffect(pressedScale = 0.92f) {
                                 onTabSelected(tab)
                             },
                         contentAlignment = Alignment.Center
@@ -146,18 +157,27 @@ fun BottomNavBar(
                                 imageVector = tab.icon,
                                 contentDescription = tab.label,
                                 tint = iconTint,
-                                modifier = Modifier.size(22.dp)
+                                modifier = Modifier.size(23.dp)
                             )
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = tab.label,
+                                text = tab.label.uppercase(),
                                 style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 11.sp,
-                                    letterSpacing = 0.2.sp
+                                    fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
+                                    fontSize = 10.sp,
+                                    letterSpacing = 0.6.sp
                                 ),
-                                color = textColor,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                color = textColor
                             )
+                            if (isSelected) {
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(width = 12.dp, height = 2.dp)
+                                        .clip(CircleShape)
+                                        .background(ElectricLime)
+                                )
+                            }
                         }
                     }
                 }

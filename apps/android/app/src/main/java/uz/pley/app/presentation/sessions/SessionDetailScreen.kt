@@ -25,7 +25,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ElectricBolt
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.CircularProgressIndicator
@@ -64,6 +66,7 @@ import uz.pley.app.core.ui.components.PleyEmptyState
 import uz.pley.app.core.ui.components.PleyImage
 import uz.pley.app.core.ui.components.SessionCapacityMeter
 import uz.pley.app.core.ui.components.SportNeonBadge
+import uz.pley.app.core.ui.components.UrgencyStatusPill
 import uz.pley.app.core.ui.components.kineticTouchEffect
 import uz.pley.app.core.ui.components.resolveSportTheme
 import uz.pley.app.core.ui.components.shimmerEffect
@@ -140,12 +143,31 @@ fun SessionDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "Match Details",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Black,
-                        color = PureWhite
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Match Details",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Black,
+                            color = PureWhite
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(Color(0x3300F59B))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = "OFFICIAL",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 9.sp,
+                                    letterSpacing = 0.5.sp
+                                ),
+                                color = Color(0xFF00F59B)
+                            )
+                        }
+                    }
                 },
                 navigationIcon = {
                     Box(
@@ -255,6 +277,7 @@ fun SessionDetailScreen(
                 is SessionDetailUiState.Success -> {
                     val session = state.session
                     val theme = resolveSportTheme(session.sport.slug)
+                    val remainingSlots = (session.maxSlots - session.bookedSlots).coerceAtLeast(0)
 
                     LazyColumn(
                         contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
@@ -271,7 +294,7 @@ fun SessionDetailScreen(
                                         .fillMaxWidth()
                                         .height(210.dp)
                                         .clip(DetailCardShape)
-                                        .border(BorderStroke(1.dp, Color(0x28FFFFFF)), DetailCardShape)
+                                        .border(BorderStroke(1.2.dp, theme.borderColor.copy(alpha = 0.5f)), DetailCardShape)
                                 )
                             }
                         }
@@ -284,12 +307,13 @@ fun SessionDetailScreen(
                                     .background(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
-                                                Color(0xFF161C2C),
-                                                Color(0xFF0F131E)
+                                                Color(0xFF181E30),
+                                                Color(0xFF0F1320),
+                                                Color(0xFF0A0C14)
                                             )
                                         )
                                     )
-                                    .border(BorderStroke(1.dp, Color(0x30FFFFFF)), DetailCardShape)
+                                    .border(BorderStroke(1.2.dp, theme.borderColor.copy(alpha = 0.5f)), DetailCardShape)
                                     .padding(20.dp)
                             ) {
                                 Column {
@@ -313,17 +337,17 @@ fun SessionDetailScreen(
                                                     color = theme.primaryColor
                                                 )
                                                 Text(
-                                                    text = "OFFICIAL RECREATIONAL",
-                                                    style = MaterialTheme.typography.labelSmall,
+                                                    text = theme.disciplineTag,
+                                                    style = MaterialTheme.typography.labelSmall.copy(
+                                                        fontSize = 10.sp,
+                                                        fontWeight = FontWeight.Bold
+                                                    ),
                                                     color = SlateMuted
                                                 )
                                             }
                                         }
 
-                                        MatchVisualTag(
-                                            text = session.skillLevel.name.replace("_", " "),
-                                            tint = PlatinumSilver
-                                        )
+                                        UrgencyStatusPill(remainingSlots = remainingSlots)
                                     }
 
                                     Spacer(modifier = Modifier.height(14.dp))
@@ -331,7 +355,7 @@ fun SessionDetailScreen(
                                     Text(
                                         text = session.title,
                                         style = MaterialTheme.typography.headlineLarge,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.Black,
                                         color = PureWhite
                                     )
 
@@ -340,6 +364,10 @@ fun SessionDetailScreen(
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
+                                        MatchVisualTag(
+                                            text = session.skillLevel.name.replace("_", " "),
+                                            tint = PlatinumSilver
+                                        )
                                         MatchVisualTag(text = session.sessionVibe.name)
                                         if (session.equipmentProvided) {
                                             MatchVisualTag(text = "Equipment Provided", tint = ElectricLime)
@@ -365,7 +393,7 @@ fun SessionDetailScreen(
                                     .background(
                                         brush = Brush.verticalGradient(
                                             colors = listOf(
-                                                Color(0xFF131826),
+                                                Color(0xFF141926),
                                                 Color(0xFF0D101A)
                                             )
                                         )
@@ -395,7 +423,7 @@ fun SessionDetailScreen(
                                             Text(
                                                 text = session.scheduledAt.take(16).replace("T", " • "),
                                                 style = MaterialTheme.typography.titleMedium,
-                                                fontWeight = FontWeight.Bold,
+                                                fontWeight = FontWeight.Black,
                                                 color = PureWhite
                                             )
                                             Text(
@@ -434,7 +462,7 @@ fun SessionDetailScreen(
                                             Text(
                                                 text = "${session.venue.district} • ${session.venue.name}",
                                                 style = MaterialTheme.typography.titleMedium,
-                                                fontWeight = FontWeight.Bold,
+                                                fontWeight = FontWeight.Black,
                                                 color = PureWhite
                                             )
                                             Text(
@@ -453,7 +481,10 @@ fun SessionDetailScreen(
                                 Column {
                                     Text(
                                         text = "VENUE AMENITIES",
-                                        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            letterSpacing = 1.sp,
+                                            fontWeight = FontWeight.Bold
+                                        ),
                                         color = SlateMuted
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
@@ -471,27 +502,65 @@ fun SessionDetailScreen(
 
                         item(contentType = "players_roster") {
                             Column {
-                                Text(
-                                    text = "ROSTERED PLAYERS (${session.bookedSlots} / ${session.maxSlots})",
-                                    style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
-                                    color = SlateMuted
-                                )
-                                Spacer(modifier = Modifier.height(10.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "LINEUP & ROSTER (${session.bookedSlots} / ${session.maxSlots})",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            letterSpacing = 1.sp,
+                                            fontWeight = FontWeight.Black
+                                        ),
+                                        color = SlateMuted
+                                    )
+                                    if (remainingSlots > 0) {
+                                        Text(
+                                            text = "$remainingSlots SLOTS AVAILABLE",
+                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                fontWeight = FontWeight.Black,
+                                                fontSize = 10.sp
+                                            ),
+                                            color = theme.primaryColor
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(12.dp))
                                 if (session.participants.isEmpty()) {
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .clip(DetailCardShape)
-                                            .background(DarkCard)
-                                            .border(BorderStroke(1.dp, Color(0x20FFFFFF)), DetailCardShape)
-                                            .padding(20.dp),
+                                            .background(
+                                                brush = Brush.verticalGradient(
+                                                    colors = listOf(
+                                                        Color(0x26C8F526),
+                                                        DarkCard
+                                                    )
+                                                )
+                                            )
+                                            .border(BorderStroke(1.2.dp, Color(0x4DC8F526)), DetailCardShape)
+                                            .padding(22.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        Text(
-                                            text = "Be the first player to join this match!",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = SlateMuted
-                                        )
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text(
+                                                text = "⚡ SQUAD OPEN",
+                                                style = MaterialTheme.typography.labelSmall.copy(
+                                                    fontWeight = FontWeight.Black,
+                                                    letterSpacing = 0.8.sp
+                                                ),
+                                                color = ElectricLime
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text(
+                                                text = "Be the First Baller on this Court!",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Black,
+                                                color = PureWhite
+                                            )
+                                        }
                                     }
                                 } else {
                                     LazyRow(
@@ -503,6 +572,14 @@ fun SessionDetailScreen(
                                             contentType = { "player_avatar" }
                                         ) { player ->
                                             ParticipantAvatar(player = player)
+                                        }
+
+                                        val openSlots = (session.maxSlots - session.bookedSlots).coerceIn(0, 3)
+                                        items(openSlots) { slotIndex ->
+                                            OpenRosterSlotPill(
+                                                slotNumber = session.bookedSlots + slotIndex + 1,
+                                                accentColor = theme.primaryColor
+                                            )
                                         }
                                     }
                                 }
@@ -517,13 +594,13 @@ fun SessionDetailScreen(
                                         .clip(DetailCardShape)
                                         .background(DarkCard)
                                         .border(BorderStroke(1.dp, Color(0x20FFFFFF)), DetailCardShape)
-                                        .padding(20.dp)
+                                    .padding(20.dp)
                                 ) {
                                     Column {
                                         Text(
                                             text = "Rules & Information",
                                             style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
+                                            fontWeight = FontWeight.Black,
                                             color = PureWhite
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
@@ -553,6 +630,44 @@ fun DetailBadge(text: String) {
 }
 
 @Composable
+fun OpenRosterSlotPill(
+    slotNumber: Int,
+    accentColor: Color
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(68.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(54.dp)
+                .clip(CircleShape)
+                .background(Color(0x1F101422))
+                .border(BorderStroke(1.5.dp, accentColor.copy(alpha = 0.6f)), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.ElectricBolt,
+                contentDescription = null,
+                tint = accentColor,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = "Slot #$slotNumber",
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Black,
+                fontSize = 10.sp
+            ),
+            color = accentColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
 fun ParticipantAvatar(player: ParticipantDto) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -566,7 +681,7 @@ fun ParticipantAvatar(player: ParticipantDto) {
                 modifier = Modifier
                     .size(54.dp)
                     .clip(CircleShape)
-                    .border(BorderStroke(1.5.dp, Color(0x33FFFFFF)), CircleShape)
+                    .border(BorderStroke(2.dp, ElectricLime), CircleShape)
             )
         } else {
             Box(
@@ -577,21 +692,22 @@ fun ParticipantAvatar(player: ParticipantDto) {
                         brush = Brush.linearGradient(
                             colors = listOf(ElectricLime, Color(0xFF10B981))
                         )
-                    ),
+                    )
+                    .border(BorderStroke(2.dp, Color(0xFF0F131E)), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = player.firstName.take(1).uppercase(),
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Black,
                     color = Color(0xFF0B0E14),
-                    fontSize = 20.sp
+                    fontSize = 22.sp
                 )
             }
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = player.firstName,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
             color = PlatinumSilver,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -614,21 +730,21 @@ fun BottomBookingBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 18.dp, vertical = 10.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(28.dp))
+                .clip(RoundedCornerShape(30.dp))
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF161C2C),
+                            Color(0xFF191F32),
                             Color(0xFF0E121E)
                         )
                     )
                 )
-                .border(BorderStroke(1.dp, Color(0x33FFFFFF)), RoundedCornerShape(28.dp))
+                .border(BorderStroke(1.2.dp, theme.borderColor.copy(alpha = 0.5f)), RoundedCornerShape(30.dp))
                 .padding(horizontal = 20.dp, vertical = 14.dp)
         ) {
             Row(
@@ -638,8 +754,12 @@ fun BottomBookingBar(
             ) {
                 Column {
                     Text(
-                        text = "TOTAL FEE",
-                        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
+                        text = "ENTRY FEE",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            letterSpacing = 0.8.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 9.sp
+                        ),
                         color = SlateMuted
                     )
                     Row(verticalAlignment = Alignment.Bottom) {
@@ -663,9 +783,9 @@ fun BottomBookingBar(
                     Box(
                         modifier = Modifier
                             .height(52.dp)
-                            .clip(RoundedCornerShape(14.dp))
+                            .clip(RoundedCornerShape(16.dp))
                             .background(StatusGreen.copy(alpha = 0.2f))
-                            .border(BorderStroke(1.dp, StatusGreen.copy(alpha = 0.6f)), RoundedCornerShape(14.dp))
+                            .border(BorderStroke(1.dp, StatusGreen.copy(alpha = 0.6f)), RoundedCornerShape(16.dp))
                             .padding(horizontal = 20.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -681,7 +801,7 @@ fun BottomBookingBar(
                                 text = "Spot Reserved",
                                 color = StatusGreen,
                                 style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Black
                             )
                         }
                     }
@@ -689,33 +809,54 @@ fun BottomBookingBar(
                     Box(
                         modifier = Modifier
                             .height(52.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(
-                                if (session.isFull || isBooking)
-                                    Color(0xFF242A3D)
-                                else
-                                    theme.primaryColor
+                            .clip(RoundedCornerShape(16.dp))
+                            .then(
+                                if (session.isFull || isBooking) {
+                                    Modifier.background(Color(0xFF242A3D))
+                                } else {
+                                    Modifier.background(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(theme.primaryColor, ElectricLime)
+                                        )
+                                    )
+                                }
                             )
                             .kineticTouchEffect(
-                                pressedScale = 0.95f,
+                                pressedScale = 0.94f,
                                 onClick = if (!session.isFull && !isBooking) onBookClick else null
                             )
-                            .padding(horizontal = 24.dp),
+                            .padding(horizontal = 22.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         if (isBooking) {
                             CircularProgressIndicator(
                                 color = Color.Black,
-                                strokeWidth = 2.dp,
+                                strokeWidth = 2.5.dp,
                                 modifier = Modifier.size(22.dp)
                             )
                         } else {
-                            Text(
-                                text = if (session.isFull) "MATCH FULL" else if (!isAuthenticated) "SIGN IN TO BOOK" else "BOOK SPOT",
-                                color = if (session.isFull) SlateMuted else Color(0xFF0B0E14),
-                                style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Black
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = if (session.isFull)
+                                        "MATCH FULL"
+                                    else if (!isAuthenticated)
+                                        "SIGN IN TO PLAY ⚡"
+                                    else
+                                        "LOCK IN SPOT ⚡",
+                                    color = if (session.isFull) SlateMuted else Color(0xFF0B0E14),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Black
+                                )
+                                if (!session.isFull) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = null,
+                                        tint = Color(0xFF0B0E14),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
