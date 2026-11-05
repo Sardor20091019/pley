@@ -15,3 +15,4 @@ data class DistrictDto(
     @SerialName("orderIndex") val orderIndex: Int = 0,
     @SerialName("active") val active: Int = 1
 )
+

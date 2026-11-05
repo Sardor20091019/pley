@@ -24,3 +24,4 @@ export class DistrictsController {
     return this.districtsService.createDistrict(dto);
   }
 }
+

@@ -11,3 +11,4 @@ import { AuthModule } from '../auth/auth.module';
   exports: [DistrictsService, DistrictsRepository],
 })
 export class DistrictsModule {}
+

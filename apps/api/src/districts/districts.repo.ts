@@ -42,3 +42,4 @@ export class DistrictsRepository {
     await db.insertInto('districts').values(data).execute();
   }
 }
+

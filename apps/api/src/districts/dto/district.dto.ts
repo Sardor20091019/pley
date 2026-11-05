@@ -29,3 +29,4 @@ export class CreateDistrictDto {
   @IsOptional()
   public orderIndex?: number;
 }
+
