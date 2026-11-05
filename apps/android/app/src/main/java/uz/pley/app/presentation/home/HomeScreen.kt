@@ -458,7 +458,7 @@ fun HeroSection(
                                 }
                             }
 
-                            MatchVisualTag(text = "6 Districts", icon = Icons.Default.LocationOn)
+                            MatchVisualTag(text = "12 Districts", icon = Icons.Default.LocationOn)
                         }
                     }
                 }

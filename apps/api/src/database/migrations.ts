@@ -207,16 +207,28 @@ export const migrations: Migration[] = [
         { id: 'dist_bektemir', name: 'Bektemir', slug: 'bektemir', lat: 41.2056, lng: 69.3364, order_index: 12 },
       ];
 
-      for (const d of initialDistricts) {
-        await sql`
-          INSERT INTO districts (id, name, slug, lat, lng, order_index, active, created_at)
-          VALUES (${d.id}, ${d.name}, ${d.slug}, ${d.lat}, ${d.lng}, ${d.order_index}, 1, ${now})
-          ON CONFLICT (slug) DO UPDATE SET
-            name = EXCLUDED.name,
-            lat = EXCLUDED.lat,
-            lng = EXCLUDED.lng,
-            order_index = EXCLUDED.order_index;
-        `.execute(db);
+      for (const district of initialDistricts) {
+        await db
+          .insertInto('districts')
+          .values({
+            id: district.id,
+            name: district.name,
+            slug: district.slug,
+            lat: district.lat,
+            lng: district.lng,
+            order_index: district.order_index,
+            active: 1,
+            created_at: now,
+          })
+          .onConflict((oc) =>
+            oc.column('slug').doUpdateSet({
+              name: district.name,
+              lat: district.lat,
+              lng: district.lng,
+              order_index: district.order_index,
+            }),
+          )
+          .execute();
       }
     },
   },

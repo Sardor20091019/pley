@@ -369,41 +369,109 @@ fun DiscoverScreen(
 
                                 item(contentType = "district_chips") {
                                     Column {
-                                        Text(
-                                            text = "DISTRICT",
-                                            style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 0.8.sp),
-                                            color = SlateMuted
-                                        )
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                            ) {
+                                                Text(
+                                                    text = "DISTRICT & LOCATION",
+                                                    style = MaterialTheme.typography.labelSmall.copy(
+                                                        letterSpacing = 1.sp,
+                                                        fontWeight = FontWeight.Black
+                                                    ),
+                                                    color = SlateMuted
+                                                )
+                                                if (state.districts.isNotEmpty()) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .clip(RoundedCornerShape(6.dp))
+                                                            .background(Color(0x1AD4FF00))
+                                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                                    ) {
+                                                        Text(
+                                                            text = "${state.districts.size} Zones",
+                                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                                fontSize = 9.sp,
+                                                                fontWeight = FontWeight.Bold
+                                                            ),
+                                                            color = ElectricLime
+                                                        )
+                                                    }
+                                                }
+                                            }
+
+                                            if (state.filterState.selectedDistrict != null) {
+                                                Text(
+                                                    text = "CLEAR DISTRICT",
+                                                    style = MaterialTheme.typography.labelSmall.copy(
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 10.sp
+                                                    ),
+                                                    color = ElectricLime,
+                                                    modifier = Modifier
+                                                        .clickable { viewModel.onDistrictSelected(null) }
+                                                        .padding(4.dp)
+                                                )
+                                            }
+                                        }
                                         Spacer(modifier = Modifier.height(8.dp))
                                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                             item {
                                                 val isAllSelected = state.filterState.selectedDistrict == null
                                                 Box(
                                                     modifier = Modifier
-                                                        .height(44.dp)
-                                                        .clip(RoundedCornerShape(12.dp))
+                                                        .height(48.dp)
+                                                        .clip(RoundedCornerShape(14.dp))
                                                         .background(
-                                                            if (isAllSelected) ElectricLime else DarkSurfaceElevated
+                                                            if (isAllSelected) {
+                                                                Brush.horizontalGradient(
+                                                                    colors = listOf(
+                                                                        ElectricLime,
+                                                                        Color(0xFFC4F22A)
+                                                                    )
+                                                                )
+                                                            } else {
+                                                                Brush.verticalGradient(
+                                                                    colors = listOf(
+                                                                        Color(0xFF1E2330),
+                                                                        Color(0xFF151821)
+                                                                    )
+                                                                )
+                                                            }
                                                         )
                                                         .border(
                                                             BorderStroke(
                                                                 1.dp,
-                                                                if (isAllSelected) ElectricLime else Color(0x22FFFFFF)
+                                                                if (isAllSelected) ElectricLime else Color(0x33FFFFFF)
                                                             ),
-                                                            RoundedCornerShape(12.dp)
+                                                            RoundedCornerShape(14.dp)
                                                         )
                                                         .kineticTouchEffect(pressedScale = 0.94f) {
                                                             viewModel.onDistrictSelected(null)
                                                         }
-                                                        .padding(horizontal = 14.dp),
+                                                        .padding(horizontal = 16.dp),
                                                     contentAlignment = Alignment.Center
                                                 ) {
-                                                    Text(
-                                                        text = "All",
-                                                        style = MaterialTheme.typography.labelMedium,
-                                                        color = if (isAllSelected) Color.Black else PureWhite,
-                                                        fontWeight = if (isAllSelected) FontWeight.Black else FontWeight.Medium
-                                                    )
+                                                    Row(
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                                    ) {
+                                                        Text(
+                                                            text = "📍",
+                                                            fontSize = 13.sp
+                                                        )
+                                                        Text(
+                                                            text = "All Districts",
+                                                            style = MaterialTheme.typography.labelMedium,
+                                                            color = if (isAllSelected) Color.Black else PureWhite,
+                                                            fontWeight = if (isAllSelected) FontWeight.Black else FontWeight.Bold
+                                                        )
+                                                    }
                                                 }
                                             }
 
@@ -416,17 +484,31 @@ fun DiscoverScreen(
                                                         state.filterState.selectedDistrict.equals(district.slug, ignoreCase = true)
                                                 Box(
                                                     modifier = Modifier
-                                                        .height(44.dp)
-                                                        .clip(RoundedCornerShape(12.dp))
+                                                        .height(48.dp)
+                                                        .clip(RoundedCornerShape(14.dp))
                                                         .background(
-                                                            if (isSelected) ElectricLime else DarkSurfaceElevated
+                                                            if (isSelected) {
+                                                                Brush.horizontalGradient(
+                                                                    colors = listOf(
+                                                                        ElectricLime,
+                                                                        Color(0xFFBCE824)
+                                                                    )
+                                                                )
+                                                            } else {
+                                                                Brush.verticalGradient(
+                                                                    colors = listOf(
+                                                                        Color(0xFF1E2330),
+                                                                        Color(0xFF151821)
+                                                                    )
+                                                                )
+                                                            }
                                                         )
                                                         .border(
                                                             BorderStroke(
                                                                 1.dp,
-                                                                if (isSelected) ElectricLime else Color(0x22FFFFFF)
+                                                                if (isSelected) ElectricLime else Color(0x33FFFFFF)
                                                             ),
-                                                            RoundedCornerShape(12.dp)
+                                                            RoundedCornerShape(14.dp)
                                                         )
                                                         .kineticTouchEffect(pressedScale = 0.94f) {
                                                             if (isSelected) {
@@ -435,15 +517,28 @@ fun DiscoverScreen(
                                                                 viewModel.onDistrictSelected(district.name)
                                                             }
                                                         }
-                                                        .padding(horizontal = 14.dp),
+                                                        .padding(horizontal = 15.dp),
                                                     contentAlignment = Alignment.Center
                                                 ) {
-                                                    Text(
-                                                        text = district.name,
-                                                        style = MaterialTheme.typography.labelMedium,
-                                                        color = if (isSelected) Color.Black else PlatinumSilver,
-                                                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium
-                                                    )
+                                                    Row(
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                                    ) {
+                                                        if (isSelected) {
+                                                            Box(
+                                                                modifier = Modifier
+                                                                    .size(6.dp)
+                                                                    .clip(CircleShape)
+                                                                    .background(Color.Black)
+                                                            )
+                                                        }
+                                                        Text(
+                                                            text = district.name,
+                                                            style = MaterialTheme.typography.labelMedium,
+                                                            color = if (isSelected) Color.Black else PureWhite,
+                                                            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }

@@ -512,15 +512,31 @@ fun EventMapScreen(
                     val isAllSelected = uiState.selectedDistrict == null
                     Box(
                         modifier = Modifier
-                            .height(44.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(if (isAllSelected) ElectricLime else Color(0xEB121520))
+                            .height(48.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(
+                                if (isAllSelected) {
+                                    Brush.horizontalGradient(
+                                        colors = listOf(
+                                            ElectricLime,
+                                            Color(0xFFC4F22A)
+                                        )
+                                    )
+                                } else {
+                                    Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color(0xEB1E2333),
+                                            Color(0xEB131622)
+                                        )
+                                    )
+                                }
+                            )
                             .border(
                                 BorderStroke(
                                     1.dp,
-                                    if (isAllSelected) PureWhite else Color(0x33FFFFFF)
+                                    if (isAllSelected) ElectricLime else Color(0x33FFFFFF)
                                 ),
-                                RoundedCornerShape(20.dp)
+                                RoundedCornerShape(14.dp)
                             )
                             .kineticTouchEffect(pressedScale = 0.94f) {
                                 viewModel.filterByDistrict(null)
@@ -528,12 +544,21 @@ fun EventMapScreen(
                             .padding(horizontal = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "All",
-                            color = if (isAllSelected) Color(0xFF0F1117) else PureWhite,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = if (isAllSelected) FontWeight.Black else FontWeight.Medium
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "📍",
+                                fontSize = 12.sp
+                            )
+                            Text(
+                                text = "All",
+                                color = if (isAllSelected) Color(0xFF0F1117) else PureWhite,
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = if (isAllSelected) FontWeight.Black else FontWeight.Bold
+                            )
+                        }
                     }
 
                     uiState.districts.forEach { district ->
@@ -542,29 +567,58 @@ fun EventMapScreen(
 
                         Box(
                             modifier = Modifier
-                                .height(44.dp)
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(if (isSelected) ElectricLime else Color(0xEB121520))
+                                .height(48.dp)
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(
+                                    if (isSelected) {
+                                        Brush.horizontalGradient(
+                                            colors = listOf(
+                                                ElectricLime,
+                                                Color(0xFFBCE824)
+                                            )
+                                        )
+                                    } else {
+                                        Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color(0xEB1E2333),
+                                                Color(0xEB131622)
+                                            )
+                                        )
+                                    }
+                                )
                                 .border(
                                     BorderStroke(
                                         1.dp,
-                                        if (isSelected) PureWhite else Color(0x33FFFFFF)
+                                        if (isSelected) ElectricLime else Color(0x33FFFFFF)
                                     ),
-                                    RoundedCornerShape(20.dp)
+                                    RoundedCornerShape(14.dp)
                                 )
                                 .kineticTouchEffect(pressedScale = 0.94f) {
                                     val filterValue = if (isSelected) null else district.name
                                     viewModel.filterByDistrict(filterValue)
                                 }
-                                .padding(horizontal = 16.dp),
+                                .padding(horizontal = 15.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = district.name,
-                                color = if (isSelected) Color(0xFF0F1117) else PureWhite,
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                if (isSelected) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(6.dp)
+                                            .clip(CircleShape)
+                                            .background(Color(0xFF0F1117))
+                                    )
+                                }
+                                Text(
+                                    text = district.name,
+                                    color = if (isSelected) Color(0xFF0F1117) else PureWhite,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
